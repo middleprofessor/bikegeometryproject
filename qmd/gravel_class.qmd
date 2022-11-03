@@ -281,7 +281,7 @@ style_table[, all_road := all_road[order(all_road)]]
 setnames(style_table, new = c("Trail", "Endurance", "All-Road"))
 
 style_table %>%
-  kable() %>%
+  kable(caption = "Classification of bikes based on frame sizes that fit me (generally size M or 54-56 cm)") %>%
   kable_styling(full_width = FALSE)
 
 
