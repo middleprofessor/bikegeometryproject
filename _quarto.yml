@@ -3,11 +3,18 @@ project:
 
 website:
   title: "Bike Geometry Project"
-  navbar:
-    left:
-      - href: index.qmd
-        text: Home
-      - about.qmd
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - section: "Intro"
+        contents:
+          - index.qmd
+      - section: "Gravel"
+        contents:
+          - qmd/gravel_tree.qmd
+          - qmd/gravel_class.qmd
+          - qmd/gravel_scatter.qmd
 
 format:
   html:
