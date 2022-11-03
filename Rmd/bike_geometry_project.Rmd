@@ -86,6 +86,7 @@ pal_okabe_ito_4 <- pal_okabe_ito[c(5,6,7,2)]
 ```
 
 # Functions
+
 ## General
 
 ```{r deg_2_rad}
@@ -328,7 +329,7 @@ compute_steering_h <- function(bike){
 ## Compute missing data
 
 ```{r missing data}
-compute_wheelbase <- function(bike)
+compute_wheelbase <- function(bike){
   steering_v <- compute_steering_v(bike)
   steering_h <- compute_steering_h(bike)
   offset_h <- compute_offset_h(bike)
