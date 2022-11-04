@@ -95,7 +95,7 @@ p1 <- shared_data %>%
   group_by(restyle) %>% 
   add_markers(size = 3) %>%
   layout(xaxis = list(title = "Reach"),
-         yaxis = list(title = "Stack"),
+         yaxis = list(title = "\nStack"),
          showlegend = FALSE)
 p2 <- shared_data %>% 
   plot_ly(x = ~head_tube_angle, y = ~seat_tube_angle, color = ~restyle,
@@ -107,7 +107,7 @@ p2 <- shared_data %>%
   group_by(restyle) %>% 
   add_markers(size = 3) %>%
   layout(xaxis = list(title = "Head Tube Angle"),
-         yaxis = list(title = "Seat Tube Angle"),
+         yaxis = list(title = "\nSeat Tube Angle"),
          showlegend = FALSE)
 p3 <- shared_data %>% 
   plot_ly(x = ~rear_center, y = ~front_center, color = ~restyle,
@@ -119,7 +119,7 @@ p3 <- shared_data %>%
   group_by(restyle) %>% 
   add_markers(size = 3) %>%
   layout(xaxis = list(title = "Rear Center (Horizontal)"),
-         yaxis = list(title = "Front Center (Horizontal)"),
+         yaxis = list(title = "\nFront Center (Horizontal)"),
          showlegend = FALSE)
 p4 <- shared_data %>% 
   plot_ly(x = ~trail, y = ~bottom_bracket_drop, color = ~restyle,
@@ -131,7 +131,7 @@ p4 <- shared_data %>%
   group_by(restyle) %>% 
   add_markers(size = 3) %>%
   layout(xaxis = list(title = "Trail"),
-         yaxis = list(title = "Bottom Bracket Drop"),
+         yaxis = list(title = "\nBottom Bracket Drop"),
          showlegend = FALSE)
 p5 <- shared_data %>% 
   plot_ly(x = ~front_wheelbase, y = ~stack_reach, color = ~restyle,
@@ -143,7 +143,7 @@ p5 <- shared_data %>%
   group_by(restyle) %>% 
   add_markers(size = 3) %>%
   layout(xaxis = list(title = "Front Center/Wheelbase"),
-         yaxis = list(title = "Stack/Reach"),
+         yaxis = list(title = "\nStack/Reach"),
          showlegend = FALSE)
 p6 <- shared_data %>% 
   plot_ly(x = ~front_wheelbase, y = ~sta_hta, color = ~restyle,
@@ -155,7 +155,7 @@ p6 <- shared_data %>%
   group_by(restyle) %>% 
   add_markers(size = 3) %>%
   layout(xaxis = list(title = "Front Center/Wheelbase"),
-         yaxis = list(title = "STA/HTA"),
+         yaxis = list(title = "\nSTA/HTA"),
          showlegend = FALSE)
 
 bscols(widths = c(9, 3),
