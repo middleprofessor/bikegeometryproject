@@ -79,7 +79,6 @@ my_fit <- geobike[my_fit == TRUE,]
 
 ```
 
-# Lengths and Angles
 
 ```{r gravel-scatter}
 shared_data <- my_fit %>% 
