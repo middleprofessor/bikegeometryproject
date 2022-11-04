@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r}
-
+# https://www.doparank.fr/script-r/how-to-create-xml-sitemap-with-r/
 # Je charge dans une variable la liste des librairies que je vais utiliser
 packages <- c("Rcrawler","dplyr", "stringr","xml2","tidyverse","tidyr")
  
