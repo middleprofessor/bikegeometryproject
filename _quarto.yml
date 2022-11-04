@@ -1,8 +1,9 @@
 project:
   type: website
-  render:
-    - "!Rmd/"
   output-dir: docs
+  render:
+    - "*.qmd"
+    - "!Rmd/"
   
 website:
   title: "Bike Geometry Project"
