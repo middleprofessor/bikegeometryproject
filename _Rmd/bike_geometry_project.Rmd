@@ -452,7 +452,7 @@ read_bike <- function(bike_label = "Breezer Radar X Pro 2022",
               keep.names = "frame_size",
               make.names = 1)
   )
-  keep_names <- c("model","frame_size", "seat_tube_length", "top_tube_effective_length", "head_tube_length", "seat_tube_angle", "head_tube_angle", "chainstay_length", "wheelbase", "bottom_bracket_drop", "fork_offset_rake", "stack", "reach", "standover", "stem_length", "handlebar_width", "crank_length", "wheel_size", "tire_width_spec", "tire_width_max")
+  keep_names <- c("model", "year","frame_size", "seat_tube_length", "top_tube_effective_length", "head_tube_length", "seat_tube_angle", "head_tube_angle", "chainstay_length", "wheelbase", "bottom_bracket_drop", "fork_offset_rake", "stack", "reach", "standover", "stem_length", "handlebar_width", "crank_length", "wheel_size", "tire_width_spec", "tire_width_max")
   bike <- bike[, .SD, .SDcols = keep_names]
   
   # fill in missing
@@ -547,7 +547,7 @@ read_bike <- function(bike_label = "Breezer Radar X Pro 2022",
 
 ```
 
-```{r import-bikes, echo=FALSE}
+```{r import-bikes, echo=FALSE, eval=FALSE}
 import_it <- TRUE
 if(import_it != TRUE){
   geo_bike_path <- here("rds", "geobike.Rds")
@@ -651,4 +651,3 @@ if(import_it == TRUE){
 
 
 ```
-

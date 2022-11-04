@@ -134,37 +134,6 @@ p4 <- shared_data %>%
          yaxis = list(title = "Bottom Bracket Drop"),
          showlegend = FALSE)
 p5 <- shared_data %>% 
-  plot_ly(x = ~trail, y = ~bottom_bracket_drop, color = ~restyle,
-          hoverinfo = "text",
-          text = ~paste(model, frame_size,
-          "<br>Cat:", restyle,
-          "<br>Trail:", round(trail, 0),
-          "<br>BB Drop:", bottom_bracket_drop)) %>% 
-  group_by(restyle) %>% 
-  add_markers(size = 3) %>%
-  layout(xaxis = list(title = "Trail"),
-         yaxis = list(title = "Bottom Bracket Drop"),
-         showlegend = FALSE)
-
-
-bscols(widths = c(5, 5, 2),
-       list(p1, p2),
-       list(p3, p4),
-       list(
-         filter_checkbox(id = "style", label = "Style",
-                         sharedData = shared_data,
-                         group = ~restyle)
-       )
-)
-```
-
-# Ratios
-
-```{r}
-shared_data <- my_fit %>% 
-  SharedData$new()
-
-p5 <- shared_data %>% 
   plot_ly(x = ~front_wheelbase, y = ~stack_reach, color = ~restyle,
           hoverinfo = "text",
           text = ~paste(model, frame_size,
@@ -189,10 +158,10 @@ p6 <- shared_data %>%
          yaxis = list(title = "STA/HTA"),
          showlegend = FALSE)
 
-
-bscols(widths = c(5, 5, 2),
-       list(p5),
-       list(p6),
+bscols(widths = c(9, 3),
+       list(p1, p2,
+       p3, p4,
+       p5, p6),
        list(
          filter_checkbox(id = "style", label = "Style",
                          sharedData = shared_data,
@@ -200,3 +169,4 @@ bscols(widths = c(5, 5, 2),
        )
 )
 ```
+
