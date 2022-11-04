@@ -1,5 +1,7 @@
 project:
   type: website
+  render:
+    - "!Rmd/"
   output-dir: docs
   
 website:

@@ -342,53 +342,54 @@ compute_wheelbase <- function(bike){
 # Solace OM3 does not specify head tube length. This can be
 # computed using specs of Whisky MCX fork assuming this is
 # the fork used to spec wheelbase
-head_tube_length <- function(axle_crown, rake, stack, wheelbase){
-  rake_h <- get_rake_h(geobike[, fork_offset_rake],
-                       geobike[, head_tube_angle])
-  fork_angle <- get_fork_angle(geobike[, fork_offset_rake],
-                               geobike[, fork_axle_crown],
-                               geobike[, head_tube_angle])
+head_tube_length <- function(bike){
+  offset_h <- compute_offset_h(bike)
+  fork_angle <- compute_fork_angle(bike)
 }
 
 # Vagabond Genesis does not specify chainstay length.
-get_chainstay_length <- function(rake, reach, stack, wheelbase,
-                                 hta, htl, bbd){
-  head_tube_h <- get_ht_h(hta, htl)
-  head_tube_v <- get_ht_v(hta, htl)
-  fork_v <- stack -  bbd -
-    head_tube_v
+compute_chainstay_length <- function(bike){
+  head_tube_h <- compute_head_tube_h(bike)
+  head_tube_v <- compute_head_tube_v(bike)
+  fork_v <- with(bike,
+                 stack - bottom_bracket_drop - head_tube_v)
   
-  fork_h1 = fork_v/tan(deg_2_rad(hta))
-  rake_h <- get_rake_h(rake,
-                       hta)
-  chainstay_h <- wheelbase - reach - head_tube_h - fork_h1 - 
-    rake_h
+  fork_h1 = with(bike,
+                 fork_v/tan(deg_2_rad(head_tube_angle)))
+  offset_h <- compute_offset_h(bike)
+  chainstay_h <- with(bike,
+                      wheelbase - reach - head_tube_h - fork_h1 - 
+                        offset_h)
   
-  chainstay <- sqrt(chainstay_h^2 + bbd^2)
+  chainstay <- with(bike,
+                    sqrt(chainstay_h^2 + bottom_bracket_drop^2))
   
   return(chainstay)
 }
 
-get_fork_offset <- function(stack, reach, head_tube_angle, chainstay_length, bottom_bracket_drop, wheelbase){
+compute_fork_offset <- function(bike){
   # steer_axis_h is base of triangle from top-head-tube to vertex created by steering axis and wheelbase.
   # tan hta <- stack/steer_axis_h
-  steer_axis_v <- stack - bottom_bracket_drop
-  steer_axis_h <- steer_axis_v /
-    tan(deg_2_rad(head_tube_angle))
-  chainstay_h <- get_chainstay_h(chainstay_length,
-                                 bottom_bracket_drop)
-  rake_h <- wheelbase - chainstay_h - reach - steer_axis_h
-  rake <- rake_h * sin(deg_2_rad(head_tube_angle))
-  return(rake)
+  steer_axis_v <- with(bike,
+                       stack - bottom_bracket_drop)
+  steer_axis_h <- with(bike,
+                       steer_axis_v /
+                         tan(deg_2_rad(head_tube_angle)))
+  chainstay_h <- compute_chainstay_h(bike)
+  offset_h <- with(bike,
+                   wheelbase - chainstay_h - reach - steer_axis_h)
+  offset <- with(bike,
+                 offset_h * sin(deg_2_rad(head_tube_angle)))
+  return(offset)
 }
 
-get_effective_top_tube_length <- function(stack,
-                                          reach,
-                                          seat_tube_angle){
+compute_effective_top_tube_length <- function(bike){
   # amigo bug out is missing this
   #
-  seat_h <- stack/tan(deg_2_rad(seat_tube_angle))
-  effective_top_tube_length <- seat_h + reach
+  seat_h <- with(bike,
+                 stack/tan(deg_2_rad(seat_tube_angle)))
+  effective_top_tube_length <- with(bike,
+                                    seat_h + reach)
   return(effective_top_tube_length)
 }
 ```
@@ -404,16 +405,250 @@ geom_checker <- function(chainstay_length, # chainstay length
                          rake, # head tube length
                          wheelbase){ # wheelbase
   # do all the horizontal components add to wheelbase?
-  chainstay_length_h <- get_chainstay_h(chainstay_length,
-                                        bottom_bracket_drop)
+  chainstay_length_h <- compute_chainstay_h(bike)
   steer_axis_v <- stack - bottom_bracket_drop
   steer_axis_h <- steer_axis_v /
     tan(deg_2_rad(head_tube_angle))
 
-  rake_h <- get_rake_h(rake,
-                       head_tube_angle)
+  offset_h <- compute_offset_h(bike)
   wheelbase_computed <- chainstay_length_h + reach +
-    steer_axis_h + rake_h
+    steer_axis_h + offset_h
 
   }
 ```
+
+```{r read-bike-function, echo=FALSE}
+# data_path <- here(data_folder, "ghost_grappler.txt")
+# dt <- fread(data_path)
+# bike_label = "Tumbleweed Stargazer 2022"
+# bike_range = "b1:h21"
+
+read_bike <- function(bike_label = "Breezer Radar X Pro 2022",
+                      bike_range = "B1:I19"){
+  data_file <- "bikes.xlsx"
+  data_path <- here(data_folder, data_file)
+  bike_wide <- read_excel(data_path,
+                          sheet = bike_label,
+                          range = bike_range) %>%
+    data.table
+  # re-read with coltype = numeric
+  # col_type_list <- c("text", "text", rep("numeric", ncol(bike_wide)-2))
+  # bike_wide <- read_excel(data_path,
+  #                         sheet = bike_label,
+  #                         range = bike_range,
+  #                         col_types = col_type_list) %>%
+  #   data.table
+  
+  
+  bike_model <- substr(bike_label, 1, nchar(bike_label) - 5)
+  model_year <- substr(bike_label,
+                       nchar(bike_label) - 4,
+                       nchar(bike_label))
+  bike_wide <- bike_wide[, -2]
+  bike <- data.table(
+    model = bike_model,
+    year = model_year,
+    transpose(bike_wide,
+              keep.names = "frame_size",
+              make.names = 1)
+  )
+  keep_names <- c("model","frame_size", "seat_tube_length", "top_tube_effective_length", "head_tube_length", "seat_tube_angle", "head_tube_angle", "chainstay_length", "wheelbase", "bottom_bracket_drop", "fork_offset_rake", "stack", "reach", "standover", "stem_length", "handlebar_width", "crank_length", "wheel_size", "tire_width_spec", "tire_width_max")
+  bike <- bike[, .SD, .SDcols = keep_names]
+  
+  # fill in missing
+    # chainstay_length
+  bike[, chainstay_length := 
+         ifelse(is.na(chainstay_length),
+                compute_chainstay_length(bike),
+                chainstay_length)]
+    # fork_offset_rake
+  bike[, fork_offset_rake := 
+         ifelse(is.na(fork_offset_rake),
+                compute_fork_offset(bike),
+                fork_offset_rake)]
+  # top_tube_effective_length
+  bike[, top_tube_effective_length := 
+         ifelse(is.na(top_tube_effective_length),
+                compute_effective_top_tube_length(bike),
+                top_tube_effective_length)] 
+  
+  # constructed measures
+  radius <- (ifelse(bike$wheel_size == 700 | bike$wheel_size == 29, 622, 584) + bike$tire_width_spec*2)/2
+  ## trail
+  bike[, trail := radius/tan(head_tube_angle*pi/180) - 
+         compute_offset_h(bike)]
+  ## bb height
+  bike[, bb_height := radius - bottom_bracket_drop]
+  
+# from wikipedia
+# bike[, trail := ((diameter + tire_width_spec*2)/2 * cos(head_tube_angle*pi/180) -
+#                     fork_offset_rake) / sin(head_tube_angle*pi/180)]
+  bike[, model_size := paste(model, frame_size)]
+  bike[, rear_center := sqrt(chainstay_length^2 - bottom_bracket_drop^2)] # horizontal
+  bike[, front_center := wheelbase - rear_center] # horizontal
+  bike[, seat_center := stack/tan(deg_2_rad(seat_tube_angle))]
+  
+  # ratios
+  bike[, stack_reach := stack/reach]
+  bike[, front_rear := front_center/rear_center]
+  bike[, rear_wheelbase := rear_center/wheelbase]
+  bike[, front_wheelbase := front_center/wheelbase]
+  bike[, sta_hta := seat_tube_angle/head_tube_angle]
+
+  # decompositions
+  # seat_tube_v and seat_tube_h are decomp of seat tube
+  bike[, seat_tube_v := seat_tube_length *
+         sin(deg_2_rad(seat_tube_angle))]
+  bike[, seat_tube_h := seat_tube_length *
+         cos(deg_2_rad(seat_tube_angle))]
+  # seat_v and seat_h are decomp of seat positioned at stack height
+  # tan(STA) = seat_h/seat_v
+  bike[, seat_v := stack]
+  bike[, seat_h := stack /
+         tan(deg_2_rad(seat_tube_angle))]
+  # head_v and head_h are decomp of head tube
+  bike[, head_v := head_tube_length * sin(deg_2_rad(head_tube_angle))]
+  bike[, head_h := head_tube_length * cos(deg_2_rad(head_tube_angle))]
+
+  # landmarks with rear axle as origin
+  bike[, x1 := 0] # rear axle
+  bike[, y1 := 0]
+  bike[, x2 := rear_center - seat_h] # seat at stack height
+  bike[, y2 := stack - bottom_bracket_drop]
+  bike[, x3 := rear_center + reach] # head tube top
+  bike[, y3 := stack - bottom_bracket_drop]
+  bike[, x4 := x3 + head_h] # head tube base
+  bike[, y4 := y3 - head_v]
+  bike[, x5 := wheelbase] # front axle
+  bike[, y5 := 0]
+  bike[, x6 := rear_center] # bottom bracket
+  bike[, y6 := -bottom_bracket_drop]
+  bike[, x7 := rear_center - seat_tube_h] # seat tube
+  bike[, y7 := seat_tube_v]
+  
+  # landmarks_named
+  bike[, rear_x := x1]
+  bike[, rear_y := y1]
+  bike[, seat_x := x2]
+  bike[, seat_y := y2]
+  bike[, head_x := x3]
+  bike[, head_y := y3]
+  bike[, crown_x := x4]
+  bike[, crown_y := y4]
+  bike[, front_x := x5]
+  bike[, front_y := y5]
+  bike[, bottom_x := x6]
+  bike[, bottom_y := y6]
+  bike[, seattube_x := x7]
+  bike[, seattube_y := y7]
+  
+  return(bike)
+}
+
+```
+
+```{r import-bikes, echo=FALSE}
+import_it <- TRUE
+if(import_it != TRUE){
+  geo_bike_path <- here("rds", "geobike.Rds")
+  geobike <- readRDS(geo_bike_path)
+  my_fit_path <- here("rds", "my_fit.Rds")
+  my_fit <- readRDS(my_fit_path)
+}else{
+  data_path <- here(data_folder, "bike_list.txt")
+  bike_list <- fread(data_path)
+  geobike <- data.table(NULL)
+  for(i in 1:nrow(bike_list)){
+    bike_label_i <- as.character(bike_list[i, "model"])
+    bike_range_i <- as.character(bike_list[i, "data_range"])
+    bike_i <- read_bike(bike_label = bike_label_i,
+                        bike_range = bike_range_i)
+    bike_i[, my_fit := ifelse(frame_size == c(bike_list[i, "my_fit"]), TRUE, FALSE)]
+    geobike <- rbind(geobike, bike_i)
+  }
+  
+  # my_fit: use 176 cm (I am 175.5)
+  # add Breezer small to my_fit
+  # geobike[model == "Breezer Radar X Pro" & frame_size == "48cm (S)", my_fit := TRUE]
+  # add Boone 54 to my_fit
+  # geobike[model == "Trek Boone 6" & frame_size == "54 cm", my_fit := TRUE]
+  
+  
+  # add column of shape id for plots
+  shape_list <- c(15,17,19,0,2)
+  n_shapes <- length(shape_list)
+  n_models <- length(unique(geobike[, model]))
+  n_recycles <- floor(n_models/n_shapes)
+  left_over <- n_models - n_recycles*n_shapes
+  model_2_shape_map <- c(rep(shape_list, n_recycles), shape_list[1:left_over])
+  geobike[, shape_id := model_2_shape_map[as.integer(as.factor(model))]]
+  
+  y_cols <- c("rear_x", "rear_y",
+              "seat_x", "seat_y",
+              "head_x", "head_y",
+              "crown_x", "crown_y",
+              "front_x", "front_y",
+              "bottom_x", "bottom_y",
+              "seattube_x", "seattube_y")
+  
+  # center X at bottom bracket
+  geobike[, rear_x := rear_x - bottom_x]
+  geobike[, seat_x := seat_x - bottom_x]
+  geobike[, head_x := head_x - bottom_x]
+  geobike[, crown_x := crown_x - bottom_x]
+  geobike[, front_x := front_x - bottom_x]
+  geobike[, bottom_x := bottom_x - bottom_x]
+  geobike[, seattube_x := seattube_x - bottom_x]  
+}
+
+```
+
+```{r, echo=FALSE}
+my_fit <- geobike[my_fit == TRUE,]
+```
+
+```{r reduced-set-dendrogram-V2, fig.height=10, fig.width=10}
+if(import_it == TRUE){
+  y_cols <- c("stack", "reach", "front_center", "rear_center", "head_tube_angle", "seat_tube_angle")
+  
+  geobike_subset <- geobike[my_fit == TRUE,]
+  scale_it <- TRUE
+  center_it <- TRUE
+  
+  tree_v2 <- get_tree(geobike_subset,
+                      y_cols,
+                      scale_it,
+                      center_it,
+                      hclust_method = "ward.D2")
+  tree_v2_color <- dendro_data_k(tree_v2, k = 3)
+  
+  style_class <- tree_v2_color$labels %>%
+    data.table()
+  style_class[, model := tstrsplit(label, ",", keep = 1)]
+  
+  cluster_labels <- numeric(3)
+  trail <- "Breezer Radar X Pro"
+  cluster_labels[style_class[model == trail, clust]] <- "Trail"
+  all_road <- "OPEN U.P."
+  cluster_labels[style_class[model == all_road, clust]] <- "All-Road"
+  endurance <- "Mason InSearchOf"
+  cluster_labels[style_class[model == endurance, clust]] <- "Endurance"
+  
+  style_class[, restyle := cluster_labels[clust]]
+  style_class[, restyle := factor(restyle,
+                                  levels = cluster_labels)]
+  
+  # add style to geobike
+  geobike <- plyr::join(geobike,
+                        style_class[, .SD, .SDcols = c("model", "restyle")],
+                        by = "model")
+  my_fit <- geobike[my_fit == TRUE,]
+  geo_bike_path <- here("rds", "geobike.Rds")
+  saveRDS(my_fit, geo_bike_path)
+  my_fit_path <- here("rds", "my_fit.Rds")
+  saveRDS(my_fit, my_fit_path)
+}
+
+
+```
+

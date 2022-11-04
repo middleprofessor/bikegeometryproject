@@ -85,5 +85,5 @@ Fustle Causway GR1 2022	aluminum	b1:g23	MD/LG
 Rose Backroad XPLR 2022	carbon	b1:j27	55cm
 Otso Waheela C rear 2022	carbon	c52:h75	L
 Otso Waheela C front 2022	carbon	c26:h49	L
-Argonaut GR3 2023	carbon	c1:k23	560
-
+Argonaut GR3 2023	carbon	b1:j23	560
+YT Szepter 2023	carbon	b1:h24	L
