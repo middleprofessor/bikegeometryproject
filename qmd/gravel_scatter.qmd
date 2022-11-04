@@ -113,8 +113,8 @@ p3 <- shared_data %>%
           hoverinfo = "text",
           text = ~paste(model, frame_size,
           "<br>Cat:", restyle,
-          "<br>RC:", rear_center,
-          "<br>FC:", front_center)) %>% 
+          "<br>RC:", round(rear_center, 0),
+          "<br>FC:", round(front_center, 0))) %>% 
   group_by(restyle) %>% 
   add_markers(size = 3) %>%
   layout(xaxis = list(title = "Rear Center (Horizontal)"),
@@ -137,8 +137,8 @@ p5 <- shared_data %>%
           hoverinfo = "text",
           text = ~paste(model, frame_size,
           "<br>Cat:", restyle,
-          "<br>S/R", front_wheelbase,
-          "<br>RC/WB", stack_reach)) %>% 
+          "<br>S/R", round(front_wheelbase, 1),
+          "<br>RC/WB", round(stack_reach, 1))) %>% 
   group_by(restyle) %>% 
   add_markers(size = 3) %>%
   layout(xaxis = list(title = "Front Center/Wheelbase"),
@@ -149,8 +149,8 @@ p6 <- shared_data %>%
           hoverinfo = "text",
           text = ~paste(model, frame_size,
           "<br>Cat:", restyle,
-          "<br>STA/HTA:", front_wheelbase,
-          "<br>RC/WB:", sta_hta)) %>% 
+          "<br>STA/HTA:", round(front_wheelbase, 1),
+          "<br>RC/WB:", round(sta_hta, 1))) %>% 
   group_by(restyle) %>% 
   add_markers(size = 3) %>%
   layout(xaxis = list(title = "Front Center/Wheelbase\n"),
