@@ -150,11 +150,11 @@ p6 <- shared_data %>%
           hoverinfo = "text",
           text = ~paste(model, frame_size,
           "<br>Cat:", restyle,
-          "<br>STA/HTA:", front_wheelbase/n,
+          "<br>STA/HTA:", front_wheelbase,
           "<br>RC/WB:", sta_hta)) %>% 
   group_by(restyle) %>% 
   add_markers(size = 3) %>%
-  layout(xaxis = list(title = "Front Center/Wheelbase"),
+  layout(xaxis = list(title = "Front Center/Wheelbase\n"),
          yaxis = list(title = "\nSTA/HTA"),
          showlegend = FALSE)
 
