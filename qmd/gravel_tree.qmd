@@ -238,7 +238,7 @@ get_tree <- function(geobike_subset,
 }
 ```
 
-```{r, fig.height=10, fig.width=10}
+```{r gravel-tree, fig.height=10, fig.width=10}
 y_cols <- c("stack", "reach", "front_center", "rear_center", "head_tube_angle", "seat_tube_angle")
 
 geobike_subset <- geobike[my_fit == TRUE,]

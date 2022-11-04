@@ -84,7 +84,6 @@ pal_okabe_ito_4 <- pal_okabe_ito[c(5,6,7,2)]
 ```{r echo=FALSE}
   geo_bike_path <- here("rds", "geobike.Rds")
   geobike <- readRDS(geo_bike_path)
-  my_fit_path <- here("rds", "my_fit.Rds")
-  my_fit <- readRDS(my_fit_path)
+  my_fit <- geobike[my_fit == TRUE,]
 ```
 
