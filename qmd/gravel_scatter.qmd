@@ -73,99 +73,105 @@ pal_okabe_ito_3 <- pal_okabe_ito[c(5,6,7)]
 pal_okabe_ito_3_light <- pal_okabe_ito[c(1,2,7)]
 pal_okabe_ito_4 <- pal_okabe_ito[c(5,6,7,2)]
 
-geo_bike_path <- here("rds", "geobike.Rds")
-geobike <- readRDS(geo_bike_path)
-my_fit <- geobike[my_fit == TRUE,]
+pal_okabe_ito_3 <- pal_okabe_ito[c(1,2,3)]
+
+  geo_bike_path <- here("rds", "geobike.Rds")
+  geobike <- readRDS(geo_bike_path)
+  my_fit_path <- here("rds", "my_fit.Rds")
+  my_fit <- readRDS(my_fit_path)
+
+```
+
+```{r scatter-fig}
+scatter_fig <- function(x_col = "reach", y_col = "stack",
+                        x_label = "Reach", y_label = "Stack",
+                        x_info = NULL, y_info = NULL,
+                        digits = 0,
+                        jitter_x = 0, jitter_y = 0,
+                        which_model = NULL){
+  if(is.null(x_info)){x_info <- x_label}
+  if(is.null(y_info)){y_info <- y_label}
+
+  fig <- plot_ly(my_fit, type = "scatter", mode = "markers",
+                 x = ~jitter(get(x_col), jitter_x),
+                 y = ~jitter(get(y_col), jitter_y),
+                 color = ~restyle,
+                 colors = pal_okabe_ito_3,
+                 size = 2,
+                 name = ~model,
+                 legendgroup = ~model,
+                 hoverinfo = "text",
+                 text = ~paste(model, frame_size,
+                               "<br>Cat:", restyle,
+                               paste0("<br>", x_info, ":"), round(get(x_col), digits),
+                               paste0("<br>", y_info, ":"), round(get(y_col), digits)
+                 )) %>% 
+    #  highlight(on = "plotly_click", off = "plotly_doubleclick") %>%
+    layout(showlegend = TRUE,
+           xaxis = list(title = x_label),
+           yaxis = list(title = y_label)
+    )
+  # %>%
+  #   style(showlegend = FALSE, traces = 1)
+
+  if(!is.null(which_model)){
+    a <- list(
+      x = my_fit[model == which_model, get(x_col)],
+      y = my_fit[model == which_model, get(y_col)],
+      text = my_fit[model == which_model, model],
+      xref = "x",
+      yref = "y",
+      showarrow = TRUE,
+      arrowhead = 1,
+      ax = 20,
+      ay = -20
+    )
+    fig <- fig %>% layout(annotations = a)
+    
+    
+    
+  }
+  
+  
+  return(fig)
+}
 
 ```
 
 
-```{r gravel-scatter}
-shared_data <- my_fit %>% 
-  SharedData$new()
+```{r}
+model_i <- NULL
+# model_i <- "Specialized Diverge STR"
+p1 <- scatter_fig(x_col = "reach", y_col = "stack",
+                  x_label = "Reach", y_label = "Stack",
+                  which_model = model_i)
+p2 <- scatter_fig(x_col = "rear_center", y_col = "front_center",
+                  x_label = "Rear Center", y_label = "Front Center",
+                  x_info = "RC", y_info = "FC",
+                  which_model = model_i)
+p3 <- scatter_fig(x_col = "head_tube_angle", y_col = "seat_tube_angle",
+                  x_label = "Head Tube Angle", y_label = "Seat Tube Angle",
+                  x_info = "HTA", y_info = "STA", digits = 1,
+                  jitter_x = 0,
+                  jitter_y = 0,
+                  which_model = model_i)
+p4 <- scatter_fig(x_col = "trail", y_col = "bottom_bracket_drop",
+                  x_label = "Trail", y_label = "Bottom Bracket Drop",
+                  x_info = "Trail", y_info = "BBD", digits = 0,
+                  which_model = model_i)
+p5 <- scatter_fig(x_col = "front_wheelbase", y_col = "stack_reach",
+                  x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
+                  x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
+                  which_model = model_i)
+p6 <- scatter_fig(x_col = "front_wheelbase", y_col = "sta_hta",
+                  x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
+                  x_info = "FC/WB", y_info = "STA/HTA", digits = 2,
+                  which_model = model_i)
 
-p1 <- shared_data %>% 
-  plot_ly(x = ~reach, y = ~stack, color = ~restyle,
-          hoverinfo = "text",
-          text = ~paste(model, frame_size,
-          "<br>Cat:", restyle,
-          "<br>Reach:", reach,
-          "<br>Stack:", stack)) %>% 
-  group_by(restyle) %>% 
-  add_markers(size = 3) %>%
-  layout(xaxis = list(title = "Reach"),
-         yaxis = list(title = "\nStack"),
-         showlegend = FALSE)
-p2 <- shared_data %>% 
-  plot_ly(x = ~head_tube_angle, y = ~seat_tube_angle, color = ~restyle,
-          hoverinfo = "text",
-          text = ~paste(model, frame_size,
-          "<br>Cat:", restyle,
-          "<br>HTA:", head_tube_angle,
-          "<br>STA:", seat_tube_angle)) %>% 
-  group_by(restyle) %>% 
-  add_markers(size = 3) %>%
-  layout(xaxis = list(title = "Head Tube Angle"),
-         yaxis = list(title = "\nSeat Tube Angle"),
-         showlegend = FALSE)
-p3 <- shared_data %>% 
-  plot_ly(x = ~rear_center, y = ~front_center, color = ~restyle,
-          hoverinfo = "text",
-          text = ~paste(model, frame_size,
-          "<br>Cat:", restyle,
-          "<br>RC:", round(rear_center, 0),
-          "<br>FC:", round(front_center, 0))) %>% 
-  group_by(restyle) %>% 
-  add_markers(size = 3) %>%
-  layout(xaxis = list(title = "Rear Center (Horizontal)"),
-         yaxis = list(title = "\nFront Center (Horizontal)"),
-         showlegend = FALSE)
-p4 <- shared_data %>% 
-  plot_ly(x = ~trail, y = ~bottom_bracket_drop, color = ~restyle,
-          hoverinfo = "text",
-          text = ~paste(model, frame_size,
-          "<br>Cat:", restyle,
-          "<br>Trail:", round(trail, 0),
-          "<br>BB Drop:", bottom_bracket_drop)) %>% 
-  group_by(restyle) %>% 
-  add_markers(size = 3) %>%
-  layout(xaxis = list(title = "Trail"),
-         yaxis = list(title = "\nBottom Bracket Drop"),
-         showlegend = FALSE)
-p5 <- shared_data %>% 
-  plot_ly(x = ~front_wheelbase, y = ~stack_reach, color = ~restyle,
-          hoverinfo = "text",
-          text = ~paste(model, frame_size,
-          "<br>Cat:", restyle,
-          "<br>FC/WB", round(front_wheelbase, 3),
-          "<br>S/R", round(stack_reach, 2))) %>% 
-  group_by(restyle) %>% 
-  add_markers(size = 3) %>%
-  layout(xaxis = list(title = "Front Center/Wheelbase"),
-         yaxis = list(title = "\nStack/Reach"),
-         showlegend = FALSE)
-p6 <- shared_data %>% 
-  plot_ly(x = ~front_wheelbase, y = ~sta_hta, color = ~restyle,
-          hoverinfo = "text",
-          text = ~paste(model, frame_size,
-          "<br>Cat:", restyle,
-          "<br>FC/WB:", round(front_wheelbase, 3),
-          "<br>STA/HTA:", round(sta_hta, 3))) %>% 
-  group_by(restyle) %>% 
-  add_markers(size = 3) %>%
-  layout(xaxis = list(title = "Front Center/Wheelbase\n"),
-         yaxis = list(title = "\nSTA/HTA"),
-         showlegend = FALSE)
-
-bscols(widths = c(9, 3),
-       list(p1, p2,
-       p3, p4,
-       p5, p6),
-       list(
-         filter_checkbox(id = "style", label = "Style",
-                         sharedData = shared_data,
-                         group = ~restyle)
-       )
-)
+p1
+p2
+p3
+p4
+p5
+p6
 ```
-

@@ -1,5 +1,19 @@
 [
   {
+    "objectID": "qmd/gravel_class.html",
+    "href": "qmd/gravel_class.html",
+    "title": "Gravel Style",
+    "section": "",
+    "text": "Classification of bikes based on frame sizes that fit me (generally size M or 54-56 cm)\n \n  \n    Trail \n    Endurance \n    All-Road \n  \n \n\n  \n    Amigo Bug Out \n    Bearclaw Beaux Jaxon \n    Alchemy Rogue \n  \n  \n    BMC URS AL \n    BlackMtnCy La Cabra \n    All-City Cosmic Stallion \n  \n  \n    BMC URS AL SUS \n    Bombtrack Beyond 2 \n    All-City Gorilla Monsoon \n  \n  \n    BMC URS One \n    Chiru Kegeti \n    Argonaut GR3 \n  \n  \n    Bombtrack Beyond+ Adv \n    Cinelli Hobootleg Geo \n    Blackheart All Road TI \n  \n  \n    Breezer Radar X Pro \n    Genesis Vagabond \n    BlackMtnCy Monstercross V5 \n  \n  \n    Chumba Yaupon \n    Kona Sutra ULTD \n    Bombtrack Hook \n  \n  \n    Cotic Cascade \n    Light Blue Darwin \n    Cannondale SuperSix Evo \n  \n  \n    Enigma Escape Flat-bar \n    Mason InSearchOf \n    Canyon Grail 7 1by \n  \n  \n    Evil Chamois Hagar GRX \n    Moots Routt ESC \n    Canyon Grizl 7 1by \n  \n  \n    Fezzari Shafer \n    Otso Warakin Stainless \n    Cervelo Aspero \n  \n  \n    Fiftyone Assassin long-low \n    Panorama Taiga EXP \n    Chumba Terlingua steel fdo \n  \n  \n    Fiftyone Assassin short-hi \n    Reeb Sams Pants \n    Devinci Hatchet \n  \n  \n    Fustle Causway GR1 \n    Ritchey Outback frameset \n    Giant Revolt X pro 1 long \n  \n  \n    Hudski Doggler Gravel \n    Salsa Cutthroat \n    Giant Revolt X pro 1 short \n  \n  \n    Kanzo Adventure New \n    Salsa Fargo front dropout \n    Lauf Siegla \n  \n  \n    Knolly Cache Steel \n    Salsa Fargo rear dropout \n    Niner RLT 9 RDO \n  \n  \n    Marin DSX 2 \n    Salsa Vaya \n    No22 Drifter X \n  \n  \n    Merida Silex \n    Tout Terrain Scrambler 28 \n    Noble GX 5 \n  \n  \n    Mosaic GT-1X \n    Tumbleweed Stargazer \n    Obed Boundary \n  \n  \n    Nordest Kutxo \n     \n    OPEN U.P. \n  \n  \n    Otso Fenrir \n     \n    Open WI.DE \n  \n  \n    Revel Rover \n     \n    Otso Waheela C front \n  \n  \n    Rondo MYLC CF Hi \n     \n    Otso Waheela C rear \n  \n  \n    Rondo MYLC CF Lo \n     \n    Pinarello Grevil F \n  \n  \n    Sonder Camino AL \n     \n    Ribble Gravel SL \n  \n  \n    Specialized Diverge Evo \n     \n    Rose Backroad XPLR \n  \n  \n    Specialized Diverge STR \n     \n    Salsa Warbird \n  \n  \n    Surly Ghost Grappler \n     \n    Santa Cruz Stigmata \n  \n  \n    Whyte Friston Gravel \n     \n    Scott Addict Gravel 10 \n  \n  \n    YT Szepter \n     \n    Shand Stooshie \n  \n  \n     \n     \n    Solace OM-3 Short \n  \n  \n     \n     \n    Specialized Diverge \n  \n  \n     \n     \n    Squid Gravtron \n  \n  \n     \n     \n    Thesis OB1 \n  \n  \n     \n     \n    Trek Boone 6 \n  \n  \n     \n     \n    Trek Checkpoint SL5 \n  \n  \n     \n     \n    Why R+ V4 \n  \n  \n     \n     \n    Wilier Jena \n  \n  \n     \n     \n    Wilier Rave SLR"
+  },
+  {
+    "objectID": "qmd/gravel_scatter old with bscols.html",
+    "href": "qmd/gravel_scatter old with bscols.html",
+    "title": "Gravel Scatter",
+    "section": "",
+    "text": "Lengths and Angles\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nStyle\n\n\n\n\nTrail\n\n\n\n\n\nEndurance\n\n\n\n\n\nAll-Road\n\n\n\n\n\n\n\n\n\n\n\n\nRatios\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nStyle\n\n\n\n\nTrail\n\n\n\n\n\nEndurance\n\n\n\n\n\nAll-Road"
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Bike Geometry Project",
@@ -11,20 +25,6 @@
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "1 + 1\n\n[1] 2"
-  },
-  {
-    "objectID": "qmd/gravel_scatter.html",
-    "href": "qmd/gravel_scatter.html",
-    "title": "Gravel Scatter",
-    "section": "",
-    "text": "Style\n\n\n\n\nTrail\n\n\n\n\n\nEndurance\n\n\n\n\n\nAll-Road"
-  },
-  {
-    "objectID": "qmd/gravel_class.html",
-    "href": "qmd/gravel_class.html",
-    "title": "Gravel Style",
-    "section": "",
-    "text": "Classification of bikes based on frame sizes that fit me (generally size M or 54-56 cm)\n \n  \n    Trail \n    Endurance \n    All-Road \n  \n \n\n  \n    Amigo Bug Out \n    Bearclaw Beaux Jaxon \n    Alchemy Rogue \n  \n  \n    BMC URS AL \n    BlackMtnCy La Cabra \n    All-City Cosmic Stallion \n  \n  \n    BMC URS AL SUS \n    Bombtrack Beyond 2 \n    All-City Gorilla Monsoon \n  \n  \n    BMC URS One \n    Chiru Kegeti \n    Argonaut GR3 \n  \n  \n    Bombtrack Beyond+ Adv \n    Cinelli Hobootleg Geo \n    Blackheart All Road TI \n  \n  \n    Breezer Radar X Pro \n    Genesis Vagabond \n    BlackMtnCy Monstercross V5 \n  \n  \n    Chumba Yaupon \n    Light Blue Darwin \n    Bombtrack Hook \n  \n  \n    Cotic Cascade \n    Mason InSearchOf \n    Cannondale SuperSix Evo \n  \n  \n    Enigma Escape Flat-bar \n    Moots Routt ESC \n    Canyon Grail 7 1by \n  \n  \n    Evil Chamois Hagar GRX \n    Otso Warakin Stainless \n    Canyon Grizl 7 1by \n  \n  \n    Fezzari Shafer \n    Panorama Taiga EXP \n    Cervelo Aspero \n  \n  \n    Fiftyone Assassin long-low \n    Reeb Sams Pants \n    Chumba Terlingua steel fdo \n  \n  \n    Fiftyone Assassin short-hi \n    Ritchey Outback frameset \n    Devinci Hatchet \n  \n  \n    Fustle Causway GR1 \n    Salsa Cutthroat \n    Lauf Siegla \n  \n  \n    Hudski Doggler Gravel \n    Salsa Fargo front dropout \n    Niner RLT 9 RDO \n  \n  \n    Kanzo Adventure New \n    Salsa Fargo rear dropout \n    No22 Drifter X \n  \n  \n    Knolly Cache Steel \n    Salsa Vaya \n    Noble GX 5 \n  \n  \n    Kona Sutra ULTD \n    Tout Terrain Scrambler 28 \n    Obed Boundary \n  \n  \n    Marin DSX 2 \n    Tumbleweed Stargazer \n    OPEN U.P. \n  \n  \n    Merida Silex \n     \n    Open WI.DE \n  \n  \n    Mosaic GT-1X \n     \n    Otso Waheela C front \n  \n  \n    Nordest Kutxo \n     \n    Otso Waheela C rear \n  \n  \n    Otso Fenrir \n     \n    Pinarello Grevil F \n  \n  \n    Revel Rover \n     \n    Ribble Gravel SL \n  \n  \n    Rondo MYLC CF Hi \n     \n    Rose Backroad XPLR \n  \n  \n    Rondo MYLC CF Lo \n     \n    Salsa Warbird \n  \n  \n    Sonder Camino AL \n     \n    Santa Cruz Stigmata \n  \n  \n    Specialized Diverge Evo \n     \n    Scott Addict Gravel 10 \n  \n  \n    Surly Ghost Grappler \n     \n    Shand Stooshie \n  \n  \n    Whyte Friston Gravel \n     \n    Solace OM-3 Short \n  \n  \n    YT Szepter \n     \n    Specialized Diverge \n  \n  \n     \n     \n    Squid Gravtron \n  \n  \n     \n     \n    Thesis OB1 \n  \n  \n     \n     \n    Trek Boone 6 \n  \n  \n     \n     \n    Trek Checkpoint SL5 \n  \n  \n     \n     \n    Why R+ V4 \n  \n  \n     \n     \n    Wilier Jena \n  \n  \n     \n     \n    Wilier Rave SLR"
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
   }
 ]

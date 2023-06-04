@@ -87,3 +87,6 @@ Otso Waheela C rear 2022	carbon	c52:h75	L
 Otso Waheela C front 2022	carbon	c26:h49	L
 Argonaut GR3 2023	carbon	b1:j23	560
 YT Szepter 2023	carbon	b1:h24	L
+Specialized Diverge STR 2023	carbon	b1:i27	56
+Giant Revolt X pro 1 long 2023	carbon	c1:j23	M
+Giant Revolt X pro 1 short 2023	carbon	c1:j23	M
