@@ -91,7 +91,7 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
                         which_model = NULL){
   if(is.null(x_info)){x_info <- x_label}
   if(is.null(y_info)){y_info <- y_label}
-
+  
   fig <- plot_ly(my_fit, type = "scatter", mode = "markers",
                  x = ~jitter(get(x_col), jitter_x),
                  y = ~jitter(get(y_col), jitter_y),
@@ -99,45 +99,51 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
                  colors = pal_okabe_ito_3,
                  size = 2,
                  name = ~model,
-                 legendgroup = ~model,
                  hoverinfo = "text",
                  text = ~paste(model, frame_size,
                                "<br>Cat:", restyle,
                                paste0("<br>", x_info, ":"), round(get(x_col), digits),
-                               paste0("<br>", y_info, ":"), round(get(y_col), digits)
-                 )) %>% 
-    #  highlight(on = "plotly_click", off = "plotly_doubleclick") %>%
-    layout(showlegend = TRUE,
-           xaxis = list(title = x_label),
-           yaxis = list(title = y_label)
-    )
-  # %>%
-  #   style(showlegend = FALSE, traces = 1)
-
-  if(!is.null(which_model)){
-    a <- list(
-      x = my_fit[model == which_model, get(x_col)],
-      y = my_fit[model == which_model, get(y_col)],
-      text = my_fit[model == which_model, model],
-      xref = "x",
-      yref = "y",
-      showarrow = TRUE,
-      arrowhead = 1,
-      ax = 20,
-      ay = -20
-    )
-    fig <- fig %>% layout(annotations = a)
-    
-    
-    
-  }
+                               paste0("<br>", y_info, ":"), round(get(y_col), digits)),
+                 
+                 showlegend = FALSE
+  ) %>% 
+    add_text(text = ~paste0("\U2B05", model),
+             textfont = list(size = 10, color = toRGB("grey30")),
+             color = ~restyle,
+             colors = pal_okabe_ito_3, # doesn't do anything
+             symbol = "circle",
+             textposition = "right",
+             visible = "legendonly",
+             showlegend = TRUE,
+    ) %>%
+  layout(xaxis = list(title = x_label),
+         yaxis = list(title = y_label),
+         legend = list(font = list(size = 10),
+                       itemsizing = "constant")
+  )
+  
+  
+  
+  # if(!is.null(which_model)){
+  #   a <- list(
+  #     x = my_fit[model == which_model, get(x_col)],
+  #     y = my_fit[model == which_model, get(y_col)],
+  #     text = my_fit[model == which_model, model],
+  #     xref = "x",
+  #     yref = "y",
+  #     showarrow = TRUE,
+  #     arrowhead = 1,
+  #     ax = 20,
+  #     ay = -20
+  #   )
+  #   fig <- fig %>% layout(annotations = a)
+  #}
   
   
   return(fig)
 }
 
 ```
-
 
 ```{r}
 model_i <- NULL
