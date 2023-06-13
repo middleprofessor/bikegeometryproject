@@ -1,0 +1,90 @@
+---
+title: "Which gravel bikes have mountain bike inspired geometry?"
+---
+
+```{r setup-mtb90s, echo=FALSE, warning=FALSE, message=FALSE}
+source_path <- here::here("Rmd", "bike_geometry_project.R")
+source(source_path)
+
+```
+
+```{r import, echo=FALSE, warning=FALSE, message=FALSE }
+import_it <- TRUE
+if(import_it != TRUE){
+  mountain_path <- here("rds", "geobike.Rds")
+  mountain <- readRDS(mountain_path)
+}else{
+  data_path <- here(data_folder, "mountain_list.txt")
+  bike_list <- fread(data_path)
+  mountain <- data.table(NULL)
+  for(i in 1:nrow(bike_list)){
+    bike_label_i <- as.character(bike_list[i, "model"])
+    bike_range_i <- as.character(bike_list[i, "data_range"])
+    bike_i <- read_bike(bike_label = bike_label_i,
+                        bike_range = bike_range_i,
+                        data_file = "mountain.xlsx")
+    bike_i[, my_fit := ifelse(frame_size == c(bike_list[i, "my_fit"]), TRUE, FALSE)]
+    mountain <- rbind(mountain, bike_i)
+  }
+
+new_level <- "Mountain"
+mountain[, restyle := new_level]
+
+#combine with my_fit using subset of columns
+  mtb_cols <- c("model", "year", "frame_size", "reach", "stack", "rear_center", "front_center", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "trail", "front_wheelbase", "stack_reach", "sta_hta", "restyle")
+  
+gravel_mtb <- rbind(my_fit[, .SD, .SDcols = mtb_cols],
+                       mountain[my_fit == TRUE, .SD, .SDcols = mtb_cols])
+restyle_levels <- c(levels(my_fit[, restyle]), new_level)
+gravel_mtb[, restyle := factor(restyle,
+              levels = restyle_levels)]
+  
+  
+  
+}
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+annotate_model_i <- mountain[my_fit == TRUE, model]
+plotted_data <- gravel_mtb
+p1 <- scatter_fig(x_col = "reach", y_col = "stack",
+                  x_label = "Reach", y_label = "Stack",
+                  data = plotted_data,
+                  annotate_model = annotate_model_i)
+p2 <- scatter_fig(x_col = "rear_center", y_col = "front_center",
+                  x_label = "Rear Center", y_label = "Front Center",
+                  x_info = "RC", y_info = "FC",
+                  data = plotted_data,
+                  annotate_model = annotate_model_i)
+p3 <- scatter_fig(x_col = "head_tube_angle", y_col = "seat_tube_angle",
+                  x_label = "Head Tube Angle", y_label = "Seat Tube Angle",
+                  x_info = "HTA", y_info = "STA", digits = 1,
+                  jitter_x = 0,
+                  jitter_y = 0,
+                  data = plotted_data,
+                  annotate_model = annotate_model_i)
+p4 <- scatter_fig(x_col = "trail", y_col = "bottom_bracket_drop",
+                  x_label = "Trail", y_label = "Bottom Bracket Drop",
+                  x_info = "Trail", y_info = "BBD", digits = 0,
+                  data = plotted_data,
+                  annotate_model = annotate_model_i)
+p5 <- scatter_fig(x_col = "front_wheelbase", y_col = "stack_reach",
+                  x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
+                  x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
+                  data = plotted_data,
+                  annotate_model = annotate_model_i)
+p6 <- scatter_fig(x_col = "front_wheelbase", y_col = "sta_hta",
+                  x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
+                  x_info = "FC/WB", y_info = "STA/HTA", digits = 2,
+                  data = plotted_data,
+                  annotate_model = annotate_model_i)
+
+p1
+p2
+p3
+p4
+p5
+p6
+
+
+```

@@ -68,12 +68,9 @@ pal_okabe_ito <- c(
 )
 pal_okabe_ito_blue <- pal_okabe_ito[c(5,6,1,2,3,7,4)] 
 pal_okabe_ito_red <- pal_okabe_ito[c(6,5,3,1,2,7,4)] 
-pal_okabe_ito_2 <- pal_okabe_ito[c(5,6)]
-pal_okabe_ito_3 <- pal_okabe_ito[c(5,6,7)]
-pal_okabe_ito_3_light <- pal_okabe_ito[c(1,2,7)]
-pal_okabe_ito_4 <- pal_okabe_ito[c(5,6,7,2)]
 
 pal_okabe_ito_3 <- pal_okabe_ito[c(1,2,3)]
+pal_okabe_ito_4 <- pal_okabe_ito[c(1,2,3,6)]
 
   geo_bike_path <- here("rds", "geobike.Rds")
   geobike <- readRDS(geo_bike_path)
@@ -82,97 +79,32 @@ pal_okabe_ito_3 <- pal_okabe_ito[c(1,2,3)]
 
 ```
 
-```{r scatter-fig}
-scatter_fig <- function(x_col = "reach", y_col = "stack",
-                        x_label = "Reach", y_label = "Stack",
-                        x_info = NULL, y_info = NULL,
-                        digits = 0,
-                        jitter_x = 0, jitter_y = 0,
-                        which_model = NULL){
-  if(is.null(x_info)){x_info <- x_label}
-  if(is.null(y_info)){y_info <- y_label}
-  
-  fig <- plot_ly(my_fit, type = "scatter", mode = "markers",
-                 x = ~jitter(get(x_col), jitter_x),
-                 y = ~jitter(get(y_col), jitter_y),
-                 color = ~restyle,
-                 colors = pal_okabe_ito_3,
-                 size = 2,
-                 name = ~model,
-                 hoverinfo = "text",
-                 text = ~paste(model, frame_size,
-                               "<br>Cat:", restyle,
-                               paste0("<br>", x_info, ":"), round(get(x_col), digits),
-                               paste0("<br>", y_info, ":"), round(get(y_col), digits)),
-                 
-                 showlegend = FALSE
-  ) %>% 
-    add_text(text = ~paste0("\U2B05", model),
-             textfont = list(size = 10, color = toRGB("grey30")),
-             color = ~restyle,
-             colors = pal_okabe_ito_3, # doesn't do anything
-             symbol = "circle",
-             textposition = "right",
-             visible = "legendonly",
-             showlegend = TRUE,
-    ) %>%
-  layout(xaxis = list(title = x_label),
-         yaxis = list(title = y_label),
-         legend = list(font = list(size = 10),
-                       itemsizing = "constant")
-  )
-  
-  
-  
-  # if(!is.null(which_model)){
-  #   a <- list(
-  #     x = my_fit[model == which_model, get(x_col)],
-  #     y = my_fit[model == which_model, get(y_col)],
-  #     text = my_fit[model == which_model, model],
-  #     xref = "x",
-  #     yref = "y",
-  #     showarrow = TRUE,
-  #     arrowhead = 1,
-  #     ax = 20,
-  #     ay = -20
-  #   )
-  #   fig <- fig %>% layout(annotations = a)
-  #}
-  
-  
-  return(fig)
-}
+```{r}
+source_path <- here::here("Rmd", "bike_geometry_project.R")
+source(source_path)
 
 ```
 
 ```{r}
-model_i <- NULL
-# model_i <- "Specialized Diverge STR"
 p1 <- scatter_fig(x_col = "reach", y_col = "stack",
-                  x_label = "Reach", y_label = "Stack",
-                  which_model = model_i)
+                  x_label = "Reach", y_label = "Stack")
 p2 <- scatter_fig(x_col = "rear_center", y_col = "front_center",
                   x_label = "Rear Center", y_label = "Front Center",
-                  x_info = "RC", y_info = "FC",
-                  which_model = model_i)
+                  x_info = "RC", y_info = "FC")
 p3 <- scatter_fig(x_col = "head_tube_angle", y_col = "seat_tube_angle",
                   x_label = "Head Tube Angle", y_label = "Seat Tube Angle",
                   x_info = "HTA", y_info = "STA", digits = 1,
                   jitter_x = 0,
-                  jitter_y = 0,
-                  which_model = model_i)
+                  jitter_y = 0)
 p4 <- scatter_fig(x_col = "trail", y_col = "bottom_bracket_drop",
                   x_label = "Trail", y_label = "Bottom Bracket Drop",
-                  x_info = "Trail", y_info = "BBD", digits = 0,
-                  which_model = model_i)
+                  x_info = "Trail", y_info = "BBD", digits = 0)
 p5 <- scatter_fig(x_col = "front_wheelbase", y_col = "stack_reach",
                   x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
-                  x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
-                  which_model = model_i)
+                  x_info = "FC/WB", y_info = "Stack/Reach", digits = 2)
 p6 <- scatter_fig(x_col = "front_wheelbase", y_col = "sta_hta",
                   x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
-                  x_info = "FC/WB", y_info = "STA/HTA", digits = 2,
-                  which_model = model_i)
+                  x_info = "FC/WB", y_info = "STA/HTA", digits = 2)
 
 p1
 p2

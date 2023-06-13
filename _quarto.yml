@@ -16,12 +16,18 @@ website:
           - qmd/gravel_tree.qmd
           - qmd/gravel_class.qmd
           - qmd/gravel_scatter.qmd
+      - section: "Gravel Stories"
+        contents:
+          - qmd/which_gravel_bikes_are_mtb_inspired.qmd
+          - qmd/mtb_90s.qmd
+
 
 format:
   html:
     theme: cosmo
     css: styles.css
     toc: true
+    page-layout: full
 
 editor: visual
 

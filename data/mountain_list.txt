@@ -1,0 +1,3 @@
+model	frame	data_range	my_fit
+Specialized Epic Hardtail 2023	carbon	a1:g28	M
+Trek Procaliber 2023	carbone	a1:g26	ML
