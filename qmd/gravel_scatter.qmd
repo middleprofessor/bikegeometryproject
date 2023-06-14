@@ -79,13 +79,13 @@ pal_okabe_ito_4 <- pal_okabe_ito[c(1,2,3,6)]
 
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
 source_path <- here::here("Rmd", "bike_geometry_project.R")
 source(source_path)
 
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
 p1 <- scatter_fig(x_col = "reach", y_col = "stack",
                   x_label = "Reach", y_label = "Stack")
 p2 <- scatter_fig(x_col = "rear_center", y_col = "front_center",

@@ -70,13 +70,6 @@
     "text": "No! 1990s mountain bikes have low STA:HTA compared to Trail gravel and low STA:HTA given their relative front center compared to Endurance gravel"
   },
   {
-    "objectID": "qmd/gravel_scatter.html",
-    "href": "qmd/gravel_scatter.html",
-    "title": "Gravel Scatter",
-    "section": "",
-    "text": "p1 <- scatter_fig(x_col = \"reach\", y_col = \"stack\",\n                  x_label = \"Reach\", y_label = \"Stack\")\np2 <- scatter_fig(x_col = \"rear_center\", y_col = \"front_center\",\n                  x_label = \"Rear Center\", y_label = \"Front Center\",\n                  x_info = \"RC\", y_info = \"FC\")\np3 <- scatter_fig(x_col = \"head_tube_angle\", y_col = \"seat_tube_angle\",\n                  x_label = \"Head Tube Angle\", y_label = \"Seat Tube Angle\",\n                  x_info = \"HTA\", y_info = \"STA\", digits = 1,\n                  jitter_x = 0,\n                  jitter_y = 0)\np4 <- scatter_fig(x_col = \"trail\", y_col = \"bottom_bracket_drop\",\n                  x_label = \"Trail\", y_label = \"Bottom Bracket Drop\",\n                  x_info = \"Trail\", y_info = \"BBD\", digits = 0)\np5 <- scatter_fig(x_col = \"front_wheelbase\", y_col = \"stack_reach\",\n                  x_label = \"Front Center/Wheelbase\", y_label = \"Stack/Reach\",\n                  x_info = \"FC/WB\", y_info = \"Stack/Reach\", digits = 2)\np6 <- scatter_fig(x_col = \"front_wheelbase\", y_col = \"sta_hta\",\n                  x_label = \"Front Center/Wheelbase\", y_label = \"STA/HTA\",\n                  x_info = \"FC/WB\", y_info = \"STA/HTA\", digits = 2)\n\np1\n\n\n\n\np2\n\n\n\n\np3\n\n\n\n\np4\n\n\n\n\np5\n\n\n\n\np6"
-  },
-  {
     "objectID": "Rmd/bike_geometry_project.html",
     "href": "Rmd/bike_geometry_project.html",
     "title": "Bike Geometry Project",

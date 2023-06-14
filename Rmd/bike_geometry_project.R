@@ -1,4 +1,4 @@
-## ----setup, message = FALSE, warning = FALSE------------------------------------------------
+## ----setup, message = FALSE, warning = FALSE---------------------------------------------------------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE,
                       warning = FALSE,
@@ -77,7 +77,7 @@ pal_okabe_ito_3 <- pal_okabe_ito[c(1,2,3)]
 pal_okabe_ito_4 <- pal_okabe_ito[c(1,2,3,6)]
 
 
-## ----deg_2_rad------------------------------------------------------------------------------
+## ----deg_2_rad---------------------------------------------------------------------------------------------------------------------------------
 deg_2_rad <- function(x){
   rad <- x*pi/180
   return(rad)
@@ -85,7 +85,7 @@ deg_2_rad <- function(x){
   
 
 
-## ----ggdendro-extensions--------------------------------------------------------------------
+## ----ggdendro-extensions-----------------------------------------------------------------------------------------------------------------------
 # https://atrebas.github.io/post/2019-06-08-lightweight-dendrograms/
 dendro_data_k <- function(hc, k) {
   hcdata    <-  ggdendro::dendro_data(hc, type = "rectangle")
@@ -214,7 +214,7 @@ plot_ggdendro <- function(hcdata,
 
 
 
-## ----treed----------------------------------------------------------------------------------
+## ----treed-------------------------------------------------------------------------------------------------------------------------------------
 get_tree <- function(geobike_subset,
                   y_cols,
                   scale_it = TRUE,
@@ -246,7 +246,7 @@ get_tree <- function(geobike_subset,
 }
 
 
-## ----bike-geometry-helpers------------------------------------------------------------------
+## ----bike-geometry-helpers---------------------------------------------------------------------------------------------------------------------
 compute_axle_crown <- function(){
   
 }
@@ -310,7 +310,7 @@ compute_steering_h <- function(bike){
 
 
 
-## ----missing data---------------------------------------------------------------------------
+## ----missing data------------------------------------------------------------------------------------------------------------------------------
 compute_wheelbase <- function(bike){
   steering_v <- compute_steering_v(bike)
   steering_h <- compute_steering_h(bike)
@@ -376,7 +376,7 @@ compute_effective_top_tube_length <- function(bike){
 }
 
 
-## -------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------
 geom_checker <- function(chainstay_length, # chainstay length
                          bottom_bracket_drop, # bottom bracket drop
                          reach,
@@ -397,7 +397,7 @@ geom_checker <- function(chainstay_length, # chainstay length
   }
 
 
-## ----read-bike-function, echo=FALSE---------------------------------------------------------
+## ----read-bike-function, echo=FALSE------------------------------------------------------------------------------------------------------------
 # data_path <- here(data_folder, "ghost_grappler.txt")
 # dt <- fread(data_path)
 # bike_label = "Tumbleweed Stargazer 2022"
@@ -527,7 +527,7 @@ read_bike <- function(bike_label = "Breezer Radar X Pro 2022",
 
 
 
-## ----import-bikes, echo=FALSE---------------------------------------------------------------
+## ----import-bikes, echo=FALSE------------------------------------------------------------------------------------------------------------------
 import_it <- TRUE
 if(import_it != TRUE){
   geo_bike_path <- here("rds", "geobike.Rds")
@@ -583,11 +583,11 @@ if(import_it != TRUE){
 
 
 
-## ----my_fit, echo=FALSE---------------------------------------------------------------------
+## ----my_fit, echo=FALSE------------------------------------------------------------------------------------------------------------------------
 my_fit <- geobike[my_fit == TRUE,]
 
 
-## ----reduced-set-dendrogram-V2, fig.height=10, fig.width=10---------------------------------
+## ----reduced-set-dendrogram-V2, fig.height=10, fig.width=10------------------------------------------------------------------------------------
 if(import_it == TRUE){
   y_cols <- c("stack", "reach", "front_center", "rear_center", "head_tube_angle", "seat_tube_angle")
   
@@ -632,7 +632,7 @@ if(import_it == TRUE){
 
 
 
-## ----scatter-fig----------------------------------------------------------------------------
+## ----scatter-fig-------------------------------------------------------------------------------------------------------------------------------
 scatter_fig <- function(x_col = "reach", y_col = "stack",
                         x_label = "Reach", y_label = "Stack",
                         x_info = NULL, y_info = NULL,
@@ -650,7 +650,7 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
                  y = ~jitter(get(y_col), jitter_y),
                  color = ~restyle,
                  colors = my_palette,
-                 size = 2,
+                 size = 10,
                  name = ~model,
                  hoverinfo = "text",
                  text = ~paste(model, frame_size,
@@ -660,7 +660,8 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
                  showlegend = FALSE
   ) %>% 
     add_text(text = ~paste0("\U2B05", model),
-             textfont = list(size = 10, color = toRGB("grey30")),
+#             textfont = list(size = 10, color = toRGB("red")),
+             textfont = list(size = 12, color = ~restyle),
              color = ~restyle,
              colors = my_palette, # doesn't do anything
              symbol = "circle",
@@ -668,8 +669,8 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
              visible = "legendonly",
              showlegend = TRUE,
     ) %>%
-  layout(xaxis = list(title = x_label),
-         yaxis = list(title = y_label),
+  layout(xaxis = list(title = x_label, tickfont = list(size = 16), titlefont = list(size = 16)),
+         yaxis = list(title = y_label, tickfont = list(size = 16), titlefont = list(size = 16)),
          legend = list(font = list(size = 10),
                        itemsizing = "constant"),
          title = list(text = paste(y_label, "vs.", x_label),
@@ -689,7 +690,11 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
         showarrow = TRUE,
         arrowhead = 1,
         ax = 20,
-        ay = -20
+        ay = -20,
+#        arrowcolor = pal_okabe_ito_4[4],
+        arrowcolor = "black",
+#        font = list(color = pal_okabe_ito_4[4], size = 16)
+        font = list(color = "black", size = 16)
       )
     }
   }
@@ -711,7 +716,7 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
 
 
 
-## ----output-as-R-file-----------------------------------------------------------------------
+## ----output-as-R-file--------------------------------------------------------------------------------------------------------------------------
 # highlight and run to put update into R folder
 # knitr::purl("bike_geometry_project.Rmd")
 

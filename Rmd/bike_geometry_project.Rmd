@@ -675,7 +675,7 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
                  y = ~jitter(get(y_col), jitter_y),
                  color = ~restyle,
                  colors = my_palette,
-                 size = 2,
+                 size = 10,
                  name = ~model,
                  hoverinfo = "text",
                  text = ~paste(model, frame_size,
@@ -685,7 +685,8 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
                  showlegend = FALSE
   ) %>% 
     add_text(text = ~paste0("\U2B05", model),
-             textfont = list(size = 10, color = toRGB("grey30")),
+#             textfont = list(size = 10, color = toRGB("red")),
+             textfont = list(size = 12, color = ~restyle),
              color = ~restyle,
              colors = my_palette, # doesn't do anything
              symbol = "circle",
@@ -693,8 +694,8 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
              visible = "legendonly",
              showlegend = TRUE,
     ) %>%
-  layout(xaxis = list(title = x_label),
-         yaxis = list(title = y_label),
+  layout(xaxis = list(title = x_label, tickfont = list(size = 16), titlefont = list(size = 16)),
+         yaxis = list(title = y_label, tickfont = list(size = 16), titlefont = list(size = 16)),
          legend = list(font = list(size = 10),
                        itemsizing = "constant"),
          title = list(text = paste(y_label, "vs.", x_label),
@@ -714,7 +715,11 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
         showarrow = TRUE,
         arrowhead = 1,
         ax = 20,
-        ay = -20
+        ay = -20,
+#        arrowcolor = pal_okabe_ito_4[4],
+        arrowcolor = "black",
+#        font = list(color = pal_okabe_ito_4[4], size = 16)
+        font = list(color = "black", size = 16)
       )
     }
   }
