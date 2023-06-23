@@ -91,7 +91,7 @@ Specialized Diverge STR 2023	carbon	a1:h27	56
 Giant Revolt X pro 1 long 2023	carbon	c1:j23	M
 Giant Revolt X pro 1 short 2023	carbon	c1:j23	M
 Focus Atlas 8.9 2023	carbon	a1:g24	M
-Ventum GS1 2023	carbon	a1:h26	M/L
+Ventum GS1 2023	carbon	a1:h26	M
 Orbea Terra M 2023	carbon	a1:h27	M
 Orbea Terra H 2023	carbon	a1:h27	M
 Ibis Hakka MX 2023	carbon	a1:g22	55

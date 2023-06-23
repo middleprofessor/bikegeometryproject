@@ -124,6 +124,7 @@ scatter_fig_all <- function(x_col = "reach", y_col = "stack",
                  color = ~restyle,
                  colors = my_palette,
                  size = 10,
+                 opacity = 0.3,
                  name = ~model_size,
                  hoverinfo = "text",
                  text = ~paste(model, frame_size,
@@ -132,25 +133,44 @@ scatter_fig_all <- function(x_col = "reach", y_col = "stack",
                                paste0("<br>", y_info, ":"), round(get(y_col), digits)),
                  showlegend = FALSE
   ) %>% 
+    # left arrow: \U2B05
+    # up arrow: \U2B06
+    # down arrow: \U2B07
+    # SW arrow: \U2B0B
     add_text(text = ~paste("\U2B05", model, frame_size),
-             #             textfont = list(size = 10, color = toRGB("red")),
-             textfont = list(size = 12, color = ~restyle),
+             textfont = list(size = 14, color = ~restyle),
              color = ~restyle,
              colors = my_palette, # doesn't do anything
              symbol = "circle",
+             opacity = 1,
              textposition = "right",
              visible = "legendonly",
              sort = FALSE,
              showlegend = TRUE,
     ) %>%
     layout(xaxis = list(title = x_label, tickfont = list(size = 16), titlefont = list(size = 16)),
-         yaxis = list(title = y_label, tickfont = list(size = 16), titlefont = list(size = 16)),
-         legend = list(font = list(size = 10),
-                       itemsizing = "constant"),
-         title = list(text = paste(y_label, "vs.", x_label),
-                      x = 0,
-                      xanchor = "left")
-  )
+           yaxis = list(title = y_label, tickfont = list(size = 16), titlefont = list(size = 16)),
+           legend = list(font = list(size = 10),
+                         itemsizing = "constant"),
+           title = list(text = paste(y_label, "vs.", x_label),
+                        x = 0,
+                        xanchor = "left"),
+           # updatemenus = list(
+           #   list(
+           #     type = "buttons",
+           #     y = 0.8,
+           #     buttons = list(
+           #       
+           #       list(method = "restyle",
+           #            args = list(list("marker.opacity", 0.8), list("text.opacity", 0.8)),
+           #            label = "dark"),
+           #       
+           #       list(method = "restyle",
+           #            args = list(list("marker.opacity", 0.2), list("text.opacity", 0.8)),
+           #            label = "light")))
+           # ),
+           NULL
+    )
   
   if(!is.null(annotate_model)){
     for(j in 1:length(annotate_model)){

@@ -636,56 +636,6 @@ if(import_it != TRUE){
 
 
 
-## ----import-bikes-bits, echo=FALSE, eval=FALSE---------------------------------------------------------------------------------------------------------------------------
-## # clean frame_size
-## 
-##   geobike[, frame_size := toupper(frame_size)]
-##   geobike[, frame_size := str_remove(frame_size, "CM")]
-##   geobike[, frame_size := str_remove(frame_size, "\"")]
-##   geobike[, frame_size := str_replace(frame_size, "SMALL", "S")]
-##   geobike[, frame_size := str_replace(frame_size, "MEDIUM", "M")]
-##   geobike[, frame_size := str_replace(frame_size, "LARGE", "L")]
-##   geobike[, frame_size := str_replace(frame_size, "SM", "S")]
-##   geobike[, frame_size := str_replace(frame_size, "MD", "M")]
-##   geobike[, frame_size := str_replace(frame_size, "LG", "L")]
-##   geobike[, frame_size := str_replace(frame_size, "MED", "M")]
-##   geobike[, frame_size := str_replace(frame_size, "LRG", "L")]
-##   geobike[, frame_size := str_replace(frame_size, "EXTRA-", "X")]
-##   geobike[, frame_size := str_replace(frame_size, "EXTRA ", "X")]
-##   geobike[, frame_size := str_replace(frame_size, "2X", "XX")]
-##   geobike[, frame_size := str_replace(frame_size, " - ", "/")]
-##   geobike[, frame_size := str_remove(frame_size, "-")]
-##   # geobike[, frame_size := str_replace(frame_size, " (", "/")]
-##   # geobike[, frame_size := str_remove(frame_size, ")")]
-##   geobike[, frame_size := str_remove(frame_size, " ")]
-## 
-## 
-##   geobike[, frame_size := paste0(" ", frame_size)]
-##   geobike[, frame_size := str_replace(frame_size, " XXS", paste0("\U200B", " XXS"))]
-##   geobike[, frame_size := str_replace(frame_size, " XS", paste0("\U200C", " XS"))]
-##   geobike[, frame_size := str_replace(frame_size, " S", paste0("\U200D", " S", "\U200B"))]
-##   geobike[, frame_size := str_replace(frame_size, " M", paste0("\U200E", " M", "\U200B"))]
-##   geobike[, frame_size := str_replace(frame_size, " XM", paste0("\U200E", " XM"))]
-##   geobike[, frame_size := str_replace(frame_size, " L", paste0("\U200F", " L"))]
-##   geobike[, frame_size := str_replace(frame_size, " XL", paste0("\U200F", " XL"))]
-##   geobike[, frame_size := str_replace(frame_size, " XXL", paste0("\U200F", " XXL"))]
-## 
-##   # order is S/M, S, M/L, M. Solution:
-##   # 1) add U200B after " S" and " M"
-##   # 2) replace U200B/ with U200F/
-##   # this screws up Scott addict gravel in a way that I cannot understand so this is a very kludgy wrangle
-##   geobike[model != "Scott Addict Gravel", frame_size := str_replace(frame_size, paste0("\U200B", "/"), paste0("\U200F", "/"))]
-## 
-##   # add model-frame_size column
-##   geobike[, model_size := paste(model, frame_size)]
-##   setorder(geobike, model)
-##   geobike[, model_size := factor(model_size,
-##                                  levels = unique(model_size))]
-## 
-## 
-## 
-
-
 ## ----my_fit--------------------------------------------------------------------------------------------------------------------------------------------------------------
 my_fit <- geobike[my_fit == TRUE,]
 
@@ -755,6 +705,7 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
                  y = ~jitter(get(y_col), jitter_y),
                  color = ~restyle,
                  colors = my_palette,
+                 opacity = 0.3,
                  size = 10,
                  name = ~model_size,
                  hoverinfo = "text",
@@ -765,10 +716,10 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
                  showlegend = FALSE
   ) %>% 
     add_text(text = ~paste("\U2B05", model, frame_size),
-             #             textfont = list(size = 10, color = toRGB("red")),
              textfont = list(size = 12, color = ~restyle),
              color = ~restyle,
              colors = my_palette, # doesn't do anything
+             opacity = 1,
              symbol = "circle",
              textposition = "right",
              visible = "legendonly",
