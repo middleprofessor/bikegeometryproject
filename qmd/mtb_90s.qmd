@@ -2,51 +2,47 @@
 title: "Is a gravel bike a 1990s mountain bike?"
 ---
 
+Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3\") cm high rider, according to manufacturer's charts.
+
 ```{r setup-mtb90s, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("Rmd", "bike_geometry_project.R")
 source(source_path)
 
 ```
 
-```{r import, echo=FALSE, warning=FALSE, message=FALSE }
-import_it <- TRUE
-if(import_it != TRUE){
-  mtb90s_bike_path <- here("rds", "geobike.Rds")
-  mtb90s <- readRDS(mtb90s_bike_path)
-}else{
-  data_path <- here(data_folder, "1990s mtn bikes_list.txt")
-  bike_list <- fread(data_path)
-  mtb90s <- data.table(NULL)
-  for(i in 1:nrow(bike_list)){
-    bike_label_i <- as.character(bike_list[i, "model"])
-    bike_range_i <- as.character(bike_list[i, "data_range"])
-    bike_i <- read_bike(bike_label = bike_label_i,
-                        bike_range = bike_range_i,
-                        data_file = "1990s mtn bikes.xlsx")
-    bike_i[, my_fit := ifelse(frame_size == c(bike_list[i, "my_fit"]), TRUE, FALSE)]
-    mtb90s <- rbind(mtb90s, bike_i)
-  }
+```{r mtb90s, echo=FALSE, warning=FALSE, message=FALSE }
+data_path <- here(data_folder, "1990s mtn bikes_list.txt")
+bike_list <- fread(data_path)
+other_bikes <- data.table(NULL)
+for(i in 1:nrow(bike_list)){
+  bike_label_i <- as.character(bike_list[i, "model"])
+  bike_range_i <- as.character(bike_list[i, "data_range"])
+  bike_i <- read_bike(bike_label = bike_label_i,
+                      bike_range = bike_range_i,
+                      data_file = "1990s mtn bikes.xlsx")
+  bike_i[, my_fit := ifelse(frame_size == c(bike_list[i, "my_fit"]), TRUE, FALSE)]
+  other_bikes <- rbind(other_bikes, bike_i)
+}
 
 new_level <- "mid 90s MTB"
-mtb90s[, restyle := new_level]
+other_bikes[, restyle := new_level]
+other_bikes[, model_size := paste(model, frame_size)]
 
 #combine with my_fit using subset of columns
-  mtb_cols <- c("model", "year", "frame_size", "reach", "stack", "rear_center", "front_center", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "trail", "front_wheelbase", "stack_reach", "sta_hta", "restyle")
-  
-gravel_mtb90s <- rbind(my_fit[, .SD, .SDcols = mtb_cols],
-                       mtb90s[my_fit == TRUE, .SD, .SDcols = mtb_cols])
+other_bikes_cols <- c("model", "year", "frame_size", "reach", "stack", "rear_center", "front_center", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "trail", "front_wheelbase", "stack_reach", "sta_hta", "restyle", "model_size")
+
+gravel_other <- rbind(my_fit[, .SD, .SDcols = other_bikes_cols],
+                       other_bikes[my_fit == TRUE, .SD, .SDcols = other_bikes_cols])
 restyle_levels <- c(levels(my_fit[, restyle]), new_level)
-gravel_mtb90s[, restyle := factor(restyle,
-              levels = restyle_levels)]
+gravel_other[, restyle := factor(restyle,
+                                  levels = restyle_levels)]
+
   
-  
-  
-}
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-annotate_model_i <- mtb90s[my_fit == TRUE, model]
-plotted_data <- gravel_mtb90s
+annotate_model_i <- other_bikes[my_fit == TRUE, model]
+plotted_data <- gravel_other
 p1 <- scatter_fig(x_col = "reach", y_col = "stack",
                   x_label = "Reach", y_label = "Stack",
                   data = plotted_data,
@@ -81,38 +77,32 @@ p6 <- scatter_fig(x_col = "front_wheelbase", y_col = "sta_hta",
 ```
 
 
-## No! 1990s mountain bikes have crazy low stack! {.unnumbered .unlisted}
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 p1
 ```
 
 
-## No! 1990s mountain bikes have shorter rearends than Endurance gravel, shorter frontends than Trail gravel, and longer frontends than All-Road gravel! {.unnumbered .unlisted}
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 p2
 ```
 
-## No! 1990s mountain bikes had upright head tube angles compared to Endurance and Trail gravel! {.unnumbered .unlisted}
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 p3
 ```
 
-## No! 1990s mountain bikes have crazy small bottom bracket drops! {.unnumbered .unlisted}
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 p4
 ```
 
-## No! 1990s mountain bikes have crazy low stack:reach! {.unnumbered .unlisted}
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 p5
 ```
 
-## No! 1990s mountain bikes have low STA:HTA compared to Trail gravel and low STA:HTA given their relative front center compared to Endurance gravel {.unnumbered .unlisted}
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 p6

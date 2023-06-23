@@ -4,85 +4,9 @@ title: "Bike Geometry Project"
 
 copyright 2022 Jeffrey A. Walker
 
-```{r setup, warning=FALSE, message=FALSE, echo=FALSE}
-knitr::opts_chunk$set(echo = FALSE,
-                      message = FALSE,
-                      warning = FALSE,
-                      knitr.kable.NA = '')
-# wrangling packages
-library(here) # here makes a project transportable
-library(janitor) # clean_names
-library(readxl) # read excel, duh!
-library(data.table) # magical data frames
-library(magrittr) # pipes
-library(stringr) # string functions
-library(forcats) # factor functions
+A project to classify and compare gravel bike geometry. Explore the site using the menu at left.
 
-# analysis packages
-library(emmeans) # the workhorse for inference
-library(nlme) # gls and some lmm
-library(lme4) # linear mixed models
-library(lmerTest) # linear mixed model inference
-library(afex) # ANOVA linear models
-library(glmmTMB) # generalized linear models
-library(MASS) # negative binomial and some other functions
-library(car) # model checking and ANOVA
-library(DHARMa) # model checking
-library(mvtnorm)
-
-# graphing packages
-library(ggsci) # color palettes
-library(ggpubr) # publication quality plots
-library(ggforce) # better jitter
-library(cowplot) # combine plots
-library(knitr) # kable tables
-library(kableExtra) # kable_styling tables
-library(ggdendro) # dendrogram
-library(dendextend) # better dendrogram
-library(ggiraph)
-library(GGally)
-
-# plotly
-library(plotly)
-library(flexdashboard)
-library(crosstalk)
-
-# ggplot_the_model.R packages not loaded above
-library(insight)
-library(lazyWeave)
-
-# use here from the here package
-here <- here::here
-# use clean_names from the janitor package
-clean_names <- janitor::clean_names
-# use transpose from data.table
-transpose <- data.table::transpose
-
-pal_okabe_ito <- c(
-  "#E69F00",
-  "#56B4E9",
-  "#009E73",
-  "#F0E442",
-  "#0072B2",
-  "#D55E00",
-  "#CC79A7"
-)
-pal_okabe_ito_blue <- pal_okabe_ito[c(5,6,1,2,3,7,4)] 
-pal_okabe_ito_red <- pal_okabe_ito[c(6,5,3,1,2,7,4)] 
-pal_okabe_ito_2 <- pal_okabe_ito[c(5,6)]
-pal_okabe_ito_3 <- pal_okabe_ito[c(5,6,7)]
-pal_okabe_ito_3_light <- pal_okabe_ito[c(1,2,7)]
-pal_okabe_ito_4 <- pal_okabe_ito[c(5,6,7,2)]
-
-  geo_bike_path <- here("rds", "geobike.Rds")
-  geobike <- readRDS(geo_bike_path)
-  my_fit_path <- here("rds", "my_fit.Rds")
-  my_fit <- readRDS(my_fit_path)
-
-```
-
-```{r echo=FALSE}
-  geo_bike_path <- here("rds", "geobike.Rds")
-  geobike <- readRDS(geo_bike_path)
-  my_fit <- geobike[my_fit == TRUE,]
+```{r setup-index, echo=FALSE, warning=FALSE, message=FALSE}
+source_path <- here::here("Rmd", "bike_geometry_project.R")
+source(source_path)
 ```

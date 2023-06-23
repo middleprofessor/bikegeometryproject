@@ -20,6 +20,7 @@ library(data.table) # magical data frames
 library(magrittr) # pipes
 library(stringr) # string functions
 library(forcats) # factor functions
+library(arules) # discretize function
 
 # analysis packages
 library(emmeans) # the workhorse for inference
@@ -82,8 +83,8 @@ pal_okabe_ito <- c(
   "#CC79A7"
 )
 
-pal_okabe_ito_3 <- pal_okabe_ito[c(1,2,3)]
-pal_okabe_ito_4 <- pal_okabe_ito[c(1,2,3,6)]
+pal_okabe_ito_3 <- pal_okabe_ito[c(2,3,1)]
+pal_okabe_ito_4 <- c(pal_okabe_ito_3, pal_okabe_ito[c(6)])
 ```
 
 # Functions
@@ -453,10 +454,16 @@ read_bike <- function(bike_label = "Breezer Radar X Pro 2022",
               keep.names = "frame_size",
               make.names = 1)
   )
-  keep_names <- c("model", "year", "frame_size", "seat_tube_length", "top_tube_effective_length", "head_tube_length", "seat_tube_angle", "head_tube_angle", "chainstay_length", "wheelbase", "bottom_bracket_drop", "fork_offset_rake", "stack", "reach", "standover", "stem_length", "handlebar_width", "crank_length", "wheel_size", "tire_width_spec", "tire_width_max")
+  keep_names <- c("model", "year", "frame_size", "seat_tube_length", "top_tube_effective_length", "head_tube_length", "seat_tube_angle", "head_tube_angle", "chainstay_length", "wheelbase", "bottom_bracket_drop", "fork_offset_rake", "stack", "reach", "standover", "stem_length", "handlebar_width", "crank_length", "wheel_size", "tire_width_spec", "tire_width_max") #, "rider_min", "rider_max")
   bike <- bike[, .SD, .SDcols = keep_names]
   
   # fill in missing
+    # wheelbase
+  bike[, wheelbase := 
+         ifelse(is.na(wheelbase),
+                compute_wheelbase(bike),
+                wheelbase)]
+
     # chainstay_length
   bike[, chainstay_length := 
          ifelse(is.na(chainstay_length),
@@ -601,12 +608,59 @@ if(import_it != TRUE){
   geobike[, crown_x := crown_x - bottom_x]
   geobike[, front_x := front_x - bottom_x]
   geobike[, bottom_x := bottom_x - bottom_x]
-  geobike[, seattube_x := seattube_x - bottom_x]  
+  geobike[, seattube_x := seattube_x - bottom_x]
+  
+# clean frame_size
+
+  geobike[, frame_size := toupper(frame_size)]
+  geobike[, frame_size := str_remove(frame_size, "CM")]
+  geobike[, frame_size := str_remove(frame_size, "\"")]
+  geobike[, frame_size := str_replace(frame_size, "SMALL", "S")]
+  geobike[, frame_size := str_replace(frame_size, "MEDIUM", "M")]
+  geobike[, frame_size := str_replace(frame_size, "LARGE", "L")]
+  geobike[, frame_size := str_replace(frame_size, "SM", "S")]
+  geobike[, frame_size := str_replace(frame_size, "MD", "M")]
+  geobike[, frame_size := str_replace(frame_size, "LG", "L")]
+  geobike[, frame_size := str_replace(frame_size, "MED", "M")]
+  geobike[, frame_size := str_replace(frame_size, "LRG", "L")]
+  geobike[, frame_size := str_replace(frame_size, "EXTRA-", "X")]
+  geobike[, frame_size := str_replace(frame_size, "EXTRA ", "X")]
+  geobike[, frame_size := str_replace(frame_size, "2X", "XX")]
+  geobike[, frame_size := str_replace(frame_size, " - ", "/")]
+  geobike[, frame_size := str_remove(frame_size, "-")]
+  geobike[, frame_size := str_remove(frame_size, " ")]
+  
+  geobike[, frame_size := paste0(" ", frame_size)]
+  geobike[, frame_size := str_replace(frame_size, " XXS", paste0("\U200B", " XXS"))]
+  geobike[, frame_size := str_replace(frame_size, " XS", paste0("\U200C", " XS"))]
+  geobike[, frame_size := str_replace(frame_size, " S", paste0("\U200D", " S", "\U200B"))]
+  geobike[, frame_size := str_replace(frame_size, " M", paste0("\U200E", " M", "\U200B"))]
+  geobike[, frame_size := str_replace(frame_size, " XM", paste0("\U200E", " XM"))]
+  geobike[, frame_size := str_replace(frame_size, " L", paste0("\U200F", " L"))]
+  geobike[, frame_size := str_replace(frame_size, " XL", paste0("\U200F", " XL"))]
+  geobike[, frame_size := str_replace(frame_size, " XXL", paste0("\U200F", " XXL"))]
+  
+  # order is S/M, S, M/L, M. Solution:
+  # 1) add U200B after " S" and " M"
+  # 2) replace U200B/ with U200F/
+  # this screws up Scott addict gravel in a way that I cannot understand so this is a very kludgy wrangle
+  geobike[model != "Scott Addict Gravel", frame_size := str_replace(frame_size, paste0("\U200B", "/"), paste0("\U200F", "/"))]
+
+  # add model-frame_size column
+  geobike[, model_size := paste(model, frame_size)]
+  setorder(geobike, model)
+  geobike[, model_size := factor(model_size,
+                                 levels = unique(model_size))]
+  
+  # create size classes
+  geobike[, top_tube_size := discretize(top_tube_effective_length, method = "cluster", breaks = 6)]
+  geobike[, frame_size_working := top_tube_size]
 }
 
 ```
 
-```{r my_fit, echo=FALSE}
+
+```{r my_fit}
 my_fit <- geobike[my_fit == TRUE,]
 ```
 
@@ -638,8 +692,10 @@ if(import_it == TRUE){
   cluster_labels[style_class[model == endurance, clust]] <- "Endurance"
   
   style_class[, restyle := cluster_labels[clust]]
+  # relevel
+  style_levels <- c("All-Road", "Endurance", "Trail")
   style_class[, restyle := factor(restyle,
-                                  levels = cluster_labels)]
+                                  levels = style_levels)]
   
   # add style to geobike
   geobike <- plyr::join(geobike,
@@ -676,7 +732,7 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
                  color = ~restyle,
                  colors = my_palette,
                  size = 10,
-                 name = ~model,
+                 name = ~model_size,
                  hoverinfo = "text",
                  text = ~paste(model, frame_size,
                                "<br>Cat:", restyle,
@@ -684,17 +740,18 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
                                paste0("<br>", y_info, ":"), round(get(y_col), digits)),
                  showlegend = FALSE
   ) %>% 
-    add_text(text = ~paste0("\U2B05", model),
-#             textfont = list(size = 10, color = toRGB("red")),
+    add_text(text = ~paste("\U2B05", model, frame_size),
+             #             textfont = list(size = 10, color = toRGB("red")),
              textfont = list(size = 12, color = ~restyle),
              color = ~restyle,
              colors = my_palette, # doesn't do anything
              symbol = "circle",
              textposition = "right",
              visible = "legendonly",
+             sort = FALSE,
              showlegend = TRUE,
     ) %>%
-  layout(xaxis = list(title = x_label, tickfont = list(size = 16), titlefont = list(size = 16)),
+    layout(xaxis = list(title = x_label, tickfont = list(size = 16), titlefont = list(size = 16)),
          yaxis = list(title = y_label, tickfont = list(size = 16), titlefont = list(size = 16)),
          legend = list(font = list(size = 10),
                        itemsizing = "constant"),

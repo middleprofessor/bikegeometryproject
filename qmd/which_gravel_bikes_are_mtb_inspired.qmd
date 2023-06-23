@@ -2,51 +2,46 @@
 title: "Which gravel bikes have mountain bike inspired geometry?"
 ---
 
+Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3\") cm high rider, according to manufacturer's charts.
+
 ```{r setup-mtb90s, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("Rmd", "bike_geometry_project.R")
 source(source_path)
 
 ```
 
-```{r import, echo=FALSE, warning=FALSE, message=FALSE }
-import_it <- TRUE
-if(import_it != TRUE){
-  mountain_path <- here("rds", "geobike.Rds")
-  mountain <- readRDS(mountain_path)
-}else{
-  data_path <- here(data_folder, "mountain_list.txt")
-  bike_list <- fread(data_path)
-  mountain <- data.table(NULL)
-  for(i in 1:nrow(bike_list)){
-    bike_label_i <- as.character(bike_list[i, "model"])
-    bike_range_i <- as.character(bike_list[i, "data_range"])
-    bike_i <- read_bike(bike_label = bike_label_i,
-                        bike_range = bike_range_i,
-                        data_file = "mountain.xlsx")
-    bike_i[, my_fit := ifelse(frame_size == c(bike_list[i, "my_fit"]), TRUE, FALSE)]
-    mountain <- rbind(mountain, bike_i)
-  }
+```{r mountain, echo=FALSE, warning=FALSE, message=FALSE }
+data_path <- here(data_folder, "mountain_list.txt")
+bike_list <- fread(data_path)
+other_bikes <- data.table(NULL)
+for(i in 1:nrow(bike_list)){
+  bike_label_i <- as.character(bike_list[i, "model"])
+  bike_range_i <- as.character(bike_list[i, "data_range"])
+  bike_i <- read_bike(bike_label = bike_label_i,
+                      bike_range = bike_range_i,
+                      data_file = "mountain.xlsx")
+  bike_i[, my_fit := ifelse(frame_size == c(bike_list[i, "my_fit"]), TRUE, FALSE)]
+  other_bikes <- rbind(other_bikes, bike_i)
+}
 
 new_level <- "Mountain"
-mountain[, restyle := new_level]
+other_bikes[, restyle := new_level]
+other_bikes[, model_size := paste(model, frame_size)]
 
 #combine with my_fit using subset of columns
-  mtb_cols <- c("model", "year", "frame_size", "reach", "stack", "rear_center", "front_center", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "trail", "front_wheelbase", "stack_reach", "sta_hta", "restyle")
-  
-gravel_mtb <- rbind(my_fit[, .SD, .SDcols = mtb_cols],
-                       mountain[my_fit == TRUE, .SD, .SDcols = mtb_cols])
+other_bikes_cols <- c("model", "year", "frame_size", "reach", "stack", "rear_center", "front_center", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "trail", "front_wheelbase", "stack_reach", "sta_hta", "restyle", "model_size")
+
+gravel_other <- rbind(my_fit[, .SD, .SDcols = other_bikes_cols],
+                    other_bikes[my_fit == TRUE, .SD, .SDcols = other_bikes_cols])
 restyle_levels <- c(levels(my_fit[, restyle]), new_level)
-gravel_mtb[, restyle := factor(restyle,
-              levels = restyle_levels)]
-  
-  
-  
-}
+gravel_other[, restyle := factor(restyle,
+                               levels = restyle_levels)]
+
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-annotate_model_i <- mountain[my_fit == TRUE, model]
-plotted_data <- gravel_mtb
+annotate_model_i <- other_bikes[my_fit == TRUE, model]
+plotted_data <- gravel_other
 p1 <- scatter_fig(x_col = "reach", y_col = "stack",
                   x_label = "Reach", y_label = "Stack",
                   data = plotted_data,
