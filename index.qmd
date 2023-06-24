@@ -10,7 +10,16 @@ source_path <- here::here("Rmd", "bike_geometry_project.R")
 source(source_path)
 ```
 
-The [Gravel Tree](qmd/gravel_tree.qmd) page contains a tree diagram showing the relative similarity in frame geometry among all gravel bikes in the database.
+The [Gravel Scatter](qmd/gravel_scatter.qmd) page contains interactive, 2D scatter plots of different pairs of frame geometry measures for all gravel bike models and frame sizes in the database.
+
+```{r echo=FALSE}
+image_folder <- "images"
+image_file <- "gravel-scatter.png"
+image_path <- here(image_folder, image_file)
+include_graphics(image_path)
+```
+
+The [Gravel Tree](qmd/gravel_tree.qmd) page contains a tree diagram showing the relative similarity in frame geometry among all gravel bikes in the database and the clustering of the models into three major styles.
 
 ```{r echo=FALSE}
 image_folder <- "images"
@@ -24,15 +33,6 @@ The [Gravel Style](qmd/gravel_class.qmd) page contains a table of the classifica
 ```{r echo=FALSE}
 image_folder <- "images"
 image_file <- "gravel-table.png"
-image_path <- here(image_folder, image_file)
-include_graphics(image_path)
-```
-
-The [Gravel Scatter](qmd/gravel_scatter.qmd) page contains interactive, 2D scatter plots of different pairs of frame geometry measures for all gravel bike models and frame sizes in the database.
-
-```{r echo=FALSE}
-image_folder <- "images"
-image_file <- "gravel-scatter.png"
 image_path <- here(image_folder, image_file)
 include_graphics(image_path)
 ```
