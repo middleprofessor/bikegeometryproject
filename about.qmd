@@ -1,9 +1,21 @@
 ---
-title: "About"
+title: "Jeff Walker"
+about:
+  template: broadside
+  image: images/dirt_and_blood.jpg
+  links:
+    - icon: twitter
+      text: twitter
+      href: https://twitter.com
+    - icon: instagram
+      text: instagram
+      href: https://instagram.com
+
 ---
 
-About this site
+I'm a Professor of Biology at the University of Southern Maine in Portland with a research program that has moved from geometric morphometrics to fish swimming biomechanics, to best practices in statistics for experimental bench biologists.
 
-```{r}
-1 + 1
-```
+For recreation, I'm mostly a mountain runner but also XC skier, backcountry skier (mostly resort uphill), and gravel cyclist, and do most of these activities in the White Mountains of New Hampshire.
+
+The bike geometry project combines my interests in biological shape, biomechanics, biostatistics, and outdoor recreation.
+

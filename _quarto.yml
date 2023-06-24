@@ -6,9 +6,16 @@ website:
   title: "Bike Geometry Project"
   description: "Not the same old bike geometry comparison tool."
   site-url: https://bikegeometry.site
+  navbar:
+    background: primary
+    search: true
+    right:
+      - text: "About"
+        file: about.qmd 
+
   sidebar:
     style: "docked"
-    search: true
+    search: false
     contents:
       - section: "Intro"
         contents:
@@ -23,7 +30,6 @@ website:
           - qmd/which_gravel_bikes_are_mtb_inspired.qmd
           - qmd/mtb_90s.qmd
 
-
 format:
   html:
     theme: cosmo
@@ -31,5 +37,5 @@ format:
     toc: true
     page-layout: full
 
-editor: visual
+editor: source
 
