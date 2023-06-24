@@ -191,7 +191,7 @@ tree_v2_color <- dendro_data_k(tree_v2, k = 3)
 
 gg <- plot_ggdendro(tree_v2_color,
                       direction   = "lr",
-                      expand.y    = 0.2,
+                      expand.y    = 0.4,
                       scale.color = pal_okabe_ito_3[c(1,3,2)])
  
 gg

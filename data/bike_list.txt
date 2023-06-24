@@ -76,7 +76,7 @@ Open WI.DE 2022	carbon	b1:h24	M
 Devinci Hatchet 2022	carbon	a1:g22	M - 54cm
 Wilier Jena 2022	carbon	a1:g22	L
 Wilier Rave SLR 2022	carbon	a1:g22	L
-Cannondale SuperSix Evo 2022	carbon	b1:h25	54
+Cannondale SuperSix Evo 2022	carbon	a1:g25	54
 Scott Addict Gravel 2022	carbon	a1:g23	M/54
 Fezzari Shafer 2022	carbon	b1:h25	M
 Rondo MYLC CF Lo 2022	carbon	b1:g23	M
@@ -88,8 +88,8 @@ Otso Waheela C front 2022	carbon	c26:h49	L
 Argonaut GR3 2023	carbon	b1:j23	560
 YT Szepter 2023	carbon	a1:g24	L
 Specialized Diverge STR 2023	carbon	a1:h27	56
-Giant Revolt X pro 1 long 2023	carbon	c1:j23	M
-Giant Revolt X pro 1 short 2023	carbon	c1:j23	M
+Giant Revolt X pro 1 long 2023	carbon	a1:h23	M
+Giant Revolt X pro 1 short 2023	carbon	a1:h23	M
 Focus Atlas 8.9 2023	carbon	a1:g24	M
 Ventum GS1 2023	carbon	a1:h26	M
 Orbea Terra M 2023	carbon	a1:h27	M
@@ -100,4 +100,6 @@ Wilde Rambler SL 2023	steel	a1:f24	L
 Soma Wolverine 2022	steel	a1:k23	54
 Commencal 365 2023	aluminum	a1:g23	M
 Alchemy Lycos 2023	carbon	a1:h23	L
- 
+Giant Revolt pro long 2023	carbon	a1:h23	M
+Giant Revolt pro short 2023	carbon	a1:h23	M
+Cannondale Topstone Lefty 2023	carbon	a1:g26	MD
