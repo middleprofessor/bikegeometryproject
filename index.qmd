@@ -1,12 +1,45 @@
 ---
 title: "Bike Geometry Project"
+subtitle: "A project to classify and compare gravel bike geometry"
 ---
 
 copyright 2022 Jeffrey A. Walker
-
-A project to classify and compare gravel bike geometry.
 
 ```{r setup-index, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("Rmd", "bike_geometry_project.R")
 source(source_path)
 ```
+
+The [Gravel Tree](qmd/gravel_tree.qmd) page contains a tree diagram showing the relative similarity in frame geometry among all gravel bikes in the database.
+
+```{r echo=FALSE}
+image_folder <- "images"
+image_file <- "gravel-tree-1.png"
+image_path <- here(image_folder, image_file)
+include_graphics(image_path)
+```
+
+The [Gravel Style](qmd/gravel_class.qmd) page contains a table of the classification of all gravel bike models in the database into All-road, Endurance, and Trail categories.
+
+```{r echo=FALSE}
+image_folder <- "images"
+image_file <- "gravel-table.png"
+image_path <- here(image_folder, image_file)
+include_graphics(image_path)
+```
+
+The [Gravel Scatter](qmd/gravel_scatter.qmd) page contains interactive, 2D scatter plots of different pairs of frame geometry measures for all gravel bike models and frame sizes in the database.
+
+```{r echo=FALSE}
+image_folder <- "images"
+image_file <- "gravel-scatter.png"
+image_path <- here(image_folder, image_file)
+include_graphics(image_path)
+```
+
+Also, check out the Gravel Stories
+
+[Which gravel bikes have mountain bike inspired geometry?](qmd/which_gravel_bikes_are_mtb_inspired.qmd)
+
+[Is a gravel bike a 1990s mountain bike?](qmd/mtb_90s.qmd)
+
