@@ -4,7 +4,7 @@ title: "Bike Geometry Project"
 
 copyright 2022 Jeffrey A. Walker
 
-A project to classify and compare gravel bike geometry. Explore the site using the menu at left.
+A project to classify and compare gravel bike geometry.
 
 ```{r setup-index, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("Rmd", "bike_geometry_project.R")

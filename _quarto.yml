@@ -4,6 +4,8 @@ project:
 
 website:
   title: "Bike Geometry Project"
+  description: "Not the same old bike geometry comparison tool."
+  site-url: https://bikegeometry.site
   sidebar:
     style: "docked"
     search: true
