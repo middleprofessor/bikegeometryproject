@@ -3,8 +3,6 @@ title: "Bike Geometry Project"
 subtitle: "A project to classify and compare gravel bike geometry"
 ---
 
-copyright 2022 Jeffrey A. Walker
-
 ```{r setup-index, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("Rmd", "bike_geometry_project.R")
 source(source_path)
@@ -43,3 +41,4 @@ Also, check out the Gravel Stories
 
 [Is a gravel bike a 1990s mountain bike?](qmd/mtb_90s.qmd)
 
+copyright 2022 Jeffrey A. Walker
