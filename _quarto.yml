@@ -1,6 +1,7 @@
 project:
   type: website
-  output-dir: docs
+  output-dir: _site
+  resources: googlef06d37c17cf410a9.html
 
 website:
   title: "Bike Geometry Project"

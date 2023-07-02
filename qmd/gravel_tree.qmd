@@ -1,9 +1,9 @@
 ---
 title: "Gravel Tree"
-editor: visual
+editor: source
 ---
 
-Classification of bikes is based on a frame size that fits a 176 cm (5' 9.3\") cm high rider, according to manufacturer's charts.
+Classification of bikes is based on a frame size that fits a 176 cm (5' 9.3") cm high rider, according to manufacturer's charts.
 
 ```{r setup-tree, warning=FALSE, message=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE,
                       knitr.kable.NA = '')
 
-source_path <- here::here("Rmd", "bike_geometry_project.R")
+source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 
 ```
@@ -175,7 +175,8 @@ get_tree <- function(geobike_subset,
 ```
 
 ```{r gravel-tree, fig.height=10, fig.width=10, echo=FALSE}
-y_cols <- c("stack", "reach", "front_center", "rear_center", "head_tube_angle", "seat_tube_angle")
+y_cols <- c("stack", "reach", "front_center", "rear_center", "head_tube_angle", "seat_tube_angle", "trail")
+
 
 geobike_subset <- geobike[my_fit == TRUE,]
 scale_it <- TRUE

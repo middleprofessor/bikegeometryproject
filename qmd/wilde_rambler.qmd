@@ -7,7 +7,7 @@ title: "Wilde Rambler"
 -- Jeff Frane, [Gravel Ride Podcast](https://thegravelride.bike/wilde-bicycle-co-founder-jeffrey-frane)
 
 ```{r wilde-setup, echo=FALSE, warning=FALSE, message=FALSE}
-source_path <- here::here("Rmd", "bike_geometry_project.R")
+source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 
 ```
