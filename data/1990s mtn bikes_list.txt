@@ -1,4 +1,0 @@
-model	frame	data_range	my_fit
-Trek Singletrack 990 1995	steel	a1:e22	18
-Specialized Stumpjumper 1996	steel	a1:e22	17
-GT Xizang 1995	steel	a1:e22	16

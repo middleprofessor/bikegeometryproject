@@ -1,0 +1,215 @@
+---
+title: "Wilde Rambler"
+---
+
+"So in my lineage, as I progressed through the industry, we had the Space Horse, then we had the Cosmic Stallion, and then I created the Earth ship, which was an iter iteration of those works, an evolution of those works. And now we have the Rambler. And so when I, things I like in gravel bikes. I believe that an endurance bike comfortable is fast."
+
+-- Jeff Frane, [Gravel Ride Podcast](https://thegravelride.bike/wilde-bicycle-co-founder-jeffrey-frane)
+
+```{r wilde-setup, echo=FALSE, warning=FALSE, message=FALSE}
+source_path <- here::here("Rmd", "bike_geometry_project.R")
+source(source_path)
+
+```
+
+```{r wilde-bikes, echo = FALSE}
+bikes_cols <- c("model", "year", "frame_size", "reach", "stack", "rear_center", "front_center", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "trail", "front_wheelbase", "stack_reach", "sta_hta", "restyle", "model_size")
+bikes <- my_fit[, .SD, .SDcols = bikes_cols]
+opacity <- rep(0.5, nrow(bikes))
+```
+
+```{r wilde-base-plot, echo = FALSE}
+base_plot <- function(data = geobike,
+                      x_col = "reach",
+                      y_col = "stack",
+                      g_col = "model_size",
+                      x_label = "Reach", y_label = "Stack",
+                      x_info = NULL, y_info = NULL,
+                      digits = 0,
+                      dot_palette = pal_okabe_ito_7,
+                      dot_opacity = 0.3,
+                      same_xy_scale = TRUE){
+  if(is.null(x_info)){x_info <- x_label}
+  if(is.null(y_info)){y_info <- y_label}
+  restyle_legend <- ifelse(g_col == "restyle",
+                           TRUE,
+                           FALSE)
+  n_colors <- length(levels(data[, restyle]))
+  
+  # set range of axes
+  min_data_x <- min(data[, get(x_col)], na.rm = TRUE)
+  min_data_y <- min(data[, get(y_col)], na.rm = TRUE)
+  max_data_x <- max(data[, get(x_col)], na.rm = TRUE)
+  max_data_y <- max(data[, get(y_col)], na.rm = TRUE)
+  range_x <- max_data_x - min_data_x
+  range_y <- max_data_y - min_data_y
+  range_axis_x <- range_x * 1.1
+  range_axis_y <- range_y * 1.1
+  if(same_xy_scale == TRUE){
+    if(range_x > range_y){
+      range_axis_y <- range_axis_y * range_x/range_y
+    }else{
+      range_axis_x <- range_axis_x * range_y/range_x
+    }}
+  min_axis_x <- (min_data_x + max_data_x)/2 - 0.5*range_axis_x
+  max_axis_x <- (min_data_x + max_data_x)/2 + 0.5*range_axis_x
+  min_axis_y <- (min_data_y + max_data_y)/2 - 0.5*range_axis_y
+  max_axis_y <- (min_data_y + max_data_y)/2 + 0.5*range_axis_y
+ 
+  p <- plot_ly(data, evaluate=TRUE) %>%
+  add_trace(type = "scatter", mode = "markers",
+            x = ~get(x_col),
+            y = ~get(y_col),
+            color = ~restyle,
+            colors = dot_palette[1:n_colors],
+            opacity = dot_opacity,
+            size = 10,
+            name = ~get(g_col),
+            hoverinfo = "text",
+            text = ~paste(model, frame_size,
+                          "<br>Cat:", restyle,
+                          paste0("<br>", x_info, ":"),
+                          round(get(x_col), digits),
+                          paste0("<br>", y_info, ":"),
+                          round(get(y_col), digits)),
+            showlegend = restyle_legend
+  ) %>% 
+    layout(xaxis = list(title = x_label,
+                        tickfont = list(size = 16), titlefont = list(size = 16),
+                        range = c(min_axis_x, max_axis_x)),
+           yaxis = list(title = y_label,
+                        tickfont = list(size = 16), titlefont = list(size = 16),
+                        range = c(min_axis_y, max_axis_y)),
+           title = list(text = paste(y_label, "vs.", x_label),
+                        x = 0,
+                        xanchor = "left"),
+           # legend = list(font = list(size = 10),
+           #               itemsizing = "constant"),
+           # autosize = F, width = 800, height = 600,
+           NULL
+    )
+ 
+  return(p)
+}
+
+```
+
+```{r wilde-animate, echo = FALSE}
+animate_bikes <- function(p,
+                          data = geobike,
+                          x_col = "reach",
+                          y_col = "stack",
+                          g_col = "restyle",
+                          f_col = "year_model"){
+  p <- p %>%
+    add_trace(data = data,
+              x = ~get(x_col),
+              y = ~get(y_col),
+              color = ~get(g_col),
+              frame = ~get(f_col),
+              type = "scatter",
+              mode = "markers",
+              marker = list(size = 16),
+              showlegend = FALSE,
+              NULL)
+  return(p)
+}
+
+```
+
+```{r wilde-annotate, echo = FALSE}
+annotate_bikes <- function(p,
+                           data = geobike,
+                           x_col = "reach",
+                           y_col = "stack",
+                           text_col = "year_model"
+                           ){
+  
+  p2 <- plotly_build(p)
+  for(i in 1:length(text_col)){
+    annotation = list(
+      type = "text",
+      x = data[i, get(x_col)],
+      y = data[i, get(y_col)],
+      xref = "x",
+      yref = "y",
+      ay = 20,
+      showarrow = TRUE,
+      text = data[i, get(text_col)], 
+      font = list(color = "black", size = 16))
+    p2$x$frames[[i]]$layout <- list(annotations = list(annotation)) # change plot
+  }
+  
+  return(p2) 
+}
+```
+
+
+
+
+
+```{r wilde-plotit, echo = FALSE, echo=FALSE, warning=FALSE, message=FALSE, out.width = "100%", out.height = "100%"}
+
+bikes <- my_fit[, .SD, .SDcols = bikes_cols]
+
+# make Wilde data
+wilde_levels <- c("All-City Space Horse",
+                 "All-City Cosmic Stallion",
+                 "Wilde Earth Ship Steel",
+                 "Wilde Rambler SL")
+y_cols <- c("model", "frame_size", "restyle", "model_size",
+            "reach", "stack", "front_center", "rear_center",
+            "head_tube_angle", "seat_tube_angle", "trail",
+            "front_wheelbase", "stack_reach", "sta_hta")
+wilde_data <- bikes[model %in% wilde_levels, .SD, .SDcols = y_cols]
+wilde_data[, year_model := paste(c("2017", "2011", "2022", "2023"), model)]
+setorder(wilde_data, "year_model")
+
+xy_sets <- rbind(
+  c("reach", "stack", "Reach (mm)", "Stack (mm)", TRUE),
+  c("rear_center", "front_center", "Rear Center (mm)", "Front Center (mm)", TRUE),  
+  c("head_tube_angle", "seat_tube_angle", "Head Tube Angle (°)", "Seat Tube Angle (°)", TRUE),
+  c("head_tube_angle", "trail", "Head Tube Angle (°)", "Trail (mm)", FALSE),
+  c("front_wheelbase", "stack_reach", "FC/WB", "Stack/Reach", FALSE),
+  c("front_wheelbase", "sta_hta", "FC/WB", "STA/HTA", FALSE)
+) %>%
+  data.table()
+setnames(xy_sets, new = c("x", "y", "x_label", "y_label", "xy_scale"))
+
+p_list <- list()
+for(i in 1:nrow(xy_sets)){
+  p <- base_plot(data = my_fit,
+                  x_col = xy_sets[i, x],
+                  y_col = xy_sets[i, y],
+                  g_col = "restyle",
+                  x_label = xy_sets[i, x_label],
+                  y_label = xy_sets[i, y_label],
+                  dot_palette = pal_okabe_ito_7,
+                  dot_opacity = 0.3,
+                  same_xy_scale = xy_sets[i, xy_scale]) %>%
+    animate_bikes(data = wilde_data,
+                  x_col = xy_sets[i, x],
+                  y_col = xy_sets[i, y],
+                  g_col = "restyle",
+                  f_col = "year_model") %>%
+    annotate_bikes(data = wilde_data,
+                   x_col = xy_sets[i, x],
+                   y_col = xy_sets[i, y],
+                   text_col = "year_model"
+    )
+  p_list[[i]] =  plotly_build(p)
+}
+
+p_list[[1]]
+p_list[[2]]
+p_list[[3]]
+p_list[[4]]
+p_list[[5]]
+p_list[[6]]
+
+
+```
+
+
+
+

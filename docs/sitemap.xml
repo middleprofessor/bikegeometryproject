@@ -1,51 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://bikegeometry.site/qmd/toggle_annotation.html</loc>
-    <lastmod>2023-06-25T01:38:41.240Z</lastmod>
-  </url>
-  <url>
     <loc>https://bikegeometry.site/qmd/gravel_class.html</loc>
-    <lastmod>2023-06-25T01:38:45.368Z</lastmod>
-  </url>
-  <url>
-    <loc>https://bikegeometry.site/qmd/gravel_scatter old with bscols.html</loc>
-    <lastmod>2023-06-25T01:38:48.421Z</lastmod>
+    <lastmod>2023-07-02T15:06:23.053Z</lastmod>
   </url>
   <url>
     <loc>https://bikegeometry.site/qmd/which_gravel_bikes_are_mtb_inspired.html</loc>
-    <lastmod>2023-06-25T01:39:15.184Z</lastmod>
+    <lastmod>2023-07-02T15:06:25.255Z</lastmod>
+  </url>
+  <url>
+    <loc>https://bikegeometry.site/qmd/what_is_a_gravel_bike.html</loc>
+    <lastmod>2023-07-02T15:06:28.007Z</lastmod>
   </url>
   <url>
     <loc>https://bikegeometry.site/qmd/gravel_tree.html</loc>
-    <lastmod>2023-06-25T01:39:15.578Z</lastmod>
+    <lastmod>2023-07-02T15:06:31.827Z</lastmod>
   </url>
   <url>
     <loc>https://bikegeometry.site/qmd/mtb_90s.html</loc>
-    <lastmod>2023-06-25T01:39:26.618Z</lastmod>
+    <lastmod>2023-07-02T15:06:34.456Z</lastmod>
   </url>
   <url>
     <loc>https://bikegeometry.site/qmd/gravel_scatter.html</loc>
-    <lastmod>2023-06-25T01:40:03.019Z</lastmod>
+    <lastmod>2023-07-02T15:06:41.327Z</lastmod>
   </url>
   <url>
-    <loc>https://bikegeometry.site/qmd/gravel_scatter_new.html</loc>
-    <lastmod>2023-06-25T01:40:32.163Z</lastmod>
+    <loc>https://bikegeometry.site/qmd/gravel_histo.html</loc>
+    <lastmod>2023-07-02T15:06:44.349Z</lastmod>
+  </url>
+  <url>
+    <loc>https://bikegeometry.site/qmd/wilde_rambler.html</loc>
+    <lastmod>2023-07-02T15:06:47.096Z</lastmod>
   </url>
   <url>
     <loc>https://bikegeometry.site/Rmd/bike_geometry_project.html</loc>
-    <lastmod>2023-06-25T01:40:39.130Z</lastmod>
-  </url>
-  <url>
-    <loc>https://bikegeometry.site/Rmd/geometry_plotly.html</loc>
-    <lastmod>2023-06-25T01:40:47.879Z</lastmod>
+    <lastmod>2023-07-02T15:06:49.969Z</lastmod>
   </url>
   <url>
     <loc>https://bikegeometry.site/index.html</loc>
-    <lastmod>2023-06-25T01:40:54.744Z</lastmod>
+    <lastmod>2023-07-02T15:06:52.371Z</lastmod>
   </url>
   <url>
     <loc>https://bikegeometry.site/about.html</loc>
-    <lastmod>2023-06-25T01:40:55.059Z</lastmod>
+    <lastmod>2023-07-02T15:06:52.672Z</lastmod>
   </url>
 </urlset>

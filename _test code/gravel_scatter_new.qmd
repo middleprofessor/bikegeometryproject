@@ -1,0 +1,481 @@
+---
+title: "Gravel Scatter new"
+---
+
+```{r setup-gravel-scatter-new, echo=FALSE, warning=FALSE, message=FALSE}
+source_path <- here::here("Rmd", "bike_geometry_project.R")
+source(source_path)
+```
+
+```{r scatter-fig}
+scatter_fig_new <- function(x_col = "reach", y_col = "stack",
+                        x_label = "Reach", y_label = "Stack",
+                        x_info = NULL, y_info = NULL,
+                        digits = 0,
+                        jitter_x = 0, jitter_y = 0,
+                        annotate_model = NULL,
+                        data = my_fit){
+  #shared_data <- highlight_key(data, ~model)
+  if(is.null(x_info)){x_info <- x_label}
+  if(is.null(y_info)){y_info <- y_label}
+  n_colors <- length(levels(data[, restyle]))
+  my_palette <- pal_okabe_ito_4[1:n_colors]
+  min_data_x <- min(geobike[, get(x_col)])
+  max_data_x <- max(geobike[, get(x_col)])
+  min_data_y <- min(geobike[, get(y_col)])
+  max_data_y <- max(geobike[, get(y_col)])
+  x_min <- min_data_x - 0.1*(max_data_x - min_data_x)
+  x_max <- max_data_x + 0.1*(max_data_x - min_data_x)
+  y_min <- min_data_y - 0.1*(max_data_y - min_data_y)
+  y_max <- max_data_y + 0.1*(max_data_y - min_data_y)
+  setorder(geobike, cols = "restyle")
+  geobike[, restyle := factor(restyle,
+                              levels = c("All-Road","Endurance","Trail"))]
+  fig <- geobike %>%
+    plot_ly(
+      type = 'scatter', 
+      x = ~get(x_col), 
+      y = ~get(y_col),
+      text = ~paste(model, frame_size,
+                    "<br>Cat:", restyle,
+                    paste0("<br>", x_info, ":"), round(get(x_col), digits),
+                    paste0("<br>", y_info, ":"), round(get(y_col), digits)),
+      hoverinfo = 'text',
+      mode = 'markers',
+      color = ~restyle,
+      colors = pal_okabe_ito_3,
+      # marker = list(color = ~restyle,
+      #               colors = pal_okabe_ito_3,
+      #               size = 10),
+      transforms = list(
+        list(
+          type = 'filter',
+          target = ~frame_size_working,
+          operation = '=',
+          value = levels(geobike$frame_size_working)[3]
+        )
+      )) %>% layout(
+        xaxis = list(title = x_label,
+                     range = c(x_min, x_max),
+                     tickfont = list(size = 16),
+                     titlefont = list(size = 16)),
+        yaxis = list(title = y_label,
+                     range = c(y_min, y_max),
+                     tickfont = list(size = 16),
+                     titlefont = list(size = 16)),
+        legend = list(font = list(size = 10),
+                      itemsizing = "constant"),
+        title = list(text = paste(y_label, "vs.", x_label),
+                     x = 0,
+                     xanchor = "left"),
+        
+        updatemenus = list(
+          list(
+            type = 'dropdown',
+            active = 2, # list starts at 0
+            buttons = list(
+              list(method = "restyle",
+                   args = list("transforms[0].value", levels(geobike$frame_size_working)[1]),
+                   label = levels(geobike$frame_size_working)[1]),
+              list(method = "restyle",
+                   args = list("transforms[0].value", levels(geobike$frame_size_working)[2]),
+                   label = levels(geobike$frame_size_working)[2]),
+              list(method = "restyle",
+                   args = list("transforms[0].value", levels(geobike$frame_size_working)[3]),
+                   label = levels(geobike$frame_size_working)[3]),
+              list(method = "restyle",
+                   args = list("transforms[0].value", levels(geobike$frame_size_working)[4]),
+                   label = levels(geobike$frame_size_working)[4]),
+              list(method = "restyle",
+                   args = list("transforms[0].value", levels(geobike$frame_size_working)[5]),
+                   label = levels(geobike$frame_size_working)[5]),
+              list(method = "restyle",
+                   args = list("transforms[0].value", levels(geobike$frame_size_working)[6]),
+                   label = levels(geobike$frame_size_working)[6])
+            )
+          )
+        )
+      )
+
+  
+  return(fig)
+}
+
+```
+
+
+
+```{r}
+scatter_fig_all <- function(x_col = "reach", y_col = "stack",
+                        x_label = "Reach", y_label = "Stack",
+                        x_info = NULL, y_info = NULL,
+                        digits = 0,
+                        jitter_x = 0, jitter_y = 0,
+                        annotate_model = NULL,
+                        data = my_fit){
+  #shared_data <- highlight_key(data, ~model)
+  if(is.null(x_info)){x_info <- x_label}
+  if(is.null(y_info)){y_info <- y_label}
+  n_colors <- length(levels(data[, restyle]))
+  my_palette <- pal_okabe_ito_4[1:n_colors]
+  fig <- plot_ly(data, type = "scatter", mode = "markers",
+                 x = ~jitter(get(x_col), jitter_x),
+                 y = ~jitter(get(y_col), jitter_y),
+                 color = ~restyle,
+                 colors = my_palette,
+                 size = 10,
+                 opacity = 0.3,
+                 name = ~model_size,
+                 hoverinfo = "text",
+                 text = ~paste(model, frame_size,
+                               "<br>Cat:", restyle,
+                               paste0("<br>", x_info, ":"), round(get(x_col), digits),
+                               paste0("<br>", y_info, ":"), round(get(y_col), digits)),
+                 showlegend = FALSE
+  ) %>% 
+    # left arrow: \U2B05
+    # up arrow: \U2B06
+    # down arrow: \U2B07
+    # SW arrow: \U2B0B
+    add_text(text = ~paste("\U2B05", model, frame_size),
+             textfont = list(size = 14, color = ~restyle),
+             color = ~restyle,
+             colors = my_palette, # doesn't do anything
+             symbol = "circle",
+             opacity = 1,
+             textposition = "right",
+             visible = "legendonly",
+             sort = FALSE,
+             showlegend = TRUE,
+    ) %>%
+    layout(xaxis = list(title = x_label, tickfont = list(size = 16), titlefont = list(size = 16)),
+           yaxis = list(title = y_label, tickfont = list(size = 16), titlefont = list(size = 16)),
+           legend = list(font = list(size = 10),
+                         itemsizing = "constant"),
+           title = list(text = paste(y_label, "vs.", x_label),
+                        x = 0,
+                        xanchor = "left"),
+           # updatemenus = list(
+           #   list(
+           #     type = "buttons",
+           #     y = 0.8,
+           #     buttons = list(
+           #       
+           #       list(method = "restyle",
+           #            args = list(list("marker.opacity", 0.8), list("text.opacity", 0.8)),
+           #            label = "dark"),
+           #       
+           #       list(method = "restyle",
+           #            args = list(list("marker.opacity", 0.2), list("text.opacity", 0.8)),
+           #            label = "light")))
+           # ),
+           NULL
+    )
+  
+  if(!is.null(annotate_model)){
+    for(j in 1:length(annotate_model)){
+        fig <- fig %>% add_annotations(
+        x = data[model == annotate_model[j], get(x_col)],
+        y = data[model == annotate_model[j], get(y_col)],
+        text = paste(data[model == annotate_model[j], model],
+                     data[model == annotate_model[j], year]),
+        xref = "x",
+        yref = "y",
+        showarrow = TRUE,
+        arrowhead = 1,
+        ax = 20,
+        ay = -20,
+#        arrowcolor = pal_okabe_ito_4[4],
+        arrowcolor = "black",
+#        font = list(color = pal_okabe_ito_4[4], size = 16)
+        font = list(color = "black", size = 16)
+      )
+    }
+  }
+  
+  # add style legend -- cannot get color to show
+  # fig <- fig %>% add_annotations(
+  #   x = 0,
+  #   y = 1,
+  #   xref = "paper",
+  #   yref = "paper",
+  #   text = paste0("\U23FA", "Race"),
+  #   textfont = list(size = 10, color = pal_okabe_ito_4[1]),
+  #   showarrow = F
+  # )
+  
+  
+  return(fig)
+}
+```
+
+```{r}
+geobike[model == "Alchemy Rogue"]
+geobike[model == ""]
+```
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+p1 <- scatter_fig_all(x_col = "reach", y_col = "stack",
+                  x_label = "Reach", y_label = "Stack",
+                  data = geobike)
+p2 <- scatter_fig_all(x_col = "rear_center", y_col = "front_center",
+                  x_label = "Rear Center", y_label = "Front Center",
+                  x_info = "RC", y_info = "FC",
+                  data = geobike)
+p3 <- scatter_fig_all(x_col = "head_tube_angle", y_col = "seat_tube_angle",
+                  x_label = "Head Tube Angle", y_label = "Seat Tube Angle",
+                  x_info = "HTA", y_info = "STA", digits = 1,
+                  jitter_x = 0,
+                  jitter_y = 0,
+                  data = geobike)
+p4 <- scatter_fig_all(x_col = "trail", y_col = "bottom_bracket_drop",
+                  x_label = "Trail", y_label = "Bottom Bracket Drop",
+                  x_info = "Trail", y_info = "BBD", digits = 0,
+                  data = geobike)
+p5 <- scatter_fig_all(x_col = "front_wheelbase", y_col = "stack_reach",
+                  x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
+                  x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
+                  data = geobike)
+p6 <- scatter_fig_all(x_col = "front_wheelbase", y_col = "sta_hta",
+                  x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
+                  x_info = "FC/WB", y_info = "STA/HTA", digits = 2,
+                  data = geobike)
+
+p1
+p2
+p3
+p4
+p5
+p6
+```
+
+# put working code here into function
+
+# The filter for bike size works
+
+```{r}
+x_info <- NULL
+y_info <- NULL
+x_label <- "Reach"
+y_label <- "Stack"
+x_col <- "reach"
+y_col <- "stack"
+annotate_model <- NULL
+digits = 0
+min_data_x <- min(geobike[, get(x_col)])
+max_data_x <- max(geobike[, get(x_col)])
+min_data_y <- min(geobike[, get(y_col)])
+max_data_y <- max(geobike[, get(y_col)])
+x_min <- min_data_x - 0.1*(max_data_x - min_data_x)
+x_max <- max_data_x + 0.1*(max_data_x - min_data_x)
+y_min <- min_data_y - 0.1*(max_data_y - min_data_y)
+y_max <- max_data_y + 0.1*(max_data_y - min_data_y)
+setorder(geobike, cols = "restyle")
+geobike[, restyle := factor(restyle,
+                            levels = c("All-Road","Endurance","Trail"))]
+p <- geobike %>%
+  plot_ly(
+    type = 'scatter', 
+    x = ~get(x_col), 
+    y = ~get(y_col),
+    text = ~paste(model, frame_size,
+                  "<br>Cat:", restyle,
+                  paste0("<br>", x_info, ":"), round(get(x_col), digits),
+                  paste0("<br>", y_info, ":"), round(get(y_col), digits)),
+    hoverinfo = 'text',
+    mode = 'markers',
+    color = ~restyle,
+    colors = pal_okabe_ito_3,
+    # marker = list(color = ~restyle,
+    #               colors = pal_okabe_ito_3,
+    #               size = 10),
+    transforms = list(
+      list(
+        type = 'filter',
+        target = ~frame_size_working,
+        operation = '=',
+        value = levels(geobike$frame_size_working)[3]
+      )
+  )) %>% layout(
+    xaxis = list(title = x_label,
+                 range = c(x_min, x_max),
+                 tickfont = list(size = 16),
+                 titlefont = list(size = 16)),
+    yaxis = list(title = y_label,
+                 range = c(y_min, y_max),
+                 tickfont = list(size = 16),
+                 titlefont = list(size = 16)),
+    legend = list(font = list(size = 10),
+                  itemsizing = "constant"),
+    title = list(text = paste(y_label, "vs.", x_label),
+                 x = 0,
+                 xanchor = "left"),
+    
+    updatemenus = list(
+      list(
+        type = 'dropdown',
+        active = 2, # list starts at 0
+        buttons = list(
+          list(method = "restyle",
+               args = list("transforms[0].value", levels(geobike$frame_size_working)[1]),
+               label = levels(geobike$frame_size_working)[1]),
+          list(method = "restyle",
+               args = list("transforms[0].value", levels(geobike$frame_size_working)[2]),
+               label = levels(geobike$frame_size_working)[2]),
+          list(method = "restyle",
+               args = list("transforms[0].value", levels(geobike$frame_size_working)[3]),
+               label = levels(geobike$frame_size_working)[3]),
+          list(method = "restyle",
+               args = list("transforms[0].value", levels(geobike$frame_size_working)[4]),
+               label = levels(geobike$frame_size_working)[4]),
+          list(method = "restyle",
+               args = list("transforms[0].value", levels(geobike$frame_size_working)[5]),
+               label = levels(geobike$frame_size_working)[5]),
+          list(method = "restyle",
+               args = list("transforms[0].value", levels(geobike$frame_size_working)[6]),
+               label = levels(geobike$frame_size_working)[6])
+        )
+      )
+    )
+  )
+
+p
+```
+
+# The filter for bike size and bike model
+
+```{r}
+x_info <- NULL
+y_info <- NULL
+x_label <- "Reach"
+y_label <- "Stack"
+x_col <- "reach"
+y_col <- "stack"
+annotate_model <- NULL
+digits = 0
+min_data_x <- min(geobike[, get(x_col)])
+max_data_x <- max(geobike[, get(x_col)])
+min_data_y <- min(geobike[, get(y_col)])
+max_data_y <- max(geobike[, get(y_col)])
+x_min <- min_data_x - 0.1*(max_data_x - min_data_x)
+x_max <- max_data_x + 0.1*(max_data_x - min_data_x)
+y_min <- min_data_y - 0.1*(max_data_y - min_data_y)
+y_max <- max_data_y + 0.1*(max_data_y - min_data_y)
+setorder(geobike, frame_size_working, model)
+geobike[, restyle := factor(restyle,
+                            levels = c("All-Road","Endurance","Trail"))]
+geobike[, model := factor(model)]
+
+p <- geobike %>%
+  plot_ly(
+    type = 'scatter', 
+    x = ~get(x_col), 
+    y = ~get(y_col),
+    text = ~paste(model, frame_size_working,
+                  "<br>Cat:", restyle,
+                  paste0("<br>", x_info, ":"), round(get(x_col), digits),
+                  paste0("<br>", y_info, ":"), round(get(y_col), digits)),
+    hoverinfo = 'text',
+    mode = 'markers',
+    name = ~ model,
+    color = ~restyle,
+    showlegend = FALSE,
+    # marker = list(color = ~restyle,
+    #               colors = pal_okabe_ito_3,
+    #               size = 10),
+    transforms = list(
+      list(
+        type = 'filter',
+        target = ~frame_size_working,
+        operation = '=',
+        value = levels(geobike$frame_size_working)[3]
+      )
+    )
+  ) %>%
+  
+    add_text(text = ~paste("\U2B05", model, frame_size_working),
+             name = ~model,
+             textfont = list(size = 12, color = ~restyle),
+             color = ~restyle,
+ #            colors = my_palette, # doesn't do anything
+             symbol = "circle",
+             textposition = "right",
+             visible = "legendonly",
+             showlegend = TRUE,
+    ) %>%
+  
+  layout(
+    xaxis = list(title = x_label,
+                 range = c(x_min, x_max)),
+    yaxis = list(title = y_label,
+                 range = c(y_min, y_max)),
+    
+    updatemenus = list(
+      list(
+        type = 'dropdown',
+        active = 2, # list starts at 0
+        buttons = list(
+          list(method = "update",
+               args = list("transforms[0].value", levels(geobike$frame_size_working)[1]),
+               label = levels(geobike$frame_size_working)[1]),
+          list(method = "update",
+               args = list("transforms[0].value", levels(geobike$frame_size_working)[2]),
+               label = levels(geobike$frame_size_working)[2]),
+          list(method = "update",
+               args = list("transforms[0].value", levels(geobike$frame_size_working)[3]),
+               label = levels(geobike$frame_size_working)[3]),
+          list(method = "update",
+               args = list("transforms[0].value", levels(geobike$frame_size_working)[4]),
+               label = levels(geobike$frame_size_working)[4]),
+          list(method = "update",
+               args = list("transforms[0].value", levels(geobike$frame_size_working)[5]),
+               label = levels(geobike$frame_size_working)[5]),
+          list(method = "update",
+               args = list("transforms[0].value", levels(geobike$frame_size_working)[6]),
+               label = levels(geobike$frame_size_working)[6])
+        )
+      )
+    )
+  )
+
+p
+```
+
+```{r}
+a <- 1:10
+b <- 1:10
+text <- LETTERS[seq(1,10)]
+data <- data.frame(a,b,text)
+
+annotations = list()
+for (i in 1:length(data[,1])) {
+  annotation <- list(x = data$a[i],
+                      y = data$b[i],
+                      text = data$text[i],
+                      showarrow = TRUE)
+  annotations[[i]] <- annotation
+}
+
+updatemenus <- list(
+  list(
+    type= 'buttons',
+    buttons = list(
+      list(
+        label = "ON",
+        method = "update",
+        args = list(list(),
+                    list(annotations = annotations))),
+      list(
+        label = "OFF",
+        method = "update",
+        args = list(list(),
+                    list(annotations = list(c()))))
+    )
+  )
+)
+
+p <- plot_ly(data = data, x = ~a, y = ~b, type = "scatter", mode = "lines")
+p <- layout(p, annotations = annotations, updatemenus = updatemenus)
+p
+```
+

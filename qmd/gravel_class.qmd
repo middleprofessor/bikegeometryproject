@@ -21,7 +21,7 @@ cluster_labels <- levels(geobike$restyle)
 style_class_table <- geobike[my_fit == TRUE, .SD, .SDcols = c("model", "restyle")]
 style_table <- dcast(setDT(style_class_table), rowid(restyle) ~ restyle, value.var = "model")[, .SD, .SDcols = cluster_labels] %>%
   clean_names() %>%
-  setnames(new = c("All Road", "Endurance", "Trail"))
+  setnames(new = c("Racy", "Relaxed", "Rowdy"))
 
 
 style_table %>%

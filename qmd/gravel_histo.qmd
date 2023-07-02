@@ -1,0 +1,115 @@
+---
+title: "Gravel 1D"
+editor: visual
+---
+
+Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") cm high rider, according to manufacturer's charts
+
+```{r setup-gravel-scatter, echo=FALSE, warning=FALSE, message=FALSE}
+source_path <- here::here("Rmd", "bike_geometry_project.R")
+source(source_path)
+```
+
+
+```{r histo_fig, echo=FALSE}
+
+histo_fig <- function(data = my_fit,
+                      x_col = "reach",
+                      x_label = "Reach",
+                      x_info = NULL,
+                      marker_palette = pal_okabe_ito_7,
+                      marker_opacity = 0.6,
+                      bin_size = NULL,
+                      n_bins = NULL
+){
+  if(is.null(x_info)){x_info <- x_label}
+  fig <- plot_ly(data) %>%
+    
+    add_histogram(x = ~get(x_col)[restyle == "Racy"],
+                  name = "Racy",
+                  opacity = marker_opacity,
+                  marker = list(color = marker_palette[1]),
+                  xbins = list(size = bin_size),
+                  nbinsx = n_bins
+    ) %>%
+    add_histogram(x = ~get(x_col)[restyle == "Relaxed"],
+                  name = "Relaxed",
+                  opacity = marker_opacity,
+                  marker = list(color = marker_palette[2]),
+                  xbins = list(size = bin_size),
+                  nbinsx = n_bins
+    ) %>%
+    add_histogram(x = ~get(x_col)[restyle == "Rowdy"],
+                  name = "Rowdy",
+                  opacity = marker_opacity,
+                  marker = list(color = marker_palette[3]),
+                  xbins = list(size = bin_size),
+                  nbinsx = n_bins
+    ) %>%
+    layout(barmode = "overlay",
+           xaxis = list(title = x_label,
+                        tickfont = list(size = 16),
+                        titlefont = list(size = 16)))
+  return(fig)
+}
+
+```
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
+p1 <- histo_fig(data = my_fit,
+                x_col = "reach",
+                x_label = "Reach (mm)",
+                bin_size = 5)
+p2 <- histo_fig(data = my_fit,
+                x_col = "stack",
+                x_label = "Stack (mm)",
+                bin_size = 5)
+p3 <- histo_fig(data = my_fit,
+                x_col = "rear_center",
+                x_label = "Rear Center (mm)",
+                bin_size = 5)
+p4 <- histo_fig(data = my_fit,
+                x_col = "front_center",
+                x_label = "Front Center (mm)",
+                bin_size = 5)
+p5 <- histo_fig(data = my_fit,
+                x_col = "seat_tube_angle",
+                x_label = "Seat Tube Angle (°)",
+                bin_size = 0.5)
+p6 <- histo_fig(data = my_fit,
+                x_col = "head_tube_angle",
+                x_label = "Head Tube Angle (°)",
+                bin_size = 0.5)
+p7 <- histo_fig(data = my_fit,
+                 x_col = "trail",
+                 x_label = "Trail",
+                 bin_size = 2.5)
+p8 <- histo_fig(data = my_fit,
+                 x_col = "bottom_bracket_drop",
+                 x_label = "Bottom Bracket Drop",
+                 bin_size = 2.5)
+p9 <- histo_fig(data = my_fit,
+                x_col = "front_wheelbase",
+                x_label = "Front Center/Wheelbase",
+                bin_size = 0.005)
+p10 <- histo_fig(data = my_fit,
+                x_col = "stack_reach",
+                x_label = "Stack/Reach",
+                bin_size = 0.025)
+p11 <- histo_fig(data = my_fit,
+                x_col = "sta_hta",
+                x_label = "STA/HTA",
+                bin_size = 0.01)
+
+p1
+p2
+p3
+p4
+p5
+p6
+p7
+p8
+p9
+p10
+p11
+```

@@ -4,75 +4,80 @@ title: "Which gravel bikes have mountain bike inspired geometry?"
 
 Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3\") cm high rider, according to manufacturer's charts.
 
-```{r setup-mtb90s, echo=FALSE, warning=FALSE, message=FALSE}
+```{r which-gravel-mountain-inspired-setup, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("Rmd", "bike_geometry_project.R")
 source(source_path)
 
 ```
 
-```{r mountain, echo=FALSE, warning=FALSE, message=FALSE }
-data_path <- here(data_folder, "mountain_list.txt")
-bike_list <- fread(data_path)
-other_bikes <- data.table(NULL)
-for(i in 1:nrow(bike_list)){
-  bike_label_i <- as.character(bike_list[i, "model"])
-  bike_range_i <- as.character(bike_list[i, "data_range"])
-  bike_i <- read_bike(bike_label = bike_label_i,
-                      bike_range = bike_range_i,
-                      data_file = "mountain.xlsx")
-  bike_i[, my_fit := ifelse(frame_size == c(bike_list[i, "my_fit"]), TRUE, FALSE)]
-  other_bikes <- rbind(other_bikes, bike_i)
-}
 
-new_level <- "Mountain"
-other_bikes[, restyle := new_level]
-other_bikes[, model_size := paste(model, frame_size)]
+```{r which-gravel-mountain-inspired-import, echo=FALSE, warning=FALSE, message=FALSE }
+bikes_cols <- c("model", "year", "frame_size", "reach", "stack", "rear_center", "front_center", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "trail", "front_wheelbase", "stack_reach", "sta_hta", "restyle", "model_size")
+bikes <- my_fit[, .SD, .SDcols = bikes_cols]
+opacity <- rep(0.5, nrow(bikes))
 
-#combine with my_fit using subset of columns
-other_bikes_cols <- c("model", "year", "frame_size", "reach", "stack", "rear_center", "front_center", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "trail", "front_wheelbase", "stack_reach", "sta_hta", "restyle", "model_size")
-
-gravel_other <- rbind(my_fit[, .SD, .SDcols = other_bikes_cols],
-                    other_bikes[my_fit == TRUE, .SD, .SDcols = other_bikes_cols])
-restyle_levels <- c(levels(my_fit[, restyle]), new_level)
-gravel_other[, restyle := factor(restyle,
-                               levels = restyle_levels)]
+# mountain
+xc <- import_bikes(style = "mountain")
+bikes <- rbind(bikes,
+               xc[my_fit == TRUE, .SD, .SDcols = bikes_cols])
+opacity <- c(opacity, rep(1.0, nrow(xc[my_fit == TRUE,])))
 
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-annotate_model_i <- other_bikes[my_fit == TRUE, model]
-plotted_data <- gravel_other
-p1 <- scatter_fig(x_col = "reach", y_col = "stack",
-                  x_label = "Reach", y_label = "Stack",
-                  data = plotted_data,
+
+```{r which-gravel-mountain-inspired-plot, echo=FALSE, warning=FALSE, message=FALSE, out.width = "100%", out.height = "100%"}
+annotate_model_i <- bikes[restyle == "Mountain", model]
+p1 <- scatter_fig(data = bikes,
+                  x_col = "reach",
+                  y_col = "stack",
+                  g_col = "restyle",
+                  x_label = "Reach (mm)", y_label = "Stack (mm)",
+                  dot_opacity = opacity,
+                  dot_palette = c(pal_okabe_ito_7[1:3], pal_okabe_ito_7[7]),
                   annotate_model = annotate_model_i)
-p2 <- scatter_fig(x_col = "rear_center", y_col = "front_center",
-                  x_label = "Rear Center", y_label = "Front Center",
+p2 <- scatter_fig(data = bikes,
+                  x_col = "rear_center", y_col = "front_center",
+                  g_col = "restyle",
+                  x_label = "Rear Center (mm)", y_label = "Front Center (mm)",
                   x_info = "RC", y_info = "FC",
-                  data = plotted_data,
+                  dot_opacity = opacity,
+                  dot_palette = c(pal_okabe_ito_7[1:3], pal_okabe_ito_7[7]),
                   annotate_model = annotate_model_i)
-p3 <- scatter_fig(x_col = "head_tube_angle", y_col = "seat_tube_angle",
-                  x_label = "Head Tube Angle", y_label = "Seat Tube Angle",
+p3 <- scatter_fig(data = bikes,
+                  x_col = "head_tube_angle", y_col = "seat_tube_angle",
+                  g_col = "restyle",
+                  x_label = "Head Tube Angle (°)", y_label = "Seat Tube Angle (°)",
                   x_info = "HTA", y_info = "STA", digits = 1,
-                  jitter_x = 0,
-                  jitter_y = 0,
-                  data = plotted_data,
+                  dot_opacity = opacity,
+                  dot_palette = c(pal_okabe_ito_7[1:3], pal_okabe_ito_7[7]),
                   annotate_model = annotate_model_i)
-p4 <- scatter_fig(x_col = "trail", y_col = "bottom_bracket_drop",
-                  x_label = "Trail", y_label = "Bottom Bracket Drop",
-                  x_info = "Trail", y_info = "BBD", digits = 0,
-                  data = plotted_data,
-                  annotate_model = annotate_model_i)
-p5 <- scatter_fig(x_col = "front_wheelbase", y_col = "stack_reach",
+p4 <- scatter_fig(data = bikes,
+                  x_col = "head_tube_angle", y_col = "trail",
+                  g_col = "restyle",
+                  x_label = "Head Tube Angle (°)", y_label = "Trail (mm)",
+                  x_info = "HTA", y_info = "Trail", digits = 1,
+                  dot_opacity = opacity,
+                  dot_palette = c(pal_okabe_ito_7[1:3], pal_okabe_ito_7[7]),
+                  annotate_model = annotate_model_i,
+                  same_xy_scale = FALSE)
+p5 <- scatter_fig(data = bikes,
+                  x_col = "front_wheelbase", y_col = "stack_reach",
+                  g_col = "restyle",
                   x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
                   x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
-                  data = plotted_data,
-                  annotate_model = annotate_model_i)
-p6 <- scatter_fig(x_col = "front_wheelbase", y_col = "sta_hta",
+                  dot_opacity = opacity,
+                  dot_palette = c(pal_okabe_ito_7[1:3], pal_okabe_ito_7[7]),
+                  annotate_model = annotate_model_i,
+                  same_xy_scale = FALSE)
+p6 <- scatter_fig(data = bikes,
+                  x_col = "front_wheelbase", y_col = "sta_hta",
+                  g_col = "restyle",
                   x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
                   x_info = "FC/WB", y_info = "STA/HTA", digits = 2,
-                  data = plotted_data,
-                  annotate_model = annotate_model_i)
+                  dot_opacity = opacity,
+                  dot_palette = c(pal_okabe_ito_7[1:3], pal_okabe_ito_7[7]),
+                  annotate_model = annotate_model_i,
+                  same_xy_scale = FALSE)
 
 p1
 p2
@@ -80,6 +85,5 @@ p3
 p4
 p5
 p6
-
 
 ```

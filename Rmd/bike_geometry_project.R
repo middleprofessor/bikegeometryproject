@@ -1,4 +1,4 @@
-## ----setup, message = FALSE, warning = FALSE-----------------------------------------------------------------------------------------------------------------------------
+## ----setup, message = FALSE, warning = FALSE-------------------------------------------
 knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE,
                       warning = FALSE,
@@ -73,12 +73,12 @@ pal_okabe_ito <- c(
   "#D55E00",
   "#CC79A7"
 )
-
+pal_okabe_ito_7 <- pal_okabe_ito[c(2,3,1,4,5,6,7)]
 pal_okabe_ito_3 <- pal_okabe_ito[c(2,3,1)]
 pal_okabe_ito_4 <- c(pal_okabe_ito_3, pal_okabe_ito[c(6)])
 
 
-## ----deg_2_rad-----------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----deg_2_rad-------------------------------------------------------------------------
 deg_2_rad <- function(x){
   rad <- x*pi/180
   return(rad)
@@ -86,7 +86,7 @@ deg_2_rad <- function(x){
   
 
 
-## ----ggdendro-extensions-------------------------------------------------------------------------------------------------------------------------------------------------
+## ----ggdendro-extensions---------------------------------------------------------------
 # https://atrebas.github.io/post/2019-06-08-lightweight-dendrograms/
 dendro_data_k <- function(hc, k) {
   hcdata    <-  ggdendro::dendro_data(hc, type = "rectangle")
@@ -215,7 +215,7 @@ plot_ggdendro <- function(hcdata,
 
 
 
-## ----treed---------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----treed-----------------------------------------------------------------------------
 get_tree <- function(geobike_subset,
                   y_cols,
                   scale_it = TRUE,
@@ -247,7 +247,7 @@ get_tree <- function(geobike_subset,
 }
 
 
-## ----bike-geometry-helpers-----------------------------------------------------------------------------------------------------------------------------------------------
+## ----bike-geometry-helpers-------------------------------------------------------------
 compute_axle_crown <- function(){
   
 }
@@ -311,7 +311,7 @@ compute_steering_h <- function(bike){
 
 
 
-## ----missing data--------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----missing data----------------------------------------------------------------------
 compute_wheelbase <- function(bike){
   steering_v <- compute_steering_v(bike)
   steering_h <- compute_steering_h(bike)
@@ -377,7 +377,7 @@ compute_effective_top_tube_length <- function(bike){
 }
 
 
-## ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------
 geom_checker <- function(chainstay_length, # chainstay length
                          bottom_bracket_drop, # bottom bracket drop
                          reach,
@@ -398,7 +398,7 @@ geom_checker <- function(chainstay_length, # chainstay length
   }
 
 
-## ----read-bike-function, echo=FALSE--------------------------------------------------------------------------------------------------------------------------------------
+## ----read-bike-function, echo=FALSE----------------------------------------------------
 # data_path <- here(data_folder, "ghost_grappler.txt")
 # dt <- fread(data_path)
 # bike_label = "Tumbleweed Stargazer 2022"
@@ -534,22 +534,49 @@ read_bike <- function(bike_label = "Breezer Radar X Pro 2022",
 
 
 
-## ----import-bikes, echo=FALSE--------------------------------------------------------------------------------------------------------------------------------------------
-import_it <- TRUE
+## ----import-bikes, echo=FALSE----------------------------------------------------------
+# need to modify so all imports use this function
+import_bikes <- function(style = "gravel",
+                         prefix = ""){
+  bike_list_file = paste0(style, "_list.txt")
+  bike_file = paste0(style, ".xlsx")
+  data_path <- here(data_folder, bike_list_file)
+  bike_list <- fread(data_path)
+  bike_data <- data.table(NULL)
+  for(i in 1:nrow(bike_list)){
+    bike_label_i <- as.character(bike_list[i, "model"])
+    bike_range_i <- as.character(bike_list[i, "data_range"])
+    bike_i <- read_bike(bike_label = bike_label_i,
+                        bike_range = bike_range_i,
+                        data_file = bike_file)
+    bike_i[, my_fit := ifelse(frame_size == c(bike_list[i, "my_fit"]), TRUE, FALSE)]
+    bike_data <- rbind(bike_data, bike_i)
+  }
+  bike_data[, restyle := paste0(prefix, str_to_sentence(style))]
+  bike_data[, model_size := paste(model, frame_size)]
+  return(bike_data)
+}
+
+
+
+
+## ----import-bikes-old, echo=FALSE------------------------------------------------------
+import_it <- FALSE
 if(import_it != TRUE){
   geo_bike_path <- here("rds", "geobike.Rds")
   geobike <- readRDS(geo_bike_path)
   my_fit_path <- here("rds", "my_fit.Rds")
   my_fit <- readRDS(my_fit_path)
 }else{
-  data_path <- here(data_folder, "bike_list.txt")
+  data_path <- here(data_folder, "gravel_list.txt")
   bike_list <- fread(data_path)
   geobike <- data.table(NULL)
   for(i in 1:nrow(bike_list)){
     bike_label_i <- as.character(bike_list[i, "model"])
     bike_range_i <- as.character(bike_list[i, "data_range"])
     bike_i <- read_bike(bike_label = bike_label_i,
-                        bike_range = bike_range_i)
+                        bike_range = bike_range_i,
+                        data_file = "gravel.xlsx")
     bike_i[, my_fit := ifelse(frame_size == c(bike_list[i, "my_fit"]), TRUE, FALSE)]
     geobike <- rbind(geobike, bike_i)
   }
@@ -636,11 +663,11 @@ if(import_it != TRUE){
 
 
 
-## ----my_fit--------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----my_fit----------------------------------------------------------------------------
 my_fit <- geobike[my_fit == TRUE,]
 
 
-## ----reduced-set-dendrogram-V2, fig.height=10, fig.width=10--------------------------------------------------------------------------------------------------------------
+## ----reduced-set-dendrogram-V2, fig.height=10, fig.width=10----------------------------
 if(import_it == TRUE){
   y_cols <- c("stack", "reach", "front_center", "rear_center", "head_tube_angle", "seat_tube_angle")
   
@@ -660,16 +687,16 @@ if(import_it == TRUE){
   style_class[, model := tstrsplit(label, ",", keep = 1)]
   
   cluster_labels <- numeric(3)
-  trail <- "Breezer Radar X Pro"
-  cluster_labels[style_class[model == trail, clust]] <- "Trail"
-  all_road <- "OPEN U.P."
-  cluster_labels[style_class[model == all_road, clust]] <- "All-Road"
-  endurance <- "Mason InSearchOf"
-  cluster_labels[style_class[model == endurance, clust]] <- "Endurance"
+  rowdy <- "Breezer Radar X Pro"
+  cluster_labels[style_class[model == rowdy, clust]] <- "Rowdy"
+  racy <- "OPEN U.P."
+  cluster_labels[style_class[model == racy, clust]] <- "Racy"
+  relaxed <- "Mason InSearchOf"
+  cluster_labels[style_class[model == relaxed, clust]] <- "Relaxed"
   
   style_class[, restyle := cluster_labels[clust]]
   # relevel
-  style_levels <- c("All-Road", "Endurance", "Trail")
+  style_levels <- c("Racy", "Relaxed", "Rowdy")
   style_class[, restyle := factor(restyle,
                                   levels = style_levels)]
   
@@ -687,53 +714,88 @@ if(import_it == TRUE){
 
 
 
-## ----scatter-fig---------------------------------------------------------------------------------------------------------------------------------------------------------
-scatter_fig <- function(x_col = "reach", y_col = "stack",
+## ----scatter-fig-----------------------------------------------------------------------
+scatter_fig <- function(data = my_fit,
+                        x_col = "reach", y_col = "stack", g_col = "model_size",
                         x_label = "Reach", y_label = "Stack",
                         x_info = NULL, y_info = NULL,
                         digits = 0,
                         jitter_x = 0, jitter_y = 0,
                         annotate_model = NULL,
-                        data = my_fit){
+                        dot_palette = pal_okabe_ito_7,
+                        dot_opacity = 0.3,
+                        same_xy_scale = TRUE){ # if units are same on x and y then scales should be preserved
   #shared_data <- highlight_key(data, ~model)
   if(is.null(x_info)){x_info <- x_label}
   if(is.null(y_info)){y_info <- y_label}
+  restyle_legend <- ifelse(g_col == "restyle",
+                           TRUE,
+                           FALSE)
   n_colors <- length(levels(data[, restyle]))
-  my_palette <- pal_okabe_ito_4[1:n_colors]
+  
+  # set range of axes
+  min_data_x <- min(data[, get(x_col)], na.rm = TRUE)
+  min_data_y <- min(data[, get(y_col)], na.rm = TRUE)
+  max_data_x <- max(data[, get(x_col)], na.rm = TRUE)
+  max_data_y <- max(data[, get(y_col)], na.rm = TRUE)
+  range_x <- max_data_x - min_data_x
+  range_y <- max_data_y - min_data_y
+  range_axis_x <- range_x * 1.1
+  range_axis_y <- range_y * 1.1
+  if(same_xy_scale == TRUE){
+    if(range_x > range_y){
+      range_axis_y <- range_axis_y * range_x/range_y
+    }else{
+      range_axis_x <- range_axis_x * range_y/range_x
+    }}
+  min_axis_x <- (min_data_x + max_data_x)/2 - 0.5*range_axis_x
+  max_axis_x <- (min_data_x + max_data_x)/2 + 0.5*range_axis_x
+  min_axis_y <- (min_data_y + max_data_y)/2 - 0.5*range_axis_y
+  max_axis_y <- (min_data_y + max_data_y)/2 + 0.5*range_axis_y
+  
+
   fig <- plot_ly(data, type = "scatter", mode = "markers",
                  x = ~jitter(get(x_col), jitter_x),
                  y = ~jitter(get(y_col), jitter_y),
                  color = ~restyle,
-                 colors = my_palette,
-                 opacity = 0.3,
+                 colors = dot_palette[1:n_colors],
+                 opacity = dot_opacity,
                  size = 10,
-                 name = ~model_size,
+                 name = ~get(g_col),
                  hoverinfo = "text",
                  text = ~paste(model, frame_size,
                                "<br>Cat:", restyle,
                                paste0("<br>", x_info, ":"), round(get(x_col), digits),
                                paste0("<br>", y_info, ":"), round(get(y_col), digits)),
-                 showlegend = FALSE
+                 showlegend = restyle_legend
   ) %>% 
-    add_text(text = ~paste("\U2B05", model, frame_size),
-             textfont = list(size = 12, color = ~restyle),
-             color = ~restyle,
-             colors = my_palette, # doesn't do anything
-             opacity = 1,
-             symbol = "circle",
-             textposition = "right",
-             visible = "legendonly",
-             sort = FALSE,
-             showlegend = TRUE,
-    ) %>%
-    layout(xaxis = list(title = x_label, tickfont = list(size = 16), titlefont = list(size = 16)),
-         yaxis = list(title = y_label, tickfont = list(size = 16), titlefont = list(size = 16)),
-         legend = list(font = list(size = 10),
-                       itemsizing = "constant"),
-         title = list(text = paste(y_label, "vs.", x_label),
-                      x = 0,
-                      xanchor = "left")
-  )
+    layout(xaxis = list(title = x_label,
+                        tickfont = list(size = 16), titlefont = list(size = 16),
+                        range = c(min_axis_x, max_axis_x)),
+           yaxis = list(title = y_label,
+                        tickfont = list(size = 16), titlefont = list(size = 16),
+                        range = c(min_axis_y, max_axis_y)),
+           legend = list(font = list(size = 10),
+                         itemsizing = "constant"),
+           title = list(text = paste(y_label, "vs.", x_label),
+                        x = 0,
+                        xanchor = "left"),
+           autosize = F, width = 800, height = 600
+    )
+  
+  if(g_col == "model_size"){
+    fig <- fig  %>%
+      add_text(text = ~paste("\U2B05", model, frame_size),
+               textfont = list(size = 12, color = ~restyle),
+               color = ~restyle,
+               opacity = 1,
+               symbol = "circle",
+               textposition = "right",
+               visible = "legendonly",
+               sort = FALSE,
+               showlegend = TRUE,
+      )
+  }
   
   if(!is.null(annotate_model)){
     for(j in 1:length(annotate_model)){
@@ -748,9 +810,9 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
         arrowhead = 1,
         ax = 20,
         ay = -20,
-#        arrowcolor = pal_okabe_ito_4[4],
+#        arrowcolor = ~restyle,
         arrowcolor = "black",
-#        font = list(color = pal_okabe_ito_4[4], size = 16)
+#        font = list(color = ~restyle, size = 16)
         font = list(color = "black", size = 16)
       )
     }
@@ -773,7 +835,7 @@ scatter_fig <- function(x_col = "reach", y_col = "stack",
 
 
 
-## ----output-as-R-file----------------------------------------------------------------------------------------------------------------------------------------------------
+## ----output-as-R-file------------------------------------------------------------------
 # highlight and run to put update into R folder
 # knitr::purl("bike_geometry_project.Rmd")
 

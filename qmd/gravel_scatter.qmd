@@ -1,5 +1,5 @@
 ---
-title: "Gravel Scatter"
+title: "Gravel 2D"
 editor: visual
 ---
 
@@ -9,7 +9,7 @@ Scroll legend and click on items to identify specific model and frame size combi
 
 Click on popup icon-bar over legend to zoom in/out and pan.
 
-Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3\") cm high rider, according to manufacturer's charts.
+Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") cm high rider, according to manufacturer's charts.
 
 ```{r setup-gravel-scatter, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("Rmd", "bike_geometry_project.R")
@@ -42,33 +42,33 @@ plot_grid(gg_legend)
 
 ```
 
-
-```{r, warning=FALSE, message=FALSE, echo=FALSE}
-p1 <- scatter_fig(x_col = "reach", y_col = "stack",
-                  x_label = "Reach", y_label = "Stack",
-                  data = geobike)
-p2 <- scatter_fig(x_col = "rear_center", y_col = "front_center",
-                  x_label = "Rear Center", y_label = "Front Center",
-                  x_info = "RC", y_info = "FC",
-                  data = geobike)
-p3 <- scatter_fig(x_col = "seat_tube_angle", y_col = "head_tube_angle",
-                  x_label = "Seat Tube Angle", y_label = "Head Tube Angle",
-                  x_info = "STA", y_info = "HTA", digits = 1,
-                  jitter_x = 0,
-                  jitter_y = 0,
-                  data = geobike)
-p4 <- scatter_fig(x_col = "trail", y_col = "bottom_bracket_drop",
-                  x_label = "Trail", y_label = "Bottom Bracket Drop",
-                  x_info = "Trail", y_info = "BBD", digits = 0,
-                  data = geobike)
-p5 <- scatter_fig(x_col = "front_wheelbase", y_col = "stack_reach",
+```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
+p1 <- scatter_fig(data = geobike,
+                  x_col = "reach", y_col = "stack",
+                  x_label = "Reach (mm)", y_label = "Stack (mm)")
+p2 <- scatter_fig(data = geobike,
+                  x_col = "rear_center", y_col = "front_center",
+                  x_label = "Rear Center (mm)", y_label = "Front Center (mm)",
+                  x_info = "RC", y_info = "FC")
+p3 <- scatter_fig(data = geobike,
+                  x_col = "seat_tube_angle", y_col = "head_tube_angle",
+                  x_label = "Seat Tube Angle (°)", y_label = "Head Tube Angle (°)",
+                  x_info = "STA", y_info = "HTA", digits = 1)
+p4 <- scatter_fig(data = geobike,
+                  x_col = "head_tube_angle", y_col = "trail",
+                  x_label = "Head Tube Angle (°)", y_label = "Trail (mm)",
+                  x_info = "HTA", y_info = "Trail", digits = 1,
+                  same_xy_scale = FALSE)
+p5 <- scatter_fig(data = geobike,
+                  x_col = "front_wheelbase", y_col = "stack_reach",
                   x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
                   x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
-                  data = geobike)
-p6 <- scatter_fig(x_col = "front_wheelbase", y_col = "sta_hta",
+                  same_xy_scale = FALSE)
+p6 <- scatter_fig(data = geobike,
+                  x_col = "front_wheelbase", y_col = "sta_hta",
                   x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
                   x_info = "FC/WB", y_info = "STA/HTA", digits = 2,
-                  data = geobike)
+                  same_xy_scale = FALSE)
 
 p1
 p2
@@ -76,4 +76,5 @@ p3
 p4
 p5
 p6
+
 ```

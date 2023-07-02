@@ -1,0 +1,99 @@
+---
+title: "What is Gravel Style?"
+subtitle: "Gravel bike frame geometry can be Racy, Relaxed, or Rowdy"
+---
+It's common to read from company websites or from bike influencers on YouTube that gravel bikes come in two flavors: race and off-road. 2D scatter plots suggest three classes:
+
+1. **Racy**. Effectively, these have cyclocross bike geometry
+2. **Relaxed**. Compared to Racy: More upright, longer rearends, and longer trail -- this is the direction of endurance road bikes compared to race road bikes.
+3. **Rowdy**. Compared to Racy: Longer, slacker front ends, and steeper seat tubes -- this is the direction of XC mountain bikes compared to road bikes.
+
+(Data shown are frame sizse that fit a 176 cm (5' 9.3\") cm high rider, according to manufacturer's charts)
+
+```{r what-is-gravel-bike-style-setup, echo=FALSE, warning=FALSE, message=FALSE}
+source_path <- here::here("Rmd", "bike_geometry_project.R")
+source(source_path)
+
+```
+
+
+```{r what-is-gravel-bike-style-import, echo=FALSE, warning=FALSE, message=FALSE }
+bikes_cols <- c("model", "year", "frame_size", "reach", "stack", "rear_center", "front_center", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "trail", "front_wheelbase", "stack_reach", "sta_hta", "restyle", "model_size")
+bikes <- my_fit[, .SD, .SDcols = bikes_cols]
+opacity <- rep(0.5, nrow(bikes))
+
+# import non-gravel bikes
+# race
+race <- import_bikes(style = "race", prefix = "Road: ")
+bikes <- rbind(bikes,
+               race[my_fit == TRUE, .SD, .SDcols = bikes_cols])
+opacity <- c(opacity, rep(1.0, nrow(race[my_fit == TRUE,])))
+# endurance
+endurance <- import_bikes(style = "endurance", prefix = "Road: ")
+bikes <- rbind(bikes,
+               endurance[my_fit == TRUE, .SD, .SDcols = bikes_cols])
+opacity <- c(opacity, rep(1.0, nrow(endurance[my_fit == TRUE,])))
+# cross
+cross <- import_bikes(style = "cyclocross", prefix = "Road: ")
+bikes <- rbind(bikes,
+               cross[my_fit == TRUE, .SD, .SDcols = bikes_cols])
+opacity <- c(opacity, rep(1.0, nrow(cross[my_fit == TRUE,])))
+# mountain
+xc <- import_bikes(style = "mountain")
+bikes <- rbind(bikes,
+               xc[my_fit == TRUE, .SD, .SDcols = bikes_cols])
+opacity <- c(opacity, rep(1.0, nrow(xc[my_fit == TRUE,])))
+
+bikes[, brand := tstrsplit(model," ", keep = 1)]
+
+```
+
+
+
+```{r what-is-gravel-bike-style-plot, echo=FALSE, warning=FALSE, message=FALSE, out.width = "100%", out.height = "100%"}
+p1 <- scatter_fig(data = bikes,
+                  x_col = "reach", y_col = "stack",
+                  g_col = "restyle",
+                  x_label = "Reach (mm)", y_label = "Stack (mm)",
+                  dot_opacity = opacity)
+p2 <- scatter_fig(data = bikes,
+                  x_col = "rear_center", y_col = "front_center",
+                  g_col = "restyle",
+                  x_label = "Rear Center (mm)", y_label = "Front Center (mm)",
+                  x_info = "RC", y_info = "FC",
+                  dot_opacity = opacity)
+p3 <- scatter_fig(data = bikes,
+                  x_col = "head_tube_angle", y_col = "seat_tube_angle",
+                  g_col = "restyle",
+                  x_label = "Head Tube Angle (°)", y_label = "Seat Tube Angle (°)",
+                  x_info = "HTA", y_info = "STA", digits = 1,
+                  dot_opacity = opacity)
+p4 <- scatter_fig(data = bikes,
+                  x_col = "head_tube_angle", y_col = "trail",
+                  g_col = "restyle",
+                  x_label = "Head Tube Angle (°)", y_label = "Trail (mm)",
+                  x_info = "HTA", y_info = "Trail", digits = 1,
+                  dot_opacity = opacity,
+                  same_xy_scale = FALSE)
+p5 <- scatter_fig(data = bikes,
+                  x_col = "front_wheelbase", y_col = "stack_reach",
+                  g_col = "restyle",
+                  x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
+                  x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
+                  dot_opacity = opacity,
+                  same_xy_scale = FALSE)
+p6 <- scatter_fig(data = bikes,
+                  x_col = "front_wheelbase", y_col = "sta_hta",
+                  g_col = "restyle",
+                  x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
+                  x_info = "FC/WB", y_info = "STA/HTA", digits = 2,
+                  dot_opacity = opacity,
+                  same_xy_scale = FALSE)
+p1
+p2
+p3
+p4
+p5
+p6
+```
+

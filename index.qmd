@@ -3,6 +3,9 @@ title: "Bike Geometry Project"
 subtitle: "A project to classify and compare gravel bike geometry"
 ---
 
+<meta http-equiv="refresh" content="0; URL=https://bikegeometry.site/">
+<link rel="canonical" href="https://bikegeometry.site/">
+
 ```{r setup-index, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("Rmd", "bike_geometry_project.R")
 source(source_path)

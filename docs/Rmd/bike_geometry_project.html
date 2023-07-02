@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Jeffrey Walker">
-<meta name="dcterms.date" content="2023-06-24">
+<meta name="dcterms.date" content="2023-07-02">
 
 <title>Bike Geometry Project</title>
 <style>
@@ -175,7 +175,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Gravel</a>
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Gravel Style</a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -183,7 +183,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../qmd/gravel_scatter.html" class="sidebar-item-text sidebar-link">Gravel Scatter</a>
+  <a href="../qmd/what_is_a_gravel_bike.html" class="sidebar-item-text sidebar-link">What is Gravel Style?</a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -200,12 +200,32 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Gravel Stories</a>
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Gravel Plots</a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../qmd/gravel_histo.html" class="sidebar-item-text sidebar-link">Gravel 1D</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../qmd/gravel_scatter.html" class="sidebar-item-text sidebar-link">Gravel 2D</a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">Gravel Stories</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../qmd/which_gravel_bikes_are_mtb_inspired.html" class="sidebar-item-text sidebar-link">Which gravel bikes have mountain bike inspired geometry?</a>
@@ -263,7 +283,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 24, 2023</p>
+      <p class="date">July 2, 2023</p>
     </div>
   </div>
   
@@ -350,7 +370,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#D55E00"</span>,</span>
 <span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#CC79A7"</span></span>
 <span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>pal_okabe_ito_7 <span class="ot">&lt;-</span> pal_okabe_ito[<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>)]</span>
 <span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>pal_okabe_ito_3 <span class="ot">&lt;-</span> pal_okabe_ito[<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">1</span>)]</span>
 <span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>pal_okabe_ito_4 <span class="ot">&lt;-</span> <span class="fu">c</span>(pal_okabe_ito_3, pal_okabe_ito[<span class="fu">c</span>(<span class="dv">6</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -693,6 +713,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </div>
 <div class="cell">
+
+</div>
+<div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>my_fit <span class="ot">&lt;-</span> geobike[my_fit <span class="sc">==</span> <span class="cn">TRUE</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
@@ -715,16 +738,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  style_class[, model <span class="sc">:</span><span class="er">=</span> <span class="fu">tstrsplit</span>(label, <span class="st">","</span>, <span class="at">keep =</span> <span class="dv">1</span>)]</span>
 <span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  cluster_labels <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="dv">3</span>)</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  trail <span class="ot">&lt;-</span> <span class="st">"Breezer Radar X Pro"</span></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  cluster_labels[style_class[model <span class="sc">==</span> trail, clust]] <span class="ot">&lt;-</span> <span class="st">"Trail"</span></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  all_road <span class="ot">&lt;-</span> <span class="st">"OPEN U.P."</span></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  cluster_labels[style_class[model <span class="sc">==</span> all_road, clust]] <span class="ot">&lt;-</span> <span class="st">"All-Road"</span></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  endurance <span class="ot">&lt;-</span> <span class="st">"Mason InSearchOf"</span></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  cluster_labels[style_class[model <span class="sc">==</span> endurance, clust]] <span class="ot">&lt;-</span> <span class="st">"Endurance"</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  rowdy <span class="ot">&lt;-</span> <span class="st">"Breezer Radar X Pro"</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  cluster_labels[style_class[model <span class="sc">==</span> rowdy, clust]] <span class="ot">&lt;-</span> <span class="st">"Rowdy"</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  racy <span class="ot">&lt;-</span> <span class="st">"OPEN U.P."</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  cluster_labels[style_class[model <span class="sc">==</span> racy, clust]] <span class="ot">&lt;-</span> <span class="st">"Racy"</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  relaxed <span class="ot">&lt;-</span> <span class="st">"Mason InSearchOf"</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  cluster_labels[style_class[model <span class="sc">==</span> relaxed, clust]] <span class="ot">&lt;-</span> <span class="st">"Relaxed"</span></span>
 <span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  style_class[, restyle <span class="sc">:</span><span class="er">=</span> cluster_labels[clust]]</span>
 <span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># relevel</span></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  style_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"All-Road"</span>, <span class="st">"Endurance"</span>, <span class="st">"Trail"</span>)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  style_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Racy"</span>, <span class="st">"Relaxed"</span>, <span class="st">"Rowdy"</span>)</span>
 <span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  style_class[, restyle <span class="sc">:</span><span class="er">=</span> <span class="fu">factor</span>(restyle,</span>
 <span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">levels =</span> style_levels)]</span>
 <span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  </span>
@@ -743,88 +766,123 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="scatter-figure" class="level1">
 <h1>scatter figure</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>scatter_fig <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">x_col =</span> <span class="st">"reach"</span>, <span class="at">y_col =</span> <span class="st">"stack"</span>,</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">x_label =</span> <span class="st">"Reach"</span>, <span class="at">y_label =</span> <span class="st">"Stack"</span>,</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">x_info =</span> <span class="cn">NULL</span>, <span class="at">y_info =</span> <span class="cn">NULL</span>,</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">digits =</span> <span class="dv">0</span>,</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">jitter_x =</span> <span class="dv">0</span>, <span class="at">jitter_y =</span> <span class="dv">0</span>,</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">annotate_model =</span> <span class="cn">NULL</span>,</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data =</span> my_fit){</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#shared_data &lt;- highlight_key(data, ~model)</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(x_info)){x_info <span class="ot">&lt;-</span> x_label}</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(y_info)){y_info <span class="ot">&lt;-</span> y_label}</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  n_colors <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">levels</span>(data[, restyle]))</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  my_palette <span class="ot">&lt;-</span> pal_okabe_ito_4[<span class="dv">1</span><span class="sc">:</span>n_colors]</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  fig <span class="ot">&lt;-</span> <span class="fu">plot_ly</span>(data, <span class="at">type =</span> <span class="st">"scatter"</span>, <span class="at">mode =</span> <span class="st">"markers"</span>,</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>                 <span class="at">x =</span> <span class="sc">~</span><span class="fu">jitter</span>(<span class="fu">get</span>(x_col), jitter_x),</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="sc">~</span><span class="fu">jitter</span>(<span class="fu">get</span>(y_col), jitter_y),</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="sc">~</span>restyle,</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colors =</span> my_palette,</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>                 <span class="at">opacity =</span> <span class="fl">0.3</span>,</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>                 <span class="at">size =</span> <span class="dv">10</span>,</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>                 <span class="at">name =</span> <span class="sc">~</span>model_size,</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>                 <span class="at">hoverinfo =</span> <span class="st">"text"</span>,</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>                 <span class="at">text =</span> <span class="sc">~</span><span class="fu">paste</span>(model, frame_size,</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"&lt;br&gt;Cat:"</span>, restyle,</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>                               <span class="fu">paste0</span>(<span class="st">"&lt;br&gt;"</span>, x_info, <span class="st">":"</span>), <span class="fu">round</span>(<span class="fu">get</span>(x_col), digits),</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>                               <span class="fu">paste0</span>(<span class="st">"&lt;br&gt;"</span>, y_info, <span class="st">":"</span>), <span class="fu">round</span>(<span class="fu">get</span>(y_col), digits)),</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>                 <span class="at">showlegend =</span> <span class="cn">FALSE</span></span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_text</span>(<span class="at">text =</span> <span class="sc">~</span><span class="fu">paste</span>(<span class="st">"\U2B05"</span>, model, frame_size),</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>             <span class="at">textfont =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">color =</span> <span class="sc">~</span>restyle),</span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="sc">~</span>restyle,</span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>             <span class="at">colors =</span> my_palette, <span class="co"># doesn't do anything</span></span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>             <span class="at">opacity =</span> <span class="dv">1</span>,</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>             <span class="at">symbol =</span> <span class="st">"circle"</span>,</span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>             <span class="at">textposition =</span> <span class="st">"right"</span>,</span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>             <span class="at">visible =</span> <span class="st">"legendonly"</span>,</span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>             <span class="at">sort =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>             <span class="at">showlegend =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">layout</span>(<span class="at">xaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> x_label, <span class="at">tickfont =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">16</span>), <span class="at">titlefont =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">16</span>)),</span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>         <span class="at">yaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> y_label, <span class="at">tickfont =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">16</span>), <span class="at">titlefont =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">16</span>)),</span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>         <span class="at">legend =</span> <span class="fu">list</span>(<span class="at">font =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">10</span>),</span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>                       <span class="at">itemsizing =</span> <span class="st">"constant"</span>),</span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>         <span class="at">title =</span> <span class="fu">list</span>(<span class="at">text =</span> <span class="fu">paste</span>(y_label, <span class="st">"vs."</span>, x_label),</span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>                      <span class="at">x =</span> <span class="dv">0</span>,</span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>                      <span class="at">xanchor =</span> <span class="st">"left"</span>)</span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(annotate_model)){</span>
-<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(annotate_model)){</span>
-<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>        fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span> <span class="fu">add_annotations</span>(</span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> data[model <span class="sc">==</span> annotate_model[j], <span class="fu">get</span>(x_col)],</span>
-<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> data[model <span class="sc">==</span> annotate_model[j], <span class="fu">get</span>(y_col)],</span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>        <span class="at">text =</span> <span class="fu">paste</span>(data[model <span class="sc">==</span> annotate_model[j], model],</span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>                     data[model <span class="sc">==</span> annotate_model[j], year]),</span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>        <span class="at">xref =</span> <span class="st">"x"</span>,</span>
-<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>        <span class="at">yref =</span> <span class="st">"y"</span>,</span>
-<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>        <span class="at">showarrow =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>        <span class="at">arrowhead =</span> <span class="dv">1</span>,</span>
-<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>        <span class="at">ax =</span> <span class="dv">20</span>,</span>
-<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>        <span class="at">ay =</span> <span class="sc">-</span><span class="dv">20</span>,</span>
-<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a><span class="co">#        arrowcolor = pal_okabe_ito_4[4],</span></span>
-<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>        <span class="at">arrowcolor =</span> <span class="st">"black"</span>,</span>
-<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a><span class="co">#        font = list(color = pal_okabe_ito_4[4], size = 16)</span></span>
-<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>        <span class="at">font =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="dv">16</span>)</span>
-<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>  }</span>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>scatter_fig <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">data =</span> my_fit,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">x_col =</span> <span class="st">"reach"</span>, <span class="at">y_col =</span> <span class="st">"stack"</span>, <span class="at">g_col =</span> <span class="st">"model_size"</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">x_label =</span> <span class="st">"Reach"</span>, <span class="at">y_label =</span> <span class="st">"Stack"</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">x_info =</span> <span class="cn">NULL</span>, <span class="at">y_info =</span> <span class="cn">NULL</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">digits =</span> <span class="dv">0</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">jitter_x =</span> <span class="dv">0</span>, <span class="at">jitter_y =</span> <span class="dv">0</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">annotate_model =</span> <span class="cn">NULL</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                        <span class="at">dot_palette =</span> pal_okabe_ito_7,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>                        <span class="at">dot_opacity =</span> <span class="fl">0.3</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>                        <span class="at">same_xy_scale =</span> <span class="cn">TRUE</span>){ <span class="co"># if units are same on x and y then scales should be preserved</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">#shared_data &lt;- highlight_key(data, ~model)</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(x_info)){x_info <span class="ot">&lt;-</span> x_label}</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(y_info)){y_info <span class="ot">&lt;-</span> y_label}</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  restyle_legend <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(g_col <span class="sc">==</span> <span class="st">"restyle"</span>,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>                           <span class="cn">TRUE</span>,</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>                           <span class="cn">FALSE</span>)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  n_colors <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">levels</span>(data[, restyle]))</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># set range of axes</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  min_data_x <span class="ot">&lt;-</span> <span class="fu">min</span>(data[, <span class="fu">get</span>(x_col)], <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  min_data_y <span class="ot">&lt;-</span> <span class="fu">min</span>(data[, <span class="fu">get</span>(y_col)], <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  max_data_x <span class="ot">&lt;-</span> <span class="fu">max</span>(data[, <span class="fu">get</span>(x_col)], <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  max_data_y <span class="ot">&lt;-</span> <span class="fu">max</span>(data[, <span class="fu">get</span>(y_col)], <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  range_x <span class="ot">&lt;-</span> max_data_x <span class="sc">-</span> min_data_x</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  range_y <span class="ot">&lt;-</span> max_data_y <span class="sc">-</span> min_data_y</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  range_axis_x <span class="ot">&lt;-</span> range_x <span class="sc">*</span> <span class="fl">1.1</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  range_axis_y <span class="ot">&lt;-</span> range_y <span class="sc">*</span> <span class="fl">1.1</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(same_xy_scale <span class="sc">==</span> <span class="cn">TRUE</span>){</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(range_x <span class="sc">&gt;</span> range_y){</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>      range_axis_y <span class="ot">&lt;-</span> range_axis_y <span class="sc">*</span> range_x<span class="sc">/</span>range_y</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    }<span class="cf">else</span>{</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>      range_axis_x <span class="ot">&lt;-</span> range_axis_x <span class="sc">*</span> range_y<span class="sc">/</span>range_x</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>    }}</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>  min_axis_x <span class="ot">&lt;-</span> (min_data_x <span class="sc">+</span> max_data_x)<span class="sc">/</span><span class="dv">2</span> <span class="sc">-</span> <span class="fl">0.5</span><span class="sc">*</span>range_axis_x</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>  max_axis_x <span class="ot">&lt;-</span> (min_data_x <span class="sc">+</span> max_data_x)<span class="sc">/</span><span class="dv">2</span> <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>range_axis_x</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>  min_axis_y <span class="ot">&lt;-</span> (min_data_y <span class="sc">+</span> max_data_y)<span class="sc">/</span><span class="dv">2</span> <span class="sc">-</span> <span class="fl">0.5</span><span class="sc">*</span>range_axis_y</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>  max_axis_y <span class="ot">&lt;-</span> (min_data_y <span class="sc">+</span> max_data_y)<span class="sc">/</span><span class="dv">2</span> <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>range_axis_y</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>  fig <span class="ot">&lt;-</span> <span class="fu">plot_ly</span>(data, <span class="at">type =</span> <span class="st">"scatter"</span>, <span class="at">mode =</span> <span class="st">"markers"</span>,</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>                 <span class="at">x =</span> <span class="sc">~</span><span class="fu">jitter</span>(<span class="fu">get</span>(x_col), jitter_x),</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="sc">~</span><span class="fu">jitter</span>(<span class="fu">get</span>(y_col), jitter_y),</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="sc">~</span>restyle,</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colors =</span> dot_palette[<span class="dv">1</span><span class="sc">:</span>n_colors],</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>                 <span class="at">opacity =</span> dot_opacity,</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>                 <span class="at">size =</span> <span class="dv">10</span>,</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>                 <span class="at">name =</span> <span class="sc">~</span><span class="fu">get</span>(g_col),</span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>                 <span class="at">hoverinfo =</span> <span class="st">"text"</span>,</span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>                 <span class="at">text =</span> <span class="sc">~</span><span class="fu">paste</span>(model, frame_size,</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"&lt;br&gt;Cat:"</span>, restyle,</span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>                               <span class="fu">paste0</span>(<span class="st">"&lt;br&gt;"</span>, x_info, <span class="st">":"</span>), <span class="fu">round</span>(<span class="fu">get</span>(x_col), digits),</span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>                               <span class="fu">paste0</span>(<span class="st">"&lt;br&gt;"</span>, y_info, <span class="st">":"</span>), <span class="fu">round</span>(<span class="fu">get</span>(y_col), digits)),</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>                 <span class="at">showlegend =</span> restyle_legend</span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">layout</span>(<span class="at">xaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> x_label,</span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>                        <span class="at">tickfont =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">16</span>), <span class="at">titlefont =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">16</span>),</span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>                        <span class="at">range =</span> <span class="fu">c</span>(min_axis_x, max_axis_x)),</span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>           <span class="at">yaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> y_label,</span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>                        <span class="at">tickfont =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">16</span>), <span class="at">titlefont =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">16</span>),</span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>                        <span class="at">range =</span> <span class="fu">c</span>(min_axis_y, max_axis_y)),</span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>           <span class="at">legend =</span> <span class="fu">list</span>(<span class="at">font =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">10</span>),</span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>                         <span class="at">itemsizing =</span> <span class="st">"constant"</span>),</span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>           <span class="at">title =</span> <span class="fu">list</span>(<span class="at">text =</span> <span class="fu">paste</span>(y_label, <span class="st">"vs."</span>, x_label),</span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>                        <span class="at">x =</span> <span class="dv">0</span>,</span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>                        <span class="at">xanchor =</span> <span class="st">"left"</span>),</span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>           <span class="at">autosize =</span> F, <span class="at">width =</span> <span class="dv">800</span>, <span class="at">height =</span> <span class="dv">600</span></span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add style legend -- cannot get color to show</span></span>
-<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>  <span class="co"># fig &lt;- fig %&gt;% add_annotations(</span></span>
-<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   x = 0,</span></span>
-<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   y = 1,</span></span>
-<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   xref = "paper",</span></span>
-<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   yref = "paper",</span></span>
-<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   text = paste0("\U23FA", "Race"),</span></span>
-<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   textfont = list(size = 10, color = pal_okabe_ito_4[1]),</span></span>
-<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   showarrow = F</span></span>
-<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>  <span class="co"># )</span></span>
-<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(fig)</span>
-<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(g_col <span class="sc">==</span> <span class="st">"model_size"</span>){</span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>    fig <span class="ot">&lt;-</span> fig  <span class="sc">%&gt;%</span></span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a>      <span class="fu">add_text</span>(<span class="at">text =</span> <span class="sc">~</span><span class="fu">paste</span>(<span class="st">"\U2B05"</span>, model, frame_size),</span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>               <span class="at">textfont =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">color =</span> <span class="sc">~</span>restyle),</span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>               <span class="at">color =</span> <span class="sc">~</span>restyle,</span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>               <span class="at">opacity =</span> <span class="dv">1</span>,</span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a>               <span class="at">symbol =</span> <span class="st">"circle"</span>,</span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a>               <span class="at">textposition =</span> <span class="st">"right"</span>,</span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a>               <span class="at">visible =</span> <span class="st">"legendonly"</span>,</span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>               <span class="at">sort =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a>               <span class="at">showlegend =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(annotate_model)){</span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(annotate_model)){</span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a>        fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span> <span class="fu">add_annotations</span>(</span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> data[model <span class="sc">==</span> annotate_model[j], <span class="fu">get</span>(x_col)],</span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> data[model <span class="sc">==</span> annotate_model[j], <span class="fu">get</span>(y_col)],</span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a>        <span class="at">text =</span> <span class="fu">paste</span>(data[model <span class="sc">==</span> annotate_model[j], model],</span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a>                     data[model <span class="sc">==</span> annotate_model[j], year]),</span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a>        <span class="at">xref =</span> <span class="st">"x"</span>,</span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a>        <span class="at">yref =</span> <span class="st">"y"</span>,</span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>        <span class="at">showarrow =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a>        <span class="at">arrowhead =</span> <span class="dv">1</span>,</span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a>        <span class="at">ax =</span> <span class="dv">20</span>,</span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a>        <span class="at">ay =</span> <span class="sc">-</span><span class="dv">20</span>,</span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a><span class="co">#        arrowcolor = ~restyle,</span></span>
+<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a>        <span class="at">arrowcolor =</span> <span class="st">"black"</span>,</span>
+<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a><span class="co">#        font = list(color = ~restyle, size = 16)</span></span>
+<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a>        <span class="at">font =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="dv">16</span>)</span>
+<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add style legend -- cannot get color to show</span></span>
+<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a>  <span class="co"># fig &lt;- fig %&gt;% add_annotations(</span></span>
+<span id="cb10-106"><a href="#cb10-106" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   x = 0,</span></span>
+<span id="cb10-107"><a href="#cb10-107" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   y = 1,</span></span>
+<span id="cb10-108"><a href="#cb10-108" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   xref = "paper",</span></span>
+<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   yref = "paper",</span></span>
+<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   text = paste0("\U23FA", "Race"),</span></span>
+<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   textfont = list(size = 10, color = pal_okabe_ito_4[1]),</span></span>
+<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   showarrow = F</span></span>
+<span id="cb10-113"><a href="#cb10-113" aria-hidden="true" tabindex="-1"></a>  <span class="co"># )</span></span>
+<span id="cb10-114"><a href="#cb10-114" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-116"><a href="#cb10-116" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(fig)</span>
+<span id="cb10-117"><a href="#cb10-117" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># highlight and run to put update into R folder</span></span>

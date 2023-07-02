@@ -19,11 +19,15 @@ website:
     contents:
       - text: "Home"
         file: index.qmd
-      - section: "Gravel"
+      - section: "Gravel Style"
         contents:
-          - qmd/gravel_scatter.qmd
+          - qmd/what_is_a_gravel_bike.qmd
           - qmd/gravel_tree.qmd
           - qmd/gravel_class.qmd
+      - section: "Gravel Plots"
+        contents:
+          - qmd/gravel_histo.qmd
+          - qmd/gravel_scatter.qmd
       - section: "Gravel Stories"
         contents:
           - qmd/which_gravel_bikes_are_mtb_inspired.qmd
