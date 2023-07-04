@@ -2,6 +2,10 @@
 title: "Giant Revolt X"
 ---
 
+::: {.callout-note}
+Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") cm high rider, according to manufacturer's charts.
+:::
+
 ```{r revoltx-setup, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("bike_geometry_project.R")
 source(source_path)
@@ -79,9 +83,9 @@ base_plot <- function(data = geobike,
            title = list(text = paste(y_label, "vs.", x_label),
                         x = 0,
                         xanchor = "left"),
-           # legend = list(font = list(size = 10),
-           #               itemsizing = "constant"),
-           # autosize = F, width = 800, height = 600,
+           legend = list(font = list(size = 10),
+                         itemsizing = "constant"),
+           autosize = F, width = 800, height = 600,
            NULL
     )
  
@@ -98,11 +102,11 @@ annotate_model <- function(p,
                            y_col = "stack",
                            g_col = "restyle",
                            text_col = "model",
-                           text_target = "Giant Revolt X pro 1 long",
+                           text_target = "Giant Revolt X pro 1 long", # can be a vector
                            dx = 20,
                            dy = 20
                            ){
-  subdata <- data[which(data[, get(text_col)] == text_target), ]
+  subdata <- data[which(data[, get(text_col)] %in% text_target), ]
   p <- p %>%
     add_trace(data = subdata,
               x = ~get(x_col),
@@ -148,7 +152,7 @@ xy_sets <- rbind(
   data.table()
 setnames(xy_sets, new = c("x", "y", "x_label", "y_label", "xy_scale"))
 
-p_list <- list()
+p1_list <- list()
 for(i in 1:nrow(xy_sets)){
   p <- base_plot(data = bikes,
                   x_col = xy_sets[i, x],
@@ -157,27 +161,56 @@ for(i in 1:nrow(xy_sets)){
                   x_label = xy_sets[i, x_label],
                   y_label = xy_sets[i, y_label],
                   dot_palette = pal_okabe_ito_7,
-                  dot_opacity = 0.3,
+                  dot_opacity = 0.5,
                   same_xy_scale = xy_sets[i, xy_scale]) %>%
     annotate_model(data = bikes,
                    x_col = xy_sets[i, x],
                    y_col = xy_sets[i, y],
                    g_col = "restyle",
                    text_col = "model",
-                   text_target = "Giant Revolt X pro 1 long",
+                   text_target = c("Giant Revolt X pro 1 long", "Giant Revolt X pro 1 short"),
                    dx = 20,
                    dy = 20
     )
-  p_list[[i]] =  plotly_build(p)
+  p1_list[[i]] =  plotly_build(p)
 }
 
-p_list[[1]]
-p_list[[2]]
-p_list[[3]]
-p_list[[4]]
-p_list[[5]]
-p_list[[6]]
+# p1_list[[1]]
+# p1_list[[2]]
+# p1_list[[3]]
+# p1_list[[4]]
+# p1_list[[5]]
+# p1_list[[6]]
 
+p2_list <- list()
+for(i in 1:nrow(xy_sets)){
+  p <- base_plot(data = my_fit,
+                  x_col = xy_sets[i, x],
+                  y_col = xy_sets[i, y],
+                  g_col = "restyle",
+                  x_label = xy_sets[i, x_label],
+                  y_label = xy_sets[i, y_label],
+                  dot_palette = pal_okabe_ito_7,
+                  dot_opacity = 0.3,
+                  same_xy_scale = xy_sets[i, xy_scale]) %>%
+    annotate_model(data = my_fit,
+                   x_col = xy_sets[i, x],
+                   y_col = xy_sets[i, y],
+                   g_col = "restyle",
+                   text_col = "model",
+                   text_target = c("Giant Revolt X pro 1 long", "Giant Revolt X pro 1 short"),
+                   dx = 0,
+                   dy = c(20,-20)
+    )
+  p2_list[[i]] =  plotly_build(p)
+}
+
+p2_list[[1]]
+p2_list[[2]]
+p2_list[[3]]
+p2_list[[4]]
+p2_list[[5]]
+p2_list[[6]]
 
 ```
 

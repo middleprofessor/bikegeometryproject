@@ -1,6 +1,6 @@
 ---
 title: "Bike Geometry Project"
-subtitle: "A project to classify and compare gravel bike geometry"
+subtitle: "A component of the gravelRRR multiverse"
 ---
 
 ```{r setup-index, echo=FALSE, warning=FALSE, message=FALSE}
@@ -17,7 +17,16 @@ image_path <- here(image_folder, image_file)
 include_graphics(image_path)
 ```
 
-The [What is Gravel Style?](qmd/what_is_a_gravel_bike.qmd) page contains interactive, 2D scatter plots of different pairs of frame geometry measures to compare Gravel bikes in the database to Road Race, Road Endurance, Cyclocross, and XC Mountain bikes.
+The [Gravel Ternary](qmd/gravel_scatter.qmd) page contains an interactive, ternary plot for all gravel bike models in the database. Each ternary plot axis is a style score (0 -- 100) for one of the styles: Racy, Relaxed, and Rowdy.
+
+```{r echo=FALSE}
+image_folder <- "images"
+image_file <- "gravel-ternary.png"
+image_path <- here(image_folder, image_file)
+include_graphics(image_path)
+```
+
+The [What is Gravel Style?](qmd/what_is_a_gravel_bike.qmd) page contains interactive, 2D scatter plots of different pairs of frame geometry measures to compare gravel bikes in the database to Road Race, Road Endurance, Cyclocross, and XC Mountain bikes.
 
 ```{r echo=FALSE}
 image_folder <- "images"

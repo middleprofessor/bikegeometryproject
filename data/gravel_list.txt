@@ -28,7 +28,7 @@ Marin DSX 2 2022	aluminum	b1:g22	M
 Whyte Friston Gravel 2022	aluminum	a1:g23	54
 Noble GX 5 2022	carbon	b1:i20	54cm
 BlackMtnCy Monstercross V5 2022	steel	b1:j22	56cm
-BlackMtnCy La Cabra 2022	steel	b1:h22	18"
+BlackMtnCy La Cabra 2022	steel	a1:g24	18"
 Enigma Escape Flat-bar 2022	titanium	b1:g22	SML
 Chumba Terlingua steel fdo 2022	steel	b1:i19	54
 Shand Stooshie 2022	steel	a1:g23	S
@@ -58,7 +58,7 @@ Amigo Bug Out 2022	steel	b1:g33	Medium
 Hudski Doggler Gravel 2022	aluminum	b1:g23	M
 Bearclaw Beaux Jaxon 2022	titanium	b1:k21	54
 Sonder Camino AL 2022	aluminum	a1:f21	Medium
-Chiru Kegeti 2022	titanium	b1:g20	M
+Chiru Kegeti 2023	titanium	a6:f27	M
 Otso Fenrir 2022	steel	b1:h22	M
 Alchemy Rogue 2022	carbon	a1:h23	M
 Mosaic GT-1X 2022	titanium	b1:j22	55

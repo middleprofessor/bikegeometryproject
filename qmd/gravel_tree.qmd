@@ -3,7 +3,9 @@ title: "Gravel Tree"
 editor: source
 ---
 
-Classification of bikes is based on a frame size that fits a 176 cm (5' 9.3") cm high rider, according to manufacturer's charts.
+::: {.callout-note}
+Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") cm high rider, according to manufacturer's charts.
+:::
 
 ```{r setup-tree, warning=FALSE, message=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
@@ -174,7 +176,7 @@ get_tree <- function(geobike_subset,
 }
 ```
 
-```{r gravel-tree, fig.height=10, fig.width=10, echo=FALSE}
+```{r gravel-tree, fig.height=12, fig.width=10, echo=FALSE}
 y_cols <- c("stack", "reach", "front_center", "rear_center", "head_tube_angle", "seat_tube_angle", "trail")
 
 
@@ -197,3 +199,9 @@ gg <- plot_ggdendro(tree_v2_color,
  
 gg
 ```
+
+::: {.callout-note}
+1. The tree is constructed using .
+2. Each style axes was constructed as the multivariate axis from the centroid to the style mean of the centered, scaled data.
+3. The input data is the ML subset of bikes that fit a 176 cm rider
+:::

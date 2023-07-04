@@ -1,15 +1,16 @@
 ---
 title: "Gravel 1D"
-editor: visual
+editor: source
 ---
 
-Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") cm high rider, according to manufacturer's charts
+::: {.callout-note}
+Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") cm high rider, according to manufacturer's charts.
+:::
 
 ```{r setup-gravel-scatter, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 ```
-
 
 ```{r histo_fig, echo=FALSE}
 

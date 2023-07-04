@@ -583,7 +583,7 @@ import_bikes <- function(style = "gravel",
 
 ```
 
-```{r import-bikes-old, echo=FALSE}
+```{r import-bikes-working, echo=FALSE}
 import_it <- FALSE
 if(import_it != TRUE){
   geo_bike_path <- here("rds", "geobike.Rds")

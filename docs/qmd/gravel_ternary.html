@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.475">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bike Geometry Project - Gravel Ternary</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="../site_libs/htmlwidgets-1.6.1/htmlwidgets.js"></script>
+<script src="../site_libs/plotly-binding-4.10.1/plotly.js"></script>
+<script src="../site_libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="../site_libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="../site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
+<script src="../site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<link href="../site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="../site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed">
+
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Bike Geometry Project</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Gravel Ternary</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">Home</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Gravel Plots</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../qmd/gravel_histo.html" class="sidebar-item-text sidebar-link">Gravel 1D</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../qmd/gravel_scatter.html" class="sidebar-item-text sidebar-link">Gravel 2D</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../qmd/gravel_ternary.html" class="sidebar-item-text sidebar-link active">Gravel Ternary</a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Gravel Style</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../qmd/what_is_a_gravel_bike.html" class="sidebar-item-text sidebar-link">What is Gravel Style?</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../qmd/gravel_tree.html" class="sidebar-item-text sidebar-link">Gravel Tree</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../qmd/gravel_class.html" class="sidebar-item-text sidebar-link">Gravel Table</a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">Gravel Stories</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../qmd/which_gravel_bikes_are_mtb_inspired.html" class="sidebar-item-text sidebar-link">Which gravel bikes have mountain bike inspired geometry?</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../qmd/mtb_90s.html" class="sidebar-item-text sidebar-link">Is a gravel bike a 1990s mountain bike?</a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">New Bike Day</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../qmd/nbd/revoltx.html" class="sidebar-item-text sidebar-link">Giant Revolt X</a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content column-page-right" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Gravel Ternary</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="gravel_ternary_files/figure-html/legend-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-b78b538c1364c6d1f2da" style="width:100%;height:100%;"></div>
+<script type="application/json" data-for="htmlwidget-b78b538c1364c6d1f2da">{"x":{"visdat":{"afa12a95ac1f":["function () ","plotlyVisDat"]},"cur_data":"afa12a95ac1f","attrs":{"afa12a95ac1f":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatterternary","mode":"markers","a":{},"b":{},"c":{},"color":{},"colors":["#56B4E9","#009E73","#E69F00"],"showlegend":false,"opacity":0.5,"marker":{"size":14,"line":{"width":2}},"hoverinfo":"text","text":{},"inherit":true},"afa12a95ac1f.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatterternary","mode":"markers","a":{},"b":{},"c":{},"marker":{"size":14,"opacity":1,"color":{},"colors":["#56B4E9","#009E73","#E69F00"]},"text":{},"textfont":{"size":12},"name":{},"textposition":"right","visible":"legendonly","showlegend":true,"inherit":true}},"layout":{"margin":{"b":60,"l":60,"t":60,"r":60,"pad":4},"autosize":false,"ternary":{"sum":100,"aaxis":{"title":"Racy","titlefont":{"size":20},"tickfont":{"size":15},"tickcolor":"rgba(0,0,0,0)","ticklen":5},"baxis":{"title":"Relaxed","titlefont":{"size":20},"tickfont":{"size":15},"tickcolor":"rgba(0,0,0,0)","ticklen":5},"caxis":{"title":"Rowdy","titlefont":{"size":20},"tickfont":{"size":15},"tickcolor":"rgba(0,0,0,0)","ticklen":5}},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"type":"scatterternary","mode":"markers","a":[0.679077285351607,0.697660034904089,0.79716421524992,0.828990800340355,0.819028146008575,0.622345472461521,0.851694053534463,0.988059221657001,0.916914098215451,0.910784187735806,0.833570469008474,0.89383968531404,0.675465646555888,0.940145780736534,null,0.719022780864372,0.714056363016619,null,0.669209508773305,0.776500105841584,0.825844044893117,0.807127277217428,0.856689491046943,0.858294552564807,0.615105388065268,0.742249988546062,0.66940518773195,0.547782547317271,0.769968524701874,null,0.827740998493863,0.944094127188628,0.858058803052141,0.87598272651819,0.789304496470282,0.839230157353305,0.800253183436258,0.669071774380074,0.825275193806812,0.84516342746923,0.810915273617371,0.742187354214459,0.812302941577622,0.793715133367267,0.770450747212169,0.736829761612914,0.811400764039204,0.81003993649386,0.753816930677346,0.782292663726103,1,0.753206236166454,0.777962582818342,0.798450278625752,0.7645151276073,0.749161533583374,0.756038185115508,0.772598816217766],"b":[0.283468663007267,0.28529872732145,0.316180042260782,0.331715505772119,0.327785850699906,0.200435427391698,0.361807565790217,0.165660261852309,0.175492704828111,0.157058942982824,0.284615331398007,0.171854567033953,0.345986437497864,0.0596290530627556,null,0.301141002176165,0.246568770222027,null,0.235242014906148,0.311116141492079,0.200238287360065,0.321990653554211,0.196077600846285,0.273218704355967,0.180167600209272,0.229083940861779,0.364737433306164,0.375761908491068,0.347359598614613,null,0.387925285859709,0.15863357914022,0.343154260781402,0.205867211505623,0.223911999049998,0.11518501102464,0.206067552557202,0.44959972518277,0.234686046812844,0.296042333024444,0.195983308575072,0.350169126216884,0.250040193599617,0.193792766532767,0.336963503694668,0.246950920647561,0.240136446304828,0.244751661756236,0.263904664514008,0.228890549980719,0.140018929884526,0.282698673025083,0.175730765431848,0.0644603320301461,0.380126559079779,0.39325342949715,0.274268453496556,0.180945424978116],"c":[0.301748970476888,0.283466110895739,0.149747946197675,0.106890418509053,0.115222412672275,0.412604527139815,0.060826194156594,0.00383911388591874,0.0812271499636086,0.096699034851625,0.124256275183855,0.104238885999652,0.276933360125314,0.113509752348076,null,0.243817766713058,0.28039231303486,null,0.339284767571387,0.174774967819126,0.173462738509697,0.129163759770944,0.135528743570852,0.100185077796842,0.425896181234014,0.260530051554669,0.271062052945242,0.406840266816198,0.168312734552939,null,0.0760892444818413,0.0619614882633169,0.0662048092109941,0.116977995775775,0.201567807176108,0.198357204733522,0.200029851178295,0.232587612724586,0.155769159641526,0.10472587875902,0.195336678722451,0.197446274420893,0.165099801340272,0.216278516834325,0.173656002953685,0.261385880057526,0.168419221283807,0.166690829102171,0.218582016081167,0.212913447190861,0,0.214952308645513,0.251782247911093,0.276285827844165,0.155816378147724,0.167700864625831,0.21712181953978,0.247205105528596],"showlegend":false,"opacity":0.5,"marker":{"color":"rgba(86,180,233,1)","size":14,"line":{"color":"rgba(86,180,233,1)","width":2}},"hoverinfo":["text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text"],"text":["Alchemy Lycos ‏ L <br>Cat: Racy <br> Racy: 67.9 <br> Relaxed: 28.3 <br> Rowdy: 30.2","Alchemy Rogue ‎ M​ <br>Cat: Racy <br> Racy: 69.8 <br> Relaxed: 28.5 <br> Rowdy: 28.3","All-City Cosmic Stallion  52 <br>Cat: Racy <br> Racy: 79.7 <br> Relaxed: 31.6 <br> Rowdy: 15","All-City Gorilla Monsoon  52 <br>Cat: Racy <br> Racy: 82.9 <br> Relaxed: 33.2 <br> Rowdy: 10.7","All-City Space Horse  52 <br>Cat: Racy <br> Racy: 81.9 <br> Relaxed: 32.8 <br> Rowdy: 11.5","Argonaut GR3  560 <br>Cat: Racy <br> Racy: 62.2 <br> Relaxed: 20 <br> Rowdy: 41.3","BlackMtnCy Monstercross V5  56 <br>Cat: Racy <br> Racy: 85.2 <br> Relaxed: 36.2 <br> Rowdy: 6.1","Blackheart All Road TI  54 <br>Cat: Racy <br> Racy: 98.8 <br> Relaxed: 16.6 <br> Rowdy: 0.4","Bombtrack Hook ‎ M​ <br>Cat: Racy <br> Racy: 91.7 <br> Relaxed: 17.5 <br> Rowdy: 8.1","Cannondale SuperSix Evo SE  54 <br>Cat: Racy <br> Racy: 91.1 <br> Relaxed: 15.7 <br> Rowdy: 9.7","Cannondale Topstone Lefty ‎ M​ <br>Cat: Racy <br> Racy: 83.4 <br> Relaxed: 28.5 <br> Rowdy: 12.4","Canyon Grail 7 1by ‎ M​ <br>Cat: Racy <br> Racy: 89.4 <br> Relaxed: 17.2 <br> Rowdy: 10.4","Canyon Grizl 7 1by ‎ M​ <br>Cat: Racy <br> Racy: 67.5 <br> Relaxed: 34.6 <br> Rowdy: 27.7","Cervelo Aspero  54 <br>Cat: Racy <br> Racy: 94 <br> Relaxed: 6 <br> Rowdy: 11.4","Chumba Terlingua steel fdo  54 <br>Cat: Racy <br> Racy: NA <br> Relaxed: NA <br> Rowdy: NA","Commencal 365 ‎ M​ <br>Cat: Racy <br> Racy: 71.9 <br> Relaxed: 30.1 <br> Rowdy: 24.4","Devinci Hatchet ‎ M‏/54 <br>Cat: Racy <br> Racy: 71.4 <br> Relaxed: 24.7 <br> Rowdy: 28","Enve Mog  54 <br>Cat: Racy <br> Racy: NA <br> Relaxed: NA <br> Rowdy: NA","Focus Atlas 8.9 ‎ M​ <br>Cat: Racy <br> Racy: 66.9 <br> Relaxed: 23.5 <br> Rowdy: 33.9","Giant Revolt X pro 1 long ‎ M​ <br>Cat: Racy <br> Racy: 77.7 <br> Relaxed: 31.1 <br> Rowdy: 17.5","Giant Revolt X pro 1 short ‎ M​ <br>Cat: Racy <br> Racy: 82.6 <br> Relaxed: 20 <br> Rowdy: 17.3","Giant Revolt pro long ‎ M​ <br>Cat: Racy <br> Racy: 80.7 <br> Relaxed: 32.2 <br> Rowdy: 12.9","Giant Revolt pro short ‎ M​ <br>Cat: Racy <br> Racy: 85.7 <br> Relaxed: 19.6 <br> Rowdy: 13.6","Ibis Hakka MX  55 <br>Cat: Racy <br> Racy: 85.8 <br> Relaxed: 27.3 <br> Rowdy: 10","Knolly Cache Steel  56 <br>Cat: Racy <br> Racy: 61.5 <br> Relaxed: 18 <br> Rowdy: 42.6","Lauf Siegla ‎ M​ <br>Cat: Racy <br> Racy: 74.2 <br> Relaxed: 22.9 <br> Rowdy: 26.1","Liz Devote Advance ‏ L <br>Cat: Racy <br> Racy: 66.9 <br> Relaxed: 36.5 <br> Rowdy: 27.1","Merida Silex ‎ M​ <br>Cat: Racy <br> Racy: 54.8 <br> Relaxed: 37.6 <br> Rowdy: 40.7","Niner RLT 9 RDO  56 <br>Cat: Racy <br> Racy: 77 <br> Relaxed: 34.7 <br> Rowdy: 16.8","No22 Drifter X  54 <br>Cat: Racy <br> Racy: NA <br> Relaxed: NA <br> Rowdy: NA","Noble GX 5  54 <br>Cat: Racy <br> Racy: 82.8 <br> Relaxed: 38.8 <br> Rowdy: 7.6","OPEN U.P. ‎ M​ <br>Cat: Racy <br> Racy: 94.4 <br> Relaxed: 15.9 <br> Rowdy: 6.2","Obed Boundary ‎ M​ <br>Cat: Racy <br> Racy: 85.8 <br> Relaxed: 34.3 <br> Rowdy: 6.6","Open WI.DE ‎ M​ <br>Cat: Racy <br> Racy: 87.6 <br> Relaxed: 20.6 <br> Rowdy: 11.7","Orbea Terra H ‎ M​ <br>Cat: Racy <br> Racy: 78.9 <br> Relaxed: 22.4 <br> Rowdy: 20.2","Orbea Terra M ‎ M​ <br>Cat: Racy <br> Racy: 83.9 <br> Relaxed: 11.5 <br> Rowdy: 19.8","Otso Waheela C front ‏ L <br>Cat: Racy <br> Racy: 80 <br> Relaxed: 20.6 <br> Rowdy: 20","Otso Waheela C rear ‏ L <br>Cat: Racy <br> Racy: 66.9 <br> Relaxed: 45 <br> Rowdy: 23.3","Pinarello Grevil F  54.7 <br>Cat: Racy <br> Racy: 82.5 <br> Relaxed: 23.5 <br> Rowdy: 15.6","Ribble Gravel SL ‎ M​ <br>Cat: Racy <br> Racy: 84.5 <br> Relaxed: 29.6 <br> Rowdy: 10.5","Rose Backroad XPLR  55 <br>Cat: Racy <br> Racy: 81.1 <br> Relaxed: 19.6 <br> Rowdy: 19.5","Salsa Warbird  56 <br>Cat: Racy <br> Racy: 74.2 <br> Relaxed: 35 <br> Rowdy: 19.7","Santa Cruz Stigmata  56 <br>Cat: Racy <br> Racy: 81.2 <br> Relaxed: 25 <br> Rowdy: 16.5","Scott Addict Gravel ‎ M​/54 <br>Cat: Racy <br> Racy: 79.4 <br> Relaxed: 19.4 <br> Rowdy: 21.6","Shand Stooshie ‍ S​ <br>Cat: Racy <br> Racy: 77 <br> Relaxed: 33.7 <br> Rowdy: 17.4","Solace OM-3 Short ‍ S​ <br>Cat: Racy <br> Racy: 73.7 <br> Relaxed: 24.7 <br> Rowdy: 26.1","Soma Wolverine  54 <br>Cat: Racy <br> Racy: 81.1 <br> Relaxed: 24 <br> Rowdy: 16.8","Specialized Diverge  54 <br>Cat: Racy <br> Racy: 81 <br> Relaxed: 24.5 <br> Rowdy: 16.7","Specialized Diverge STR  56 <br>Cat: Racy <br> Racy: 75.4 <br> Relaxed: 26.4 <br> Rowdy: 21.9","Squid Gravtron ‏ L <br>Cat: Racy <br> Racy: 78.2 <br> Relaxed: 22.9 <br> Rowdy: 21.3","Thesis OB1 ‎ M​ <br>Cat: Racy <br> Racy: 100 <br> Relaxed: 14 <br> Rowdy: 0","Trek Checkpoint SL5  56 <br>Cat: Racy <br> Racy: 75.3 <br> Relaxed: 28.3 <br> Rowdy: 21.5","Ventum GS1 ‎ M​ <br>Cat: Racy <br> Racy: 77.8 <br> Relaxed: 17.6 <br> Rowdy: 25.2","Why R+ V4 ‎ M​ <br>Cat: Racy <br> Racy: 79.8 <br> Relaxed: 6.4 <br> Rowdy: 27.6","Wilde Earth Ship Steel ‎ M​ <br>Cat: Racy <br> Racy: 76.5 <br> Relaxed: 38 <br> Rowdy: 15.6","Wilde Rambler SL ‎ M​ <br>Cat: Racy <br> Racy: 74.9 <br> Relaxed: 39.3 <br> Rowdy: 16.8","Wilier Jena ‏ L <br>Cat: Racy <br> Racy: 75.6 <br> Relaxed: 27.4 <br> Rowdy: 21.7","Wilier Rave SLR ‏ L <br>Cat: Racy <br> Racy: 77.3 <br> Relaxed: 18.1 <br> Rowdy: 24.7"],"name":"Racy","textfont":{"color":"rgba(86,180,233,1)"},"line":{"color":"rgba(86,180,233,1)"},"frame":null},{"type":"scatterternary","mode":"markers","a":[0.529825495917254,0.518325915335477,0.584121449904794,0.264682957901918,0.690117360671904,0.562692091099823,0.431032230324609,0.613958799054096,0.320004225001925,null,0.513537908148618,null,0.437195289527399,0.521365099144474,null,0.467547693198471,0.359343087300864,0.283021705965531,0.759211666347515,0.638068936411007,0.438731997769931],"b":[0.579696072915161,0.64118908423236,0.664471669426367,0.829381726420803,0.592442579460288,0.330999026984596,0.554883748901386,0.571930509102576,0.694025462251486,null,0.476385688613467,null,0.742938282971021,0.59668196013766,null,0.592443551695191,0.820203530893053,1,0.65070186484283,0.596507148091131,0.721148322487337],"c":[0.332692904562724,0.307885154204032,0.221315492526198,0.513448685507839,0.133909911876317,0.412243307369011,0.449685961517449,0.232832717788341,0.51903221994677,null,0.393662129707729,null,0.351411805016658,0.330884374245862,null,0.394729911332501,0.409528941527351,0.40673376079537,0.0242599089205654,0.192184838650629,0.366680473514486],"showlegend":false,"opacity":0.5,"marker":{"color":"rgba(0,158,115,1)","size":14,"line":{"color":"rgba(0,158,115,1)","width":2}},"hoverinfo":["text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text"],"text":["Bearclaw Beaux Jaxon  54 <br>Cat: Relaxed <br> Racy: 53 <br> Relaxed: 58 <br> Rowdy: 33.3","BlackMtnCy La Cabra  18 <br>Cat: Relaxed <br> Racy: 51.8 <br> Relaxed: 64.1 <br> Rowdy: 30.8","Bombtrack Beyond 2 ‎ M​ <br>Cat: Relaxed <br> Racy: 58.4 <br> Relaxed: 66.4 <br> Rowdy: 22.1","Cinelli Hobootleg Geo ‎ M​ <br>Cat: Relaxed <br> Racy: 26.5 <br> Relaxed: 82.9 <br> Rowdy: 51.3","Genesis Vagabond ‎ M​ <br>Cat: Relaxed <br> Racy: 69 <br> Relaxed: 59.2 <br> Rowdy: 13.4","Kanzo Adventure New ‎ M​ <br>Cat: Relaxed <br> Racy: 56.3 <br> Relaxed: 33.1 <br> Rowdy: 41.2","Kona Sutra ULTD  54 <br>Cat: Relaxed <br> Racy: 43.1 <br> Relaxed: 55.5 <br> Rowdy: 45","Light Blue Darwin ‍ S‏/M <br>Cat: Relaxed <br> Racy: 61.4 <br> Relaxed: 57.2 <br> Rowdy: 23.3","Mason InSearchOf  50 <br>Cat: Relaxed <br> Racy: 32 <br> Relaxed: 69.4 <br> Rowdy: 51.9","Moots Routt ESC ‎ M​ <br>Cat: Relaxed <br> Racy: NA <br> Relaxed: NA <br> Rowdy: NA","Mosaic GT-1X  55 <br>Cat: Relaxed <br> Racy: 51.4 <br> Relaxed: 47.6 <br> Rowdy: 39.4","Otso Warakin Stainless  56 <br>Cat: Relaxed <br> Racy: NA <br> Relaxed: NA <br> Rowdy: NA","Panorama Taiga EXP ‎ M​ <br>Cat: Relaxed <br> Racy: 43.7 <br> Relaxed: 74.3 <br> Rowdy: 35.1","Reeb Sams Pants ‎ M​(55) <br>Cat: Relaxed <br> Racy: 52.1 <br> Relaxed: 59.7 <br> Rowdy: 33.1","Ritchey Outback frameset ‎ M​ <br>Cat: Relaxed <br> Racy: NA <br> Relaxed: NA <br> Rowdy: NA","Salsa Cutthroat  54 <br>Cat: Relaxed <br> Racy: 46.8 <br> Relaxed: 59.2 <br> Rowdy: 39.5","Salsa Fargo front dropout ‎ M​ <br>Cat: Relaxed <br> Racy: 35.9 <br> Relaxed: 82 <br> Rowdy: 41","Salsa Fargo rear dropout ‎ M​ <br>Cat: Relaxed <br> Racy: 28.3 <br> Relaxed: 100 <br> Rowdy: 40.7","Salsa Vaya  55 <br>Cat: Relaxed <br> Racy: 75.9 <br> Relaxed: 65.1 <br> Rowdy: 2.4","Tout Terrain Scrambler 28 ‎ M​ <br>Cat: Relaxed <br> Racy: 63.8 <br> Relaxed: 59.7 <br> Rowdy: 19.2","Tumbleweed Stargazer ‎ M​ <br>Cat: Relaxed <br> Racy: 43.9 <br> Relaxed: 72.1 <br> Rowdy: 36.7"],"name":"Relaxed","textfont":{"color":"rgba(0,158,115,1)"},"line":{"color":"rgba(0,158,115,1)"},"frame":null},{"type":"scatterternary","mode":"markers","a":[0.272730862882728,0.491480636681645,0.465130119153166,0.531671604413267,0.112923152244928,0.271715930411213,0.202805002263033,null,0.226835104863774,null,0.111354112076635,0.459724089813156,0.526126786887344,0.634081093722415,0.324848135412198,0,0.517033627658471,null,null,0.744292505938762,0.392563341915536,0.309347992365744,0.462279588592843,0.482610947307232,0.338831951187086,0.436780534347803,0.371110945881167],"b":[0.235689783794283,0.261054328218415,0.314422813612328,0.152181950118328,0.746129023082841,0.491951895411595,0.626487763007879,null,0.514815708452388,null,0.45494525391495,0.424188299727232,0.363924548773676,0.149623430994072,0.325243370228643,0.474923883982846,0.265896742471993,null,null,0,0.151544380254772,0.260942004031924,0.381900482426795,0.296284821505119,0.370940640358415,0.192068431755402,0.322185609450459],"c":[0.803151693058874,0.534280225820807,0.540081810274398,0.541489373880221,0.734121501056001,0.672387373660515,0.684102473101537,null,0.713129403578856,null,0.877652887850905,0.489340824577942,0.447337651841972,0.422015019615464,0.69365153802443,1,0.501475307299645,null,null,0.367322300904344,0.698570004294412,0.749272668272302,0.505588457850107,0.518350847301143,0.651236873804552,0.630599031959832,0.637893358284836],"showlegend":false,"opacity":0.5,"marker":{"color":"rgba(230,159,0,1)","size":14,"line":{"color":"rgba(230,159,0,1)","width":2}},"hoverinfo":["text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text"],"text":["Amigo Bug Out ‎ M​ <br>Cat: Rowdy <br> Racy: 27.3 <br> Relaxed: 23.6 <br> Rowdy: 80.3","BMC URS AL ‎ M​ <br>Cat: Rowdy <br> Racy: 49.1 <br> Relaxed: 26.1 <br> Rowdy: 53.4","BMC URS AL SUS ‎ M​ <br>Cat: Rowdy <br> Racy: 46.5 <br> Relaxed: 31.4 <br> Rowdy: 54","BMC URS One ‎ M​ <br>Cat: Rowdy <br> Racy: 53.2 <br> Relaxed: 15.2 <br> Rowdy: 54.1","Bombtrack Beyond+ Adv ‎ M​ <br>Cat: Rowdy <br> Racy: 11.3 <br> Relaxed: 74.6 <br> Rowdy: 73.4","Breezer Radar X Pro  51(M) <br>Cat: Rowdy <br> Racy: 27.2 <br> Relaxed: 49.2 <br> Rowdy: 67.2","Chiru Kegeti ‎ M​ <br>Cat: Rowdy <br> Racy: 20.3 <br> Relaxed: 62.6 <br> Rowdy: 68.4","Chumba Yaupon ‎ M​ <br>Cat: Rowdy <br> Racy: NA <br> Relaxed: NA <br> Rowdy: NA","Cotic Cascade ‎ M​ <br>Cat: Rowdy <br> Racy: 22.7 <br> Relaxed: 51.5 <br> Rowdy: 71.3","Enigma Escape Flat-bar ‍ S​L <br>Cat: Rowdy <br> Racy: NA <br> Relaxed: NA <br> Rowdy: NA","Evil Chamois Hagar GRX ‎ M​ <br>Cat: Rowdy <br> Racy: 11.1 <br> Relaxed: 45.5 <br> Rowdy: 87.8","Fezzari Shafer ‎ M​ <br>Cat: Rowdy <br> Racy: 46 <br> Relaxed: 42.4 <br> Rowdy: 48.9","Fiftyone Assassin long-low ‎ M​ <br>Cat: Rowdy <br> Racy: 52.6 <br> Relaxed: 36.4 <br> Rowdy: 44.7","Fiftyone Assassin short-hi ‎ M​ <br>Cat: Rowdy <br> Racy: 63.4 <br> Relaxed: 15 <br> Rowdy: 42.2","Fustle Causway GR1 ‎ M‏/L <br>Cat: Rowdy <br> Racy: 32.5 <br> Relaxed: 32.5 <br> Rowdy: 69.4","Hudski Doggler Gravel ‎ M​ <br>Cat: Rowdy <br> Racy: 0 <br> Relaxed: 47.5 <br> Rowdy: 100","Marin DSX 2 ‎ M​ <br>Cat: Rowdy <br> Racy: 51.7 <br> Relaxed: 26.6 <br> Rowdy: 50.1","Nordest Kutxo ‎ M​ <br>Cat: Rowdy <br> Racy: NA <br> Relaxed: NA <br> Rowdy: NA","Otso Fenrir ‎ M​ <br>Cat: Rowdy <br> Racy: NA <br> Relaxed: NA <br> Rowdy: NA","Revel Rover ‎ M​ <br>Cat: Rowdy <br> Racy: 74.4 <br> Relaxed: 0 <br> Rowdy: 36.7","Rondo MYLC CF Hi ‎ M​ <br>Cat: Rowdy <br> Racy: 39.3 <br> Relaxed: 15.2 <br> Rowdy: 69.9","Rondo MYLC CF Lo ‎ M​ <br>Cat: Rowdy <br> Racy: 30.9 <br> Relaxed: 26.1 <br> Rowdy: 74.9","Sonder Camino AL ‎ M​ <br>Cat: Rowdy <br> Racy: 46.2 <br> Relaxed: 38.2 <br> Rowdy: 50.6","Specialized Diverge Evo ‎ M​ <br>Cat: Rowdy <br> Racy: 48.3 <br> Relaxed: 29.6 <br> Rowdy: 51.8","Surly Ghost Grappler ‎ M​ <br>Cat: Rowdy <br> Racy: 33.9 <br> Relaxed: 37.1 <br> Rowdy: 65.1","Whyte Friston Gravel  54 <br>Cat: Rowdy <br> Racy: 43.7 <br> Relaxed: 19.2 <br> Rowdy: 63.1","YT Szepter ‏ L <br>Cat: Rowdy <br> Racy: 37.1 <br> Relaxed: 32.2 <br> Rowdy: 63.8"],"name":"Rowdy","textfont":{"color":"rgba(230,159,0,1)"},"line":{"color":"rgba(230,159,0,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.679077285351607],"b":[0.283468663007267],"c":[0.301748970476888],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(214,39,40,1)"}},"text":"Alchemy Lycos ‏ L","textfont":{"size":12},"name":"Alchemy Lycos","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.697660034904089],"b":[0.28529872732145],"c":[0.283466110895739],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(148,103,189,1)"}},"text":"Alchemy Rogue ‎ M​","textfont":{"size":12},"name":"Alchemy Rogue","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.79716421524992],"b":[0.316180042260782],"c":[0.149747946197675],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(140,86,75,1)"}},"text":"All-City Cosmic Stallion  52","textfont":{"size":12},"name":"All-City Cosmic Stallion","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.828990800340355],"b":[0.331715505772119],"c":[0.106890418509053],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(227,119,194,1)"}},"text":"All-City Gorilla Monsoon  52","textfont":{"size":12},"name":"All-City Gorilla Monsoon","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(227,119,194,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.819028146008575],"b":[0.327785850699906],"c":[0.115222412672275],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(127,127,127,1)"}},"text":"All-City Space Horse  52","textfont":{"size":12},"name":"All-City Space Horse","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(127,127,127,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.272730862882728],"b":[0.235689783794283],"c":[0.803151693058874],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(188,189,34,1)"}},"text":"Amigo Bug Out ‎ M​","textfont":{"size":12},"name":"Amigo Bug Out","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.622345472461521],"b":[0.200435427391698],"c":[0.412604527139815],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(23,190,207,1)"}},"text":"Argonaut GR3  560","textfont":{"size":12},"name":"Argonaut GR3","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.491480636681645],"b":[0.261054328218415],"c":[0.534280225820807],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(31,119,180,1)"}},"text":"BMC URS AL ‎ M​","textfont":{"size":12},"name":"BMC URS AL","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.465130119153166],"b":[0.314422813612328],"c":[0.540081810274398],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(255,127,14,1)"}},"text":"BMC URS AL SUS ‎ M​","textfont":{"size":12},"name":"BMC URS AL SUS","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.531671604413267],"b":[0.152181950118328],"c":[0.541489373880221],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(44,160,44,1)"}},"text":"BMC URS One ‎ M​","textfont":{"size":12},"name":"BMC URS One","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.529825495917254],"b":[0.579696072915161],"c":[0.332692904562724],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(214,39,40,1)"}},"text":"Bearclaw Beaux Jaxon  54","textfont":{"size":12},"name":"Bearclaw Beaux Jaxon","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.518325915335477],"b":[0.64118908423236],"c":[0.307885154204032],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(148,103,189,1)"}},"text":"BlackMtnCy La Cabra  18","textfont":{"size":12},"name":"BlackMtnCy La Cabra","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.851694053534463],"b":[0.361807565790217],"c":[0.060826194156594],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(140,86,75,1)"}},"text":"BlackMtnCy Monstercross V5  56","textfont":{"size":12},"name":"BlackMtnCy Monstercross V5","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.988059221657001],"b":[0.165660261852309],"c":[0.00383911388591874],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(227,119,194,1)"}},"text":"Blackheart All Road TI  54","textfont":{"size":12},"name":"Blackheart All Road TI","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(227,119,194,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.584121449904794],"b":[0.664471669426367],"c":[0.221315492526198],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(127,127,127,1)"}},"text":"Bombtrack Beyond 2 ‎ M​","textfont":{"size":12},"name":"Bombtrack Beyond 2","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(127,127,127,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.112923152244928],"b":[0.746129023082841],"c":[0.734121501056001],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(188,189,34,1)"}},"text":"Bombtrack Beyond+ Adv ‎ M​","textfont":{"size":12},"name":"Bombtrack Beyond+ Adv","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.916914098215451],"b":[0.175492704828111],"c":[0.0812271499636086],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(23,190,207,1)"}},"text":"Bombtrack Hook ‎ M​","textfont":{"size":12},"name":"Bombtrack Hook","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.271715930411213],"b":[0.491951895411595],"c":[0.672387373660515],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(31,119,180,1)"}},"text":"Breezer Radar X Pro  51(M)","textfont":{"size":12},"name":"Breezer Radar X Pro","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.910784187735806],"b":[0.157058942982824],"c":[0.096699034851625],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(255,127,14,1)"}},"text":"Cannondale SuperSix Evo SE  54","textfont":{"size":12},"name":"Cannondale SuperSix Evo SE","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.833570469008474],"b":[0.284615331398007],"c":[0.124256275183855],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(44,160,44,1)"}},"text":"Cannondale Topstone Lefty ‎ M​","textfont":{"size":12},"name":"Cannondale Topstone Lefty","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.89383968531404],"b":[0.171854567033953],"c":[0.104238885999652],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(214,39,40,1)"}},"text":"Canyon Grail 7 1by ‎ M​","textfont":{"size":12},"name":"Canyon Grail 7 1by","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.675465646555888],"b":[0.345986437497864],"c":[0.276933360125314],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(148,103,189,1)"}},"text":"Canyon Grizl 7 1by ‎ M​","textfont":{"size":12},"name":"Canyon Grizl 7 1by","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.940145780736534],"b":[0.0596290530627556],"c":[0.113509752348076],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(140,86,75,1)"}},"text":"Cervelo Aspero  54","textfont":{"size":12},"name":"Cervelo Aspero","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.202805002263033],"b":[0.626487763007879],"c":[0.684102473101537],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(227,119,194,1)"}},"text":"Chiru Kegeti ‎ M​","textfont":{"size":12},"name":"Chiru Kegeti","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(227,119,194,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[null],"b":[null],"c":[null],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(127,127,127,1)"}},"text":"Chumba Terlingua steel fdo  54","textfont":{"size":12},"name":"Chumba Terlingua steel fdo","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(127,127,127,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[null],"b":[null],"c":[null],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(188,189,34,1)"}},"text":"Chumba Yaupon ‎ M​","textfont":{"size":12},"name":"Chumba Yaupon","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.264682957901918],"b":[0.829381726420803],"c":[0.513448685507839],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(23,190,207,1)"}},"text":"Cinelli Hobootleg Geo ‎ M​","textfont":{"size":12},"name":"Cinelli Hobootleg Geo","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.719022780864372],"b":[0.301141002176165],"c":[0.243817766713058],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(31,119,180,1)"}},"text":"Commencal 365 ‎ M​","textfont":{"size":12},"name":"Commencal 365","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.226835104863774],"b":[0.514815708452388],"c":[0.713129403578856],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(255,127,14,1)"}},"text":"Cotic Cascade ‎ M​","textfont":{"size":12},"name":"Cotic Cascade","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.714056363016619],"b":[0.246568770222027],"c":[0.28039231303486],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(44,160,44,1)"}},"text":"Devinci Hatchet ‎ M‏/54","textfont":{"size":12},"name":"Devinci Hatchet","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[null],"b":[null],"c":[null],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(214,39,40,1)"}},"text":"Enigma Escape Flat-bar ‍ S​L","textfont":{"size":12},"name":"Enigma Escape Flat-bar","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[null],"b":[null],"c":[null],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(148,103,189,1)"}},"text":"Enve Mog  54","textfont":{"size":12},"name":"Enve Mog","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.111354112076635],"b":[0.45494525391495],"c":[0.877652887850905],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(140,86,75,1)"}},"text":"Evil Chamois Hagar GRX ‎ M​","textfont":{"size":12},"name":"Evil Chamois Hagar GRX","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.459724089813156],"b":[0.424188299727232],"c":[0.489340824577942],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(227,119,194,1)"}},"text":"Fezzari Shafer ‎ M​","textfont":{"size":12},"name":"Fezzari Shafer","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(227,119,194,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.526126786887344],"b":[0.363924548773676],"c":[0.447337651841972],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(127,127,127,1)"}},"text":"Fiftyone Assassin long-low ‎ M​","textfont":{"size":12},"name":"Fiftyone Assassin long-low","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(127,127,127,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.634081093722415],"b":[0.149623430994072],"c":[0.422015019615464],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(188,189,34,1)"}},"text":"Fiftyone Assassin short-hi ‎ M​","textfont":{"size":12},"name":"Fiftyone Assassin short-hi","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.669209508773305],"b":[0.235242014906148],"c":[0.339284767571387],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(23,190,207,1)"}},"text":"Focus Atlas 8.9 ‎ M​","textfont":{"size":12},"name":"Focus Atlas 8.9","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.324848135412198],"b":[0.325243370228643],"c":[0.69365153802443],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(31,119,180,1)"}},"text":"Fustle Causway GR1 ‎ M‏/L","textfont":{"size":12},"name":"Fustle Causway GR1","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.690117360671904],"b":[0.592442579460288],"c":[0.133909911876317],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(255,127,14,1)"}},"text":"Genesis Vagabond ‎ M​","textfont":{"size":12},"name":"Genesis Vagabond","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.776500105841584],"b":[0.311116141492079],"c":[0.174774967819126],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(44,160,44,1)"}},"text":"Giant Revolt X pro 1 long ‎ M​","textfont":{"size":12},"name":"Giant Revolt X pro 1 long","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.825844044893117],"b":[0.200238287360065],"c":[0.173462738509697],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(214,39,40,1)"}},"text":"Giant Revolt X pro 1 short ‎ M​","textfont":{"size":12},"name":"Giant Revolt X pro 1 short","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.807127277217428],"b":[0.321990653554211],"c":[0.129163759770944],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(148,103,189,1)"}},"text":"Giant Revolt pro long ‎ M​","textfont":{"size":12},"name":"Giant Revolt pro long","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.856689491046943],"b":[0.196077600846285],"c":[0.135528743570852],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(140,86,75,1)"}},"text":"Giant Revolt pro short ‎ M​","textfont":{"size":12},"name":"Giant Revolt pro short","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0],"b":[0.474923883982846],"c":[1],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(227,119,194,1)"}},"text":"Hudski Doggler Gravel ‎ M​","textfont":{"size":12},"name":"Hudski Doggler Gravel","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(227,119,194,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.858294552564807],"b":[0.273218704355967],"c":[0.100185077796842],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(127,127,127,1)"}},"text":"Ibis Hakka MX  55","textfont":{"size":12},"name":"Ibis Hakka MX","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(127,127,127,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.562692091099823],"b":[0.330999026984596],"c":[0.412243307369011],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(188,189,34,1)"}},"text":"Kanzo Adventure New ‎ M​","textfont":{"size":12},"name":"Kanzo Adventure New","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.615105388065268],"b":[0.180167600209272],"c":[0.425896181234014],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(23,190,207,1)"}},"text":"Knolly Cache Steel  56","textfont":{"size":12},"name":"Knolly Cache Steel","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.431032230324609],"b":[0.554883748901386],"c":[0.449685961517449],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(31,119,180,1)"}},"text":"Kona Sutra ULTD  54","textfont":{"size":12},"name":"Kona Sutra ULTD","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.742249988546062],"b":[0.229083940861779],"c":[0.260530051554669],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(255,127,14,1)"}},"text":"Lauf Siegla ‎ M​","textfont":{"size":12},"name":"Lauf Siegla","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.613958799054096],"b":[0.571930509102576],"c":[0.232832717788341],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(44,160,44,1)"}},"text":"Light Blue Darwin ‍ S‏/M","textfont":{"size":12},"name":"Light Blue Darwin","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.66940518773195],"b":[0.364737433306164],"c":[0.271062052945242],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(214,39,40,1)"}},"text":"Liz Devote Advance ‏ L","textfont":{"size":12},"name":"Liz Devote Advance","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.517033627658471],"b":[0.265896742471993],"c":[0.501475307299645],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(148,103,189,1)"}},"text":"Marin DSX 2 ‎ M​","textfont":{"size":12},"name":"Marin DSX 2","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.320004225001925],"b":[0.694025462251486],"c":[0.51903221994677],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(140,86,75,1)"}},"text":"Mason InSearchOf  50","textfont":{"size":12},"name":"Mason InSearchOf","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.547782547317271],"b":[0.375761908491068],"c":[0.406840266816198],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(227,119,194,1)"}},"text":"Merida Silex ‎ M​","textfont":{"size":12},"name":"Merida Silex","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(227,119,194,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[null],"b":[null],"c":[null],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(127,127,127,1)"}},"text":"Moots Routt ESC ‎ M​","textfont":{"size":12},"name":"Moots Routt ESC","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(127,127,127,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.513537908148618],"b":[0.476385688613467],"c":[0.393662129707729],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(188,189,34,1)"}},"text":"Mosaic GT-1X  55","textfont":{"size":12},"name":"Mosaic GT-1X","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.769968524701874],"b":[0.347359598614613],"c":[0.168312734552939],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(23,190,207,1)"}},"text":"Niner RLT 9 RDO  56","textfont":{"size":12},"name":"Niner RLT 9 RDO","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[null],"b":[null],"c":[null],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(31,119,180,1)"}},"text":"No22 Drifter X  54","textfont":{"size":12},"name":"No22 Drifter X","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.827740998493863],"b":[0.387925285859709],"c":[0.0760892444818413],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(255,127,14,1)"}},"text":"Noble GX 5  54","textfont":{"size":12},"name":"Noble GX 5","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[null],"b":[null],"c":[null],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(44,160,44,1)"}},"text":"Nordest Kutxo ‎ M​","textfont":{"size":12},"name":"Nordest Kutxo","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.944094127188628],"b":[0.15863357914022],"c":[0.0619614882633169],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(214,39,40,1)"}},"text":"OPEN U.P. ‎ M​","textfont":{"size":12},"name":"OPEN U.P.","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.858058803052141],"b":[0.343154260781402],"c":[0.0662048092109941],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(148,103,189,1)"}},"text":"Obed Boundary ‎ M​","textfont":{"size":12},"name":"Obed Boundary","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.87598272651819],"b":[0.205867211505623],"c":[0.116977995775775],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(140,86,75,1)"}},"text":"Open WI.DE ‎ M​","textfont":{"size":12},"name":"Open WI.DE","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.789304496470282],"b":[0.223911999049998],"c":[0.201567807176108],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(227,119,194,1)"}},"text":"Orbea Terra H ‎ M​","textfont":{"size":12},"name":"Orbea Terra H","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(227,119,194,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.839230157353305],"b":[0.11518501102464],"c":[0.198357204733522],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(127,127,127,1)"}},"text":"Orbea Terra M ‎ M​","textfont":{"size":12},"name":"Orbea Terra M","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(127,127,127,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[null],"b":[null],"c":[null],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(188,189,34,1)"}},"text":"Otso Fenrir ‎ M​","textfont":{"size":12},"name":"Otso Fenrir","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.800253183436258],"b":[0.206067552557202],"c":[0.200029851178295],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(23,190,207,1)"}},"text":"Otso Waheela C front ‏ L","textfont":{"size":12},"name":"Otso Waheela C front","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.669071774380074],"b":[0.44959972518277],"c":[0.232587612724586],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(31,119,180,1)"}},"text":"Otso Waheela C rear ‏ L","textfont":{"size":12},"name":"Otso Waheela C rear","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[null],"b":[null],"c":[null],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(255,127,14,1)"}},"text":"Otso Warakin Stainless  56","textfont":{"size":12},"name":"Otso Warakin Stainless","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.437195289527399],"b":[0.742938282971021],"c":[0.351411805016658],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(44,160,44,1)"}},"text":"Panorama Taiga EXP ‎ M​","textfont":{"size":12},"name":"Panorama Taiga EXP","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.825275193806812],"b":[0.234686046812844],"c":[0.155769159641526],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(214,39,40,1)"}},"text":"Pinarello Grevil F  54.7","textfont":{"size":12},"name":"Pinarello Grevil F","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.521365099144474],"b":[0.59668196013766],"c":[0.330884374245862],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(148,103,189,1)"}},"text":"Reeb Sams Pants ‎ M​(55)","textfont":{"size":12},"name":"Reeb Sams Pants","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.744292505938762],"b":[0],"c":[0.367322300904344],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(140,86,75,1)"}},"text":"Revel Rover ‎ M​","textfont":{"size":12},"name":"Revel Rover","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.84516342746923],"b":[0.296042333024444],"c":[0.10472587875902],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(227,119,194,1)"}},"text":"Ribble Gravel SL ‎ M​","textfont":{"size":12},"name":"Ribble Gravel SL","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(227,119,194,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[null],"b":[null],"c":[null],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(127,127,127,1)"}},"text":"Ritchey Outback frameset ‎ M​","textfont":{"size":12},"name":"Ritchey Outback frameset","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(127,127,127,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.392563341915536],"b":[0.151544380254772],"c":[0.698570004294412],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(188,189,34,1)"}},"text":"Rondo MYLC CF Hi ‎ M​","textfont":{"size":12},"name":"Rondo MYLC CF Hi","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.309347992365744],"b":[0.260942004031924],"c":[0.749272668272302],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(23,190,207,1)"}},"text":"Rondo MYLC CF Lo ‎ M​","textfont":{"size":12},"name":"Rondo MYLC CF Lo","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.810915273617371],"b":[0.195983308575072],"c":[0.195336678722451],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(31,119,180,1)"}},"text":"Rose Backroad XPLR  55","textfont":{"size":12},"name":"Rose Backroad XPLR","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.467547693198471],"b":[0.592443551695191],"c":[0.394729911332501],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(255,127,14,1)"}},"text":"Salsa Cutthroat  54","textfont":{"size":12},"name":"Salsa Cutthroat","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.359343087300864],"b":[0.820203530893053],"c":[0.409528941527351],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(44,160,44,1)"}},"text":"Salsa Fargo front dropout ‎ M​","textfont":{"size":12},"name":"Salsa Fargo front dropout","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.283021705965531],"b":[1],"c":[0.40673376079537],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(214,39,40,1)"}},"text":"Salsa Fargo rear dropout ‎ M​","textfont":{"size":12},"name":"Salsa Fargo rear dropout","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.759211666347515],"b":[0.65070186484283],"c":[0.0242599089205654],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(148,103,189,1)"}},"text":"Salsa Vaya  55","textfont":{"size":12},"name":"Salsa Vaya","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.742187354214459],"b":[0.350169126216884],"c":[0.197446274420893],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(140,86,75,1)"}},"text":"Salsa Warbird  56","textfont":{"size":12},"name":"Salsa Warbird","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.812302941577622],"b":[0.250040193599617],"c":[0.165099801340272],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(227,119,194,1)"}},"text":"Santa Cruz Stigmata  56","textfont":{"size":12},"name":"Santa Cruz Stigmata","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(227,119,194,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.793715133367267],"b":[0.193792766532767],"c":[0.216278516834325],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(127,127,127,1)"}},"text":"Scott Addict Gravel ‎ M​/54","textfont":{"size":12},"name":"Scott Addict Gravel","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(127,127,127,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.770450747212169],"b":[0.336963503694668],"c":[0.173656002953685],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(188,189,34,1)"}},"text":"Shand Stooshie ‍ S​","textfont":{"size":12},"name":"Shand Stooshie","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.736829761612914],"b":[0.246950920647561],"c":[0.261385880057526],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(23,190,207,1)"}},"text":"Solace OM-3 Short ‍ S​","textfont":{"size":12},"name":"Solace OM-3 Short","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.811400764039204],"b":[0.240136446304828],"c":[0.168419221283807],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(31,119,180,1)"}},"text":"Soma Wolverine  54","textfont":{"size":12},"name":"Soma Wolverine","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.462279588592843],"b":[0.381900482426795],"c":[0.505588457850107],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(255,127,14,1)"}},"text":"Sonder Camino AL ‎ M​","textfont":{"size":12},"name":"Sonder Camino AL","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.81003993649386],"b":[0.244751661756236],"c":[0.166690829102171],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(44,160,44,1)"}},"text":"Specialized Diverge  54","textfont":{"size":12},"name":"Specialized Diverge","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.482610947307232],"b":[0.296284821505119],"c":[0.518350847301143],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(214,39,40,1)"}},"text":"Specialized Diverge Evo ‎ M​","textfont":{"size":12},"name":"Specialized Diverge Evo","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.753816930677346],"b":[0.263904664514008],"c":[0.218582016081167],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(148,103,189,1)"}},"text":"Specialized Diverge STR  56","textfont":{"size":12},"name":"Specialized Diverge STR","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.782292663726103],"b":[0.228890549980719],"c":[0.212913447190861],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(140,86,75,1)"}},"text":"Squid Gravtron ‏ L","textfont":{"size":12},"name":"Squid Gravtron","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.338831951187086],"b":[0.370940640358415],"c":[0.651236873804552],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(227,119,194,1)"}},"text":"Surly Ghost Grappler ‎ M​","textfont":{"size":12},"name":"Surly Ghost Grappler","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(227,119,194,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[1],"b":[0.140018929884526],"c":[0],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(127,127,127,1)"}},"text":"Thesis OB1 ‎ M​","textfont":{"size":12},"name":"Thesis OB1","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(127,127,127,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.638068936411007],"b":[0.596507148091131],"c":[0.192184838650629],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(188,189,34,1)"}},"text":"Tout Terrain Scrambler 28 ‎ M​","textfont":{"size":12},"name":"Tout Terrain Scrambler 28","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.753206236166454],"b":[0.282698673025083],"c":[0.214952308645513],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(23,190,207,1)"}},"text":"Trek Checkpoint SL5  56","textfont":{"size":12},"name":"Trek Checkpoint SL5","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.438731997769931],"b":[0.721148322487337],"c":[0.366680473514486],"marker":{"color":"#009E73","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(31,119,180,1)"}},"text":"Tumbleweed Stargazer ‎ M​","textfont":{"size":12},"name":"Tumbleweed Stargazer","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.777962582818342],"b":[0.175730765431848],"c":[0.251782247911093],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(255,127,14,1)"}},"text":"Ventum GS1 ‎ M​","textfont":{"size":12},"name":"Ventum GS1","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.798450278625752],"b":[0.0644603320301461],"c":[0.276285827844165],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(44,160,44,1)"}},"text":"Why R+ V4 ‎ M​","textfont":{"size":12},"name":"Why R+ V4","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.436780534347803],"b":[0.192068431755402],"c":[0.630599031959832],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(214,39,40,1)"}},"text":"Whyte Friston Gravel  54","textfont":{"size":12},"name":"Whyte Friston Gravel","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.7645151276073],"b":[0.380126559079779],"c":[0.155816378147724],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(148,103,189,1)"}},"text":"Wilde Earth Ship Steel ‎ M​","textfont":{"size":12},"name":"Wilde Earth Ship Steel","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.749161533583374],"b":[0.39325342949715],"c":[0.167700864625831],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(140,86,75,1)"}},"text":"Wilde Rambler SL ‎ M​","textfont":{"size":12},"name":"Wilde Rambler SL","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.756038185115508],"b":[0.274268453496556],"c":[0.21712181953978],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(227,119,194,1)"}},"text":"Wilier Jena ‏ L","textfont":{"size":12},"name":"Wilier Jena","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(227,119,194,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.772598816217766],"b":[0.180945424978116],"c":[0.247205105528596],"marker":{"color":"#56B4E9","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(127,127,127,1)"}},"text":"Wilier Rave SLR ‏ L","textfont":{"size":12},"name":"Wilier Rave SLR","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(127,127,127,1)"},"frame":null},{"type":"scatterternary","mode":"markers+text","a":[0.371110945881167],"b":[0.322185609450459],"c":[0.637893358284836],"marker":{"color":"#E69F00","size":14,"opacity":1,"colors":["#56B4E9","#009E73","#E69F00"],"line":{"color":"rgba(188,189,34,1)"}},"text":"YT Szepter ‏ L","textfont":{"size":12},"name":"YT Szepter","textposition":"right","visible":"legendonly","showlegend":true,"line":{"color":"rgba(188,189,34,1)"},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Hover over data for model and frame size identification.</li>
+<li>Scroll legend and click on items to identify specific model in the plot.</li>
+<li>Click on popup icon-bar over legend to zoom in/out and pan.</li>
+</ol>
+</div>
+</div>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>The ternary scores are the projections of the centered, scaled data onto the style (Racy, Relaxed, Rowdy) axes.</li>
+<li>Each style axes was constructed as the multivariate axis from the centroid to the style mean of the centered, scaled data.</li>
+<li>The input data is the ML subset of bikes that fit a 176 cm rider</li>
+</ol>
+</div>
+</div>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

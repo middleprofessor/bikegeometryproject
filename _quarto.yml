@@ -20,19 +20,23 @@ website:
     contents:
       - text: "Home"
         file: index.qmd
+      - section: "Gravel Plots"
+        contents:
+          - qmd/gravel_histo.qmd
+          - qmd/gravel_scatter.qmd
+          - qmd/gravel_ternary.qmd
       - section: "Gravel Style"
         contents:
           - qmd/what_is_a_gravel_bike.qmd
           - qmd/gravel_tree.qmd
           - qmd/gravel_class.qmd
-      - section: "Gravel Plots"
-        contents:
-          - qmd/gravel_histo.qmd
-          - qmd/gravel_scatter.qmd
       - section: "Gravel Stories"
         contents:
           - qmd/which_gravel_bikes_are_mtb_inspired.qmd
           - qmd/mtb_90s.qmd
+      - section: "New Bike Day"
+        contents:
+          - qmd/nbd/revoltx.qmd
 
 format:
   html:
