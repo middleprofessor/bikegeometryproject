@@ -1,6 +1,6 @@
 project:
   type: website
-  output-dir: site
+  output-dir: docs
   resources: googlef06d37c17cf410a9.html
 
 website:
