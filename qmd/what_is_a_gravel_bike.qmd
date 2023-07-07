@@ -20,7 +20,7 @@ source(source_path)
 
 
 ```{r what-is-gravel-bike-style-import, echo=FALSE, warning=FALSE, message=FALSE }
-bikes_cols <- c("model", "year", "frame_size", "reach", "stack", "rear_center", "front_center", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "trail", "front_wheelbase", "stack_reach", "sta_hta", "restyle", "model_size")
+bikes_cols <- c("model", "year", "frame_size", "reach", "stack", "rear_center", "front_center", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "seat_tube_length", "top_tube_angle","trail", "front_wheelbase", "stack_reach", "sta_hta", "restyle", "model_size")
 bikes <- my_fit[, .SD, .SDcols = bikes_cols]
 opacity <- rep(0.5, nrow(bikes))
 
@@ -71,20 +71,27 @@ p3 <- scatter_fig(data = bikes,
                   x_info = "HTA", y_info = "STA", digits = 1,
                   dot_opacity = opacity)
 p4 <- scatter_fig(data = bikes,
+                  x_col = "seat_tube_length", y_col = "top_tube_angle",
+                  g_col = "restyle",
+                  x_label = "Seat Tube Length (mm)", y_label = "Top Tube Angle (°)",
+                  x_info = "STL", y_info = "TTA", digits = 1,
+                  dot_opacity = opacity,
+                  same_xy_scale = FALSE)
+p5 <- scatter_fig(data = bikes,
                   x_col = "head_tube_angle", y_col = "trail",
                   g_col = "restyle",
                   x_label = "Head Tube Angle (°)", y_label = "Trail (mm)",
                   x_info = "HTA", y_info = "Trail", digits = 1,
                   dot_opacity = opacity,
                   same_xy_scale = FALSE)
-p5 <- scatter_fig(data = bikes,
+p6 <- scatter_fig(data = bikes,
                   x_col = "front_wheelbase", y_col = "stack_reach",
                   g_col = "restyle",
                   x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
                   x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
                   dot_opacity = opacity,
                   same_xy_scale = FALSE)
-p6 <- scatter_fig(data = bikes,
+p7 <- scatter_fig(data = bikes,
                   x_col = "front_wheelbase", y_col = "sta_hta",
                   g_col = "restyle",
                   x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
@@ -97,5 +104,6 @@ p3
 p4
 p5
 p6
+p7
 ```
 

@@ -8,52 +8,8 @@ source(source_path)
 
 ```
 
-```{r gravel-ternary-bikes, echo = FALSE}
-bikes_cols <- c("model", "year", "frame_size", "reach", "stack", "rear_center", "front_center", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "trail", "front_wheelbase", "stack_reach", "sta_hta", "restyle", "model_size")
-bikes <- my_fit[, .SD, .SDcols = bikes_cols]
-opacity <- rep(0.5, nrow(bikes))
-```
-
-```{r gravel-ternary-data, echo=FALSE}
-y_cols <- c("stack", "reach", "front_center", "rear_center", "head_tube_angle", "seat_tube_angle", "trail")
-
-Y <- data.table(
-  restyle = bikes[, restyle],
-  scale(bikes[, .SD, .SDcols = y_cols]))
-
-E <- Y[, .("stack" = mean(stack),
-                         "reach" = mean(reach),
-                         "front_center" = mean(front_center),
-                         "rear_center" = mean(rear_center),
-                         "head_tube_angle" = mean(head_tube_angle),
-                         "seat_tube_angle" = mean(seat_tube_angle),
-                         "trail" = mean(trail, na.rm = TRUE)),
-                         by = .(restyle)] %>%
-  transpose(make.names = "restyle") %>%
-  as.matrix()
-Y <- Y[, .SD, .SDcols = y_cols] %>%
-  as.matrix()
-scores <- Y %*% E
-scale_by_range <- function(x){
-  s <- (x - min(x, na.rm = TRUE))/(max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
-  return(s)
-}
-scores <- apply(scores, 2, scale_by_range)
-bikes[, c(tolower(colnames(E)[1])) := scores[, 1]]
-bikes[, c(tolower(colnames(E)[2])) := scores[, 2]]
-bikes[, c(tolower(colnames(E)[3])) := scores[, 3]]
-
-```
 
 ```{r legend, echo=FALSE, fig.width= 8, fig.height=0.5}
-# plot_ly(data = geobike, type = "scatter", mode = "markers",
-#         x = ~ reach,
-#         y = ~ stack,
-#         color = ~restyle,
-#         colors = my_palette,
-#         size = 10,
-#         visible = "legendonly"
-# )
 #| fig-height: 1
 gg <- ggplot(data = geobike,
        aes(x = reach,
@@ -71,91 +27,12 @@ plot_grid(gg_legend)
 
 ```
 
-```{r gravel-ternary-plot, echo=FALSE, out.width = "100%", out.height = "100%"}
 
-bikes[, color := pal_okabe_ito_3[as.integer(restyle)]]
-axis_info <- function(title) {
-  list(
-    title = title,
-    titlefont = list(
-      size = 20
-    ),
-    tickfont = list(
-      size = 15
-    ),
-    tickcolor = 'rgba(0,0,0,0)',
-    ticklen = 5
-  )
-}
-m <- list(
-  l = 60,
-  r = 60,
-  b = 60,
-  t = 60,
-  pad = 4
-)
-
-fig <- bikes %>% plot_ly()
-fig <- fig %>%
-  add_trace(
-    type = 'scatterternary',
-    mode = 'markers',
-    a = ~racy,
-    b = ~relaxed,
-    c = ~rowdy,
-    color = ~restyle,
-    colors = pal_okabe_ito_3,
-    showlegend = FALSE,
-    opacity = 0.5,
-    marker = list( 
-      size = 14,
-      line = list('width' = 2)
-    ),
-    hoverinfo = "text",
-    text = ~paste(model, frame_size,
-                  "<br>Cat:", restyle,
-                  paste("<br> Racy:", round(racy*100, 1)),
-                  paste("<br> Relaxed:", round(relaxed*100, 1)),
-                  paste("<br> Rowdy:", round(rowdy*100, 1))
-    )
-  )
-
-fig <- fig  %>%
-  add_trace(
-    type = 'scatterternary',
-    mode = 'markers',
-    a = ~racy,
-    b = ~relaxed,
-    c = ~rowdy,
-    marker = list( 
-      size = 14,
-      opacity = 1,
-      color = ~color,
-      colors = pal_okabe_ito_3
-    ),
-    text = ~paste(model, frame_size),
-    textfont = list(size = 12),
-    name = ~model,
-    textposition = "right",
-    visible = "legendonly",
-    showlegend = TRUE
-  )
-
-
-fig <- fig %>%
-  layout(
-    autosize = FALSE,
-    margin = m,
-    ternary = list(
-      sum = 100,
-      aaxis = axis_info('Racy'),
-      baxis = axis_info('Relaxed'),
-      caxis = axis_info('Rowdy')
-    )
-  )
-
-fig
+```{r ternary-plot, echo=FALSE, out.width = "100%", out.height = "100%"}
+p <- base_ternary(my_fit)
+p
 ```
+
 
 ::: {.callout-tip}
 1. Hover over data for model and frame size identification.

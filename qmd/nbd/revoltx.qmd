@@ -18,125 +18,32 @@ bikes <- geobike[, .SD, .SDcols = bikes_cols]
 opacity <- rep(0.5, nrow(bikes))
 ```
 
-```{r revoltx-base-plot, echo = FALSE}
-base_plot <- function(data = geobike,
-                      x_col = "reach",
-                      y_col = "stack",
-                      g_col = "model_size",
-                      x_label = "Reach", y_label = "Stack",
-                      x_info = NULL, y_info = NULL,
-                      digits = 0,
-                      dot_palette = pal_okabe_ito_7,
-                      dot_opacity = 0.3,
-                      same_xy_scale = TRUE){
-  if(is.null(x_info)){x_info <- x_label}
-  if(is.null(y_info)){y_info <- y_label}
-  restyle_legend <- ifelse(g_col == "restyle",
-                           TRUE,
-                           FALSE)
-  n_colors <- length(levels(data[, restyle]))
-  
-  # set range of axes
-  min_data_x <- min(data[, get(x_col)], na.rm = TRUE)
-  min_data_y <- min(data[, get(y_col)], na.rm = TRUE)
-  max_data_x <- max(data[, get(x_col)], na.rm = TRUE)
-  max_data_y <- max(data[, get(y_col)], na.rm = TRUE)
-  range_x <- max_data_x - min_data_x
-  range_y <- max_data_y - min_data_y
-  range_axis_x <- range_x * 1.1
-  range_axis_y <- range_y * 1.1
-  if(same_xy_scale == TRUE){
-    if(range_x > range_y){
-      range_axis_y <- range_axis_y * range_x/range_y
-    }else{
-      range_axis_x <- range_axis_x * range_y/range_x
-    }}
-  min_axis_x <- (min_data_x + max_data_x)/2 - 0.5*range_axis_x
-  max_axis_x <- (min_data_x + max_data_x)/2 + 0.5*range_axis_x
-  min_axis_y <- (min_data_y + max_data_y)/2 - 0.5*range_axis_y
-  max_axis_y <- (min_data_y + max_data_y)/2 + 0.5*range_axis_y
- 
-  p <- plot_ly(data, evaluate=TRUE) %>%
-  add_trace(type = "scatter", mode = "markers",
-            x = ~get(x_col),
-            y = ~get(y_col),
-            color = ~restyle,
-            colors = dot_palette[1:n_colors],
-            opacity = dot_opacity,
-            size = 10,
-            name = ~get(g_col),
-            hoverinfo = "text",
-            text = ~paste(model, frame_size,
-                          "<br>Cat:", restyle,
-                          paste0("<br>", x_info, ":"),
-                          round(get(x_col), digits),
-                          paste0("<br>", y_info, ":"),
-                          round(get(y_col), digits)),
-            showlegend = restyle_legend
-  ) %>% 
-    layout(xaxis = list(title = x_label,
-                        tickfont = list(size = 16), titlefont = list(size = 16),
-                        range = c(min_axis_x, max_axis_x)),
-           yaxis = list(title = y_label,
-                        tickfont = list(size = 16), titlefont = list(size = 16),
-                        range = c(min_axis_y, max_axis_y)),
-           title = list(text = paste(y_label, "vs.", x_label),
-                        x = 0,
-                        xanchor = "left"),
-           legend = list(font = list(size = 10),
-                         itemsizing = "constant"),
-           autosize = F, width = 800, height = 600,
-           NULL
-    )
- 
-  return(p)
-}
+```{r revoltx-ternary-plot, echo=FALSE, out.width = "100%", out.height = "100%"}
+subdata <- my_fit[model %in% c("Giant Revolt X pro 1 long", "Giant Revolt X pro 1 short")]
 
-```
-
-
-```{r revoltx-annotate, echo = FALSE}
-annotate_model <- function(p,
-                           data = geobike,
-                           x_col = "reach",
-                           y_col = "stack",
-                           g_col = "restyle",
-                           text_col = "model",
-                           text_target = "Giant Revolt X pro 1 long", # can be a vector
-                           dx = 20,
-                           dy = 20
-                           ){
-  subdata <- data[which(data[, get(text_col)] %in% text_target), ]
-  p <- p %>%
-    add_trace(data = subdata,
-              x = ~get(x_col),
-              y = ~get(y_col),
-              color = ~get(g_col),
-              type = "scatter",
-              mode = "markers",
-              marker = list(size = 16),
-              showlegend = FALSE,
-              NULL) %>%
-    add_annotations(
+p <- base_ternary(my_fit)
+p <- p %>%
+    add_trace(
       data = subdata,
-      type = "text",
-      x = ~get(x_col),
-      y = ~get(y_col),
-      xref = "x",
-      yref = "y",
-      ax = dx,
-      ay = dy,
-      showarrow = TRUE,
-      text = ~paste(model, frame_size), 
-      font = list(color = "black", size = 16))
-  
-  return(p) 
-}
+      type = 'scatterternary',
+      mode = 'markers',
+      a = ~racy,
+      b = ~relaxed,
+      c = ~rowdy,
+      marker = list( 
+        size = 14,
+        opacity = 1,
+        color = ~color
+      ),
+      text = ~paste(model, frame_size),
+      textfont = list(size = 12),
+      name = ~model,
+      textposition = "right",
+      showlegend = FALSE
+    )
+
+p
 ```
-
-
-
-
 
 ```{r revoltx-plotit, echo = FALSE, echo=FALSE, warning=FALSE, message=FALSE, out.width = "100%", out.height = "100%"}
 
@@ -155,23 +62,42 @@ setnames(xy_sets, new = c("x", "y", "x_label", "y_label", "xy_scale"))
 p1_list <- list()
 for(i in 1:nrow(xy_sets)){
   p <- base_plot(data = bikes,
-                  x_col = xy_sets[i, x],
-                  y_col = xy_sets[i, y],
-                  g_col = "restyle",
-                  x_label = xy_sets[i, x_label],
-                  y_label = xy_sets[i, y_label],
-                  dot_palette = pal_okabe_ito_7,
-                  dot_opacity = 0.5,
-                  same_xy_scale = xy_sets[i, xy_scale]) %>%
-    annotate_model(data = bikes,
-                   x_col = xy_sets[i, x],
-                   y_col = xy_sets[i, y],
-                   g_col = "restyle",
-                   text_col = "model",
-                   text_target = c("Giant Revolt X pro 1 long", "Giant Revolt X pro 1 short"),
-                   dx = 20,
-                   dy = 20
+                 x_col = xy_sets[i, x],
+                 y_col = xy_sets[i, y],
+                 color_col = "restyle",
+                 legend_col = "restyle",
+                 x_label = xy_sets[i, x_label],
+                 y_label = xy_sets[i, y_label],
+                 dot_palette = pal_okabe_ito_7,
+                 dot_opacity = 0.5,
+                 same_xy_scale = xy_sets[i, xy_scale]) %>%
+    add_trace(
+      data = subdata,
+      type = 'scatter',
+      mode = 'markers',
+      x_col = xy_sets[i, x],
+      y_col = xy_sets[i, y],
+      marker = list( 
+        size = 14,
+        opacity = 1,
+        color = ~color,
+        colors = pal_okabe_ito_3
+      ),
+      text = ~paste(model, frame_size),
+      textfont = list(size = 12),
+      name = ~model,
+      textposition = "right",
+      showlegend = FALSE
     )
+  # annotate_model(data = bikes,
+    #                x_col = xy_sets[i, x],
+    #                y_col = xy_sets[i, y],
+    #                g_col = "restyle",
+    #                text_col = "model",
+    #                text_target = c("Giant Revolt X pro 1 long", "Giant Revolt X pro 1 short"),
+    #                dx = 20,
+    #                dy = 20
+    # )
   p1_list[[i]] =  plotly_build(p)
 }
 
@@ -185,23 +111,45 @@ for(i in 1:nrow(xy_sets)){
 p2_list <- list()
 for(i in 1:nrow(xy_sets)){
   p <- base_plot(data = my_fit,
-                  x_col = xy_sets[i, x],
-                  y_col = xy_sets[i, y],
-                  g_col = "restyle",
-                  x_label = xy_sets[i, x_label],
-                  y_label = xy_sets[i, y_label],
-                  dot_palette = pal_okabe_ito_7,
-                  dot_opacity = 0.3,
-                  same_xy_scale = xy_sets[i, xy_scale]) %>%
-    annotate_model(data = my_fit,
-                   x_col = xy_sets[i, x],
-                   y_col = xy_sets[i, y],
-                   g_col = "restyle",
-                   text_col = "model",
-                   text_target = c("Giant Revolt X pro 1 long", "Giant Revolt X pro 1 short"),
-                   dx = 0,
-                   dy = c(20,-20)
+                 x_col = xy_sets[i, x],
+                 y_col = xy_sets[i, y],
+                 color_col = "restyle",
+                 legend_col = "restyle",
+                 x_label = xy_sets[i, x_label],
+                 y_label = xy_sets[i, y_label],
+                 dot_palette = pal_okabe_ito_7,
+                 dot_opacity = 0.3,
+                 same_xy_scale = xy_sets[i, xy_scale])
+  text_1 <- FALSE # want to use text_1 but it doesn't work
+  if(text_1 == TRUE){
+    p <- p %>% add_trace(
+      data = subdata,
+      type = 'scatter',
+      mode = 'markers',
+      x_col = xy_sets[i, x],
+      y_col = xy_sets[i, y],
+      marker = list( 
+        size = 14,
+        opacity = 1,
+        color = ~color
+      ),
+      text = ~paste(model, frame_size),
+      textfont = list(size = 12),
+      name = ~model,
+      textposition = "right",
+      showlegend = FALSE
     )
+  }else{
+    p <- p %>% annotate_model(data = my_fit,
+                              x_col = xy_sets[i, x],
+                              y_col = xy_sets[i, y],
+                              g_col = "restyle",
+                              text_col = "model",
+                              text_target = c("Giant Revolt X pro 1 long", "Giant Revolt X pro 1 short"),
+                              dx = 20,
+                              dy = c(20,-20)
+    )
+  }
   p2_list[[i]] =  plotly_build(p)
 }
 

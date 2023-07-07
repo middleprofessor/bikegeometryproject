@@ -1,4 +1,4 @@
-model	frame	data_range	my_fit	
+model	frame	data_range	my_fit
 Breezer Radar X Pro 2022	steel	b1:i19	51cm (M)
 Evil Chamois Hagar GRX 2022	carbon	b1:g24	M
 BMC URS One 2022	carbon	b1:g25	M
@@ -9,9 +9,9 @@ Trek Checkpoint SL5 2022	carbon	a1:h22	56 cm
 Ribble Gravel SL 2022	carbon	b1:h20	M
 Lauf Siegla 2022	carbon	b1:h22	Medium
 Tout Terrain Scrambler 28 2022	steel	b1:f20	M
-Ritchey Outback frameset 2022	steel	b1:h22	M
+Ritchey Outback frameset 2022	steel	a1:g24	M
 Knolly Cache Steel 2022	steel	b1:j19	56CM
-No22 Drifter X 2022	titanium	b1:j21	54cm
+No22 Drifter X 2022	titanium	a1:i23	56cm
 Niner RLT 9 RDO 2022	carbon	b1:i21	56
 Bombtrack Beyond 2 2022	steel	b1:h24	M
 OPEN U.P. 2022	carbon	b1:g22	M
@@ -29,15 +29,15 @@ Whyte Friston Gravel 2022	aluminum	a1:g23	54
 Noble GX 5 2022	carbon	b1:i20	54cm
 BlackMtnCy Monstercross V5 2022	steel	b1:j22	56cm
 BlackMtnCy La Cabra 2022	steel	a1:g24	18"
-Enigma Escape Flat-bar 2022	titanium	b1:g22	SML
-Chumba Terlingua steel fdo 2022	steel	b1:i19	54
+Enigma Explor Flat Bar 2023	titanium	a6:f30	MED
+Chumba Terlingua Steel fdo 2022	steel	a1:h23	54
 Shand Stooshie 2022	steel	a1:g23	S
 Salsa Warbird 2022	carbon	a1:i22	56cm
 Salsa Cutthroat 2022	carbon	a1:g22	54cm
 Pinarello Grevil F 2023	carbon	b1:i21	54.7
 Canyon Grail 7 1by 2022	aluminum	b1:j28	M
 Canyon Grizl 7 1by 2022	aluminum	b1:j28	M
-Moots Routt ESC 2022	titanium	b1:g19	M
+Moots Routt ESC 2022	titanium	a6:f26	M
 Merida Silex 2022	carbon	b1:h20	M
 Fiftyone Assassin long-low 2022	carbon	b1:g24	M
 Fiftyone Assassin short-hi 2022	carbon	b1:g24	M
@@ -59,13 +59,13 @@ Hudski Doggler Gravel 2022	aluminum	b1:g23	M
 Bearclaw Beaux Jaxon 2022	titanium	b1:k21	54
 Sonder Camino AL 2022	aluminum	a1:f21	Medium
 Chiru Kegeti 2023	titanium	a6:f27	M
-Otso Fenrir 2022	steel	b1:h22	M
+Otso Fenrir 2022	steel	a1:g25	M
 Alchemy Rogue 2022	carbon	a1:h23	M
 Mosaic GT-1X 2022	titanium	b1:j22	55
 Panorama Taiga EXP 2022	steel	b1:f20	medium
 Cotic Cascade 2022	steel	b1:g20	Medium
-Chumba Yaupon 2022	steel	b1:g20	MD
-Otso Warakin Stainless 2022	steel	b1:i22	56cm
+Chumba Yaupon 2022	steel	a1:f22	MD
+Otso Warakin Stainless 2022	steel	a1:h24	56cm
 BMC URS AL 2022	aluminum	b1:h27	M
 BMC URS AL SUS 2022	aluminum	b1:d27	M
 Blackheart All Road TI 2022	titanium	b1:k22	54
@@ -105,3 +105,7 @@ Cannondale Topstone Lefty 2023	carbon	a1:g26	MD
 Enve Mog 2023	carbon	a1:h26	54
 All-City Space Horse 2023	steel	a5:i26	52cm
 Wilde Earth Ship Steel 2023	steel	a6:h29	M
+Chumba Terlingua SL Tit 2023	titanium	a6:h26	56
+Chumba Yaupon Steel Sus 2023	steel	a6:f27	MD
+Enigma Escape XR 2023	titanium	a6:h30	54
+ 

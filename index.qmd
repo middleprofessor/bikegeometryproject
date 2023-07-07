@@ -17,7 +17,7 @@ image_path <- here(image_folder, image_file)
 include_graphics(image_path)
 ```
 
-The [Gravel Ternary](qmd/gravel_scatter.qmd) page contains an interactive, ternary plot for all gravel bike models in the database. Each ternary plot axis is a style score (0 -- 100) for one of the styles: Racy, Relaxed, and Rowdy.
+The [Gravel Ternary](qmd/gravel_ternary.qmd) page contains an interactive, ternary plot for all gravel bike models in the database. Each ternary plot axis is a style score (0 -- 100) for one of the styles: Racy, Relaxed, and Rowdy.
 
 ```{r echo=FALSE}
 image_folder <- "images"

@@ -58,16 +58,21 @@ p3 <- scatter_fig(data = geobike,
                   x_label = "Seat Tube Angle (°)", y_label = "Head Tube Angle (°)",
                   x_info = "STA", y_info = "HTA", digits = 1)
 p4 <- scatter_fig(data = geobike,
+                  x_col = "seat_tube_length", y_col = "top_tube_angle",
+                  x_label = "Seat Tube Length (mm)", y_label = "Top Tube Angle (°)",
+                  x_info = "STL", y_info = "TTA", digits = 1,
+                  same_xy_scale = FALSE)
+p5 <- scatter_fig(data = geobike,
                   x_col = "head_tube_angle", y_col = "trail",
                   x_label = "Head Tube Angle (°)", y_label = "Trail (mm)",
                   x_info = "HTA", y_info = "Trail", digits = 1,
                   same_xy_scale = FALSE)
-p5 <- scatter_fig(data = geobike,
+p6 <- scatter_fig(data = geobike,
                   x_col = "front_wheelbase", y_col = "stack_reach",
                   x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
                   x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
                   same_xy_scale = FALSE)
-p6 <- scatter_fig(data = geobike,
+p7 <- scatter_fig(data = geobike,
                   x_col = "front_wheelbase", y_col = "sta_hta",
                   x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
                   x_info = "FC/WB", y_info = "STA/HTA", digits = 2,
@@ -79,5 +84,17 @@ p3
 p4
 p5
 p6
+p7
 
 ```
+
+
+```{r, echo=FALSE, out.width = "100%", out.height = "100%"}
+p <- scatter_fig(data = my_fit,
+                  x_col = "top_tube_angle", y_col = "seat_tube_length",
+                  x_label = "Top Tube Angle (°)", y_label = "seat_tube_length (mm)",
+                  x_info = "HTA", y_info = "Trail", digits = 1,
+                  same_xy_scale = FALSE)
+p
+```
+
