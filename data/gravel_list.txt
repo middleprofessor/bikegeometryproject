@@ -21,8 +21,8 @@ Salsa Fargo rear dropout 2022	steel	a1:g22	MD
 Kona Sutra ULTD 2022	steel	b1:i22	54
 Thesis OB1 2022	carbon	a1:g24	M
 Cinelli Hobootleg Geo 2022	steel	b1:g23	M
-All-City Gorilla Monsoon 2022	steel	b1:j20	52cm
-All-City Cosmic Stallion 2022	steel	b1:i20	52cm
+All-City Gorilla Monsoon 2022	steel	a1:h22	52cm
+All-City Cosmic Stallion 2022	steel	a1:h22	52cm
 Specialized Diverge Evo 2022	aluminum	a1:e25	M
 Marin DSX 2 2022	aluminum	b1:g22	M
 Whyte Friston Gravel 2022	aluminum	a1:g23	54
@@ -54,9 +54,9 @@ Specialized Diverge 2022	carbon	a1:i27	54
 Bombtrack Beyond+ Adv 2022	steel	b1:g23	M
 Bombtrack Hook 2022	steel	b1:h25	M
 Squid Gravtron 2022	steel	a1:h23	LRG
-Amigo Bug Out 2022	steel	b1:g33	Medium
+Amigo Bug Out 2022	steel	a1:f35	Medium
 Hudski Doggler Gravel 2022	aluminum	b1:g23	M
-Bearclaw Beaux Jaxon 2022	titanium	b1:k21	54
+Bearclaw Beaux Jaxon 2022	titanium	a1:j23	54
 Sonder Camino AL 2022	aluminum	a1:f21	Medium
 Chiru Kegeti 2023	titanium	a6:f27	M
 Otso Fenrir 2022	steel	a1:g25	M
@@ -68,7 +68,7 @@ Chumba Yaupon 2022	steel	a1:f22	MD
 Otso Warakin Stainless 2022	steel	a1:h24	56cm
 BMC URS AL 2022	aluminum	b1:h27	M
 BMC URS AL SUS 2022	aluminum	b1:d27	M
-Blackheart All Road TI 2022	titanium	b1:k22	54
+Blackheart All Road TI 2022	titanium	a1:j24	54
 Nordest Kutxo 2022	steel	b1:f21	M
 Cervelo Aspero 2022	carbon	b1:i22	54
 Open WI.DE 2022	carbon	b1:h24	M
@@ -84,12 +84,12 @@ Fustle Causway GR1 2022	aluminum	b1:g23	MD/LG
 Rose Backroad XPLR 2022	carbon	b1:j27	55cm
 Otso Waheela C rear 2022	carbon	c52:h75	L
 Otso Waheela C front 2022	carbon	c26:h49	L
-Argonaut GR3 2023	carbon	b1:j23	560
+Argonaut GR3 2023	carbon	a1:i23	560
 YT Szepter 2023	carbon	a1:g24	L
 Specialized Diverge STR 2023	carbon	a1:h27	56
 Giant Revolt X pro 1 long 2023	carbon	a1:h23	M
 Giant Revolt X pro 1 short 2023	carbon	a1:h23	M
-Focus Atlas 8.9 2023	carbon	a1:g24	M
+Focus Atlas 8.9 2023	carbon	a1:g25	M
 Ventum GS1 2023	carbon	a1:h26	M
 Orbea Terra M 2023	carbon	a1:h27	M
 Orbea Terra H 2023	carbon	a1:h27	M
@@ -108,4 +108,3 @@ Wilde Earth Ship Steel 2023	steel	a6:h29	M
 Chumba Terlingua SL Tit 2023	titanium	a6:h26	56
 Chumba Yaupon Steel Sus 2023	steel	a6:f27	MD
 Enigma Escape XR 2023	titanium	a6:h30	54
- 

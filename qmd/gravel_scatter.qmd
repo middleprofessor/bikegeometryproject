@@ -1,6 +1,9 @@
 ---
 title: "Gravel 2D"
 editor: source
+format:
+  html:
+    toc: false
 ---
 ::: {.callout-tip}
 1. Hover over data for model and frame size identification.
@@ -11,7 +14,6 @@ editor: source
 ::: {.callout-note}
 Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") cm high rider, according to manufacturer's charts.
 :::
-
 
 
 ```{r setup-gravel-scatter, echo=FALSE, warning=FALSE, message=FALSE}
@@ -45,56 +47,81 @@ plot_grid(gg_legend)
 
 ```
 
-```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
-p1 <- scatter_fig(data = geobike,
+```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "90%", out.height = "90%"}
+p1 <- scatter_fig_new(data = geobike,
                   x_col = "reach", y_col = "stack",
                   x_label = "Reach (mm)", y_label = "Stack (mm)")
-p2 <- scatter_fig(data = geobike,
+p2 <- scatter_fig_new(data = geobike,
                   x_col = "rear_center", y_col = "front_center",
                   x_label = "Rear Center (mm)", y_label = "Front Center (mm)",
                   x_info = "RC", y_info = "FC")
-p3 <- scatter_fig(data = geobike,
+p3 <- scatter_fig_new(data = geobike,
                   x_col = "seat_tube_angle", y_col = "head_tube_angle",
                   x_label = "Seat Tube Angle (°)", y_label = "Head Tube Angle (°)",
                   x_info = "STA", y_info = "HTA", digits = 1)
-p4 <- scatter_fig(data = geobike,
+p4 <- scatter_fig_new(data = geobike,
                   x_col = "seat_tube_length", y_col = "top_tube_angle",
                   x_label = "Seat Tube Length (mm)", y_label = "Top Tube Angle (°)",
                   x_info = "STL", y_info = "TTA", digits = 1,
                   same_xy_scale = FALSE)
-p5 <- scatter_fig(data = geobike,
+p5 <- scatter_fig_new(data = geobike,
                   x_col = "head_tube_angle", y_col = "trail",
                   x_label = "Head Tube Angle (°)", y_label = "Trail (mm)",
                   x_info = "HTA", y_info = "Trail", digits = 1,
                   same_xy_scale = FALSE)
-p6 <- scatter_fig(data = geobike,
+p6 <- scatter_fig_new(data = geobike,
                   x_col = "front_wheelbase", y_col = "stack_reach",
                   x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
                   x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
                   same_xy_scale = FALSE)
-p7 <- scatter_fig(data = geobike,
+p7 <- scatter_fig_new(data = geobike,
                   x_col = "front_wheelbase", y_col = "sta_hta",
                   x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
                   x_info = "FC/WB", y_info = "STA/HTA", digits = 2,
                   same_xy_scale = FALSE)
+```
 
+### Stack vs. Reach
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
 p1
+```
+
+### Front Center vs. Rear Center
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
 p2
+```
+
+### Head Tube Angle vs. Seat Tube Angle
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
 p3
+```
+
+### Top Tube Angle vs. Seat Tube Angle
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
 p4
+```
+
+### Trail vs. Head Tube Angle
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
 p5
+```
+
+### Stack/Reach vs. Front Center/Wheelbase
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
 p6
+```
+
+### Seat Tube Angle/Head Tube Angle vs. Front Center/Wheelbase
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
 p7
 
 ```
 
-
-```{r, echo=FALSE, out.width = "100%", out.height = "100%"}
-p <- scatter_fig(data = my_fit,
-                  x_col = "top_tube_angle", y_col = "seat_tube_length",
-                  x_label = "Top Tube Angle (°)", y_label = "seat_tube_length (mm)",
-                  x_info = "HTA", y_info = "Trail", digits = 1,
-                  same_xy_scale = FALSE)
-p
-```
 

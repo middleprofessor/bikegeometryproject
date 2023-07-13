@@ -31,3 +31,42 @@ gg <- plot_ggdendro(tree_v2_color,
 gg
 ```
 
+
+```{r echo=FALSE, eval = FALSE,fig.height=14, fig.width=10, echo=FALSE}
+inc_cols <-  c("stack", "reach", "front_center", "rear_center",
+               "head_tube_angle", "seat_tube_angle",
+               "trail",
+               "seat_tube_length",
+#               "top_tube_angle",
+               NULL)
+
+tree_wardd2 <- get_tree(my_fit,
+                        inc_cols,
+                        scale_it = TRUE,
+                        center_it = TRUE,
+                        hclust_method = "ward.D2") # "average" "ward.D2"
+tree_upgma <- get_tree(my_fit,
+                        inc_cols,
+                        scale_it = TRUE,
+                        center_it = TRUE,
+                        hclust_method = "average") # "average" "ward.D2"
+# dend1 <- as.dendrogram(tree_v2)
+#plot_dendro(dend1, width = 1200, height = 2000)
+k = 3
+tree_wardd2_color <- dendro_data_k(tree_wardd2, k = k)
+plot_ggdendro(tree_wardd2_color,
+              direction   = "lr",
+              expand.y    = 0.4,
+              scale.color = pal_okabe_ito_7[1:k])
+
+k = 5
+tree_upgma_color <- dendro_data_k(tree_upgma, k = k)
+plot_ggdendro(tree_upgma_color,
+              direction   = "lr",
+              expand.y    = 0.4,
+              scale.color = pal_okabe_ito_7[1:k])
+
+
+
+```
+
