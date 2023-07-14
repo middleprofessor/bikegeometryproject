@@ -50,7 +50,7 @@ Revel Rover 2022	carbon	b1:h22	Medium
 Kanzo Adventure New 2022	carbon	b1:h20	M
 Santa Cruz Stigmata 2022	carbon	a1:g23	56
 Why R+ V4 2022	titanium	a1:g24	M
-Specialized Diverge 2022	carbon	a1:i27	54
+Specialized Diverge 2022	carbon	a1:i27	56
 Bombtrack Beyond+ Adv 2022	steel	b1:g23	M
 Bombtrack Hook 2022	steel	b1:h25	M
 Squid Gravtron 2022	steel	a1:h23	LRG
@@ -109,3 +109,4 @@ Chumba Terlingua SL Tit 2023	titanium	a6:h26	56
 Chumba Yaupon Steel Sus 2023	steel	a6:f27	MD
 Enigma Escape XR 2023	titanium	a6:h30	54
 Lynskey GR300 2023	titanium	a6:h29	ML
+Specialized Crux 2023	carbon	a6:h32	56

@@ -8,7 +8,7 @@ format:
 ::: {.callout-tip}
 1. Hover over data for model and frame size identification.
 2. Scroll legend and click on items to identify specific model and frame size combinations.
-3. Click on **Focal** checkbox to view to the frame size used for the classification
+3. Click on **Focal** checkbox to view the frame size used for the classification.
 4. Click on popup icon-bar over legend to zoom in/out and pan.
 :::
 

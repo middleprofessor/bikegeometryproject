@@ -5,11 +5,12 @@ project:
 
 website:
   title: "Bike Geometry Project"
-  description: "Not the same old bike geometry comparison tool."
+  description: "Not just another bike geometry comparison tool"
   site-url: https://bikegeometry.site
   navbar:
     background: primary
     search: true
+    logo: "images/GravelR_1080.png"
     right:
       - text: "About"
         file: about.qmd 
