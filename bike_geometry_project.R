@@ -1,4 +1,4 @@
-## ----setup, message = FALSE, warning = FALSE-----------------------------------------------
+## ----setup, message = FALSE, warning = FALSE-----------------------------------------------------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE,
                       warning = FALSE,
@@ -78,7 +78,7 @@ pal_okabe_ito_3 <- pal_okabe_ito[c(2,3,1)]
 pal_okabe_ito_4 <- c(pal_okabe_ito_3, pal_okabe_ito[c(6)])
 
 
-## ----deg_2_rad-----------------------------------------------------------------------------
+## ----deg_2_rad-----------------------------------------------------------------------------------------------------------------------------
 deg_2_rad <- function(x){
   rad <- x*pi/180
   return(rad)
@@ -86,7 +86,7 @@ deg_2_rad <- function(x){
   
 
 
-## ----ggdendro-extensions-------------------------------------------------------------------
+## ----ggdendro-extensions-------------------------------------------------------------------------------------------------------------------
 # https://atrebas.github.io/post/2019-06-08-lightweight-dendrograms/
 dendro_data_k <- function(hc, k) {
   hcdata    <-  ggdendro::dendro_data(hc, type = "rectangle")
@@ -215,7 +215,7 @@ plot_ggdendro <- function(hcdata,
 
 
 
-## ----treed---------------------------------------------------------------------------------
+## ----treed---------------------------------------------------------------------------------------------------------------------------------
 get_tree <- function(geobike_subset,
                   y_cols,
                   scale_it = TRUE,
@@ -247,7 +247,7 @@ get_tree <- function(geobike_subset,
 }
 
 
-## ----bike-geometry-helpers-----------------------------------------------------------------
+## ----bike-geometry-helpers-----------------------------------------------------------------------------------------------------------------
 compute_axle_crown <- function(){
   
 }
@@ -311,7 +311,7 @@ compute_steering_h <- function(bike){
 
 
 
-## ----missing data--------------------------------------------------------------------------
+## ----missing data--------------------------------------------------------------------------------------------------------------------------
 compute_wheelbase <- function(bike){
   steering_v <- compute_steering_v(bike)
   steering_h <- compute_steering_h(bike)
@@ -377,7 +377,7 @@ compute_effective_top_tube_length <- function(bike){
 }
 
 
-## ------------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------------------------------------------------------
 geom_checker <- function(chainstay_length, # chainstay length
                          bottom_bracket_drop, # bottom bracket drop
                          reach,
@@ -398,7 +398,7 @@ geom_checker <- function(chainstay_length, # chainstay length
   }
 
 
-## ----read-bike-function, echo=FALSE--------------------------------------------------------
+## ----read-bike-function, echo=FALSE--------------------------------------------------------------------------------------------------------
 # data_path <- here(data_folder, "ghost_grappler.txt")
 # dt <- fread(data_path)
 # bike_label = "Tumbleweed Stargazer 2022"
@@ -562,7 +562,7 @@ read_bike <- function(bike_label = "Breezer Radar X Pro 2022",
 
 
 
-## ----import-bikes, echo=FALSE--------------------------------------------------------------
+## ----import-bikes, echo=FALSE--------------------------------------------------------------------------------------------------------------
 # need to modify so all imports use this function
 import_bikes <- function(style = "gravel",
                          prefix = ""){
@@ -588,7 +588,7 @@ import_bikes <- function(style = "gravel",
 
 
 
-## ----import-bikes-full, echo=FALSE---------------------------------------------------------
+## ----import-bikes-full, echo=FALSE---------------------------------------------------------------------------------------------------------
 import_bikes_full <- function(style = "gravel",
                          prefix = ""){
   
@@ -704,7 +704,7 @@ import_bikes_full <- function(style = "gravel",
 }
 
 
-## ----gravel-classifier, echo=FALSE---------------------------------------------------------
+## ----gravel-classifier, echo=FALSE---------------------------------------------------------------------------------------------------------
 gravel_classifier <- function(
     data,
     y_cols = c("stack", "reach", "front_center", "rear_center",
@@ -794,7 +794,7 @@ gravel_classifier <- function(
 
 
 
-## ----gravel-scores, echo = FALSE-----------------------------------------------------------
+## ----gravel-scores, echo = FALSE-----------------------------------------------------------------------------------------------------------
 gravel_scores <- function(data){
   y_cols <- c("stack", "reach", "front_center", "rear_center", "head_tube_angle", "seat_tube_angle", "trail", "seat_tube_length")
   
@@ -829,8 +829,8 @@ gravel_scores <- function(data){
 
 
 
-## ----import-gravel-------------------------------------------------------------------------
-import_it <- TRUE
+## ----import-gravel-------------------------------------------------------------------------------------------------------------------------
+import_it <- FALSE
 geo_bike_path <- here("rds", "geobike.Rds")
 my_fit_path <- here("rds", "my_fit.Rds")
 if(import_it != TRUE){
@@ -872,7 +872,7 @@ if(import_it != TRUE){
 }
 
 
-## ----base-plot, echo = FALSE---------------------------------------------------------------
+## ----base-plot, echo = FALSE---------------------------------------------------------------------------------------------------------------
 base_plot <- function(data = geobike,
                       x_col = "reach",
                       y_col = "stack",
@@ -971,7 +971,7 @@ base_plot <- function(data = geobike,
 
 
 
-## ----annotate, echo = FALSE----------------------------------------------------------------
+## ----annotate, echo = FALSE----------------------------------------------------------------------------------------------------------------
 annotate_model <- function(p,
                            data = geobike,
                            x_col = "reach",
@@ -1010,7 +1010,7 @@ annotate_model <- function(p,
 }
 
 
-## ----base-ternary-plot, echo=FALSE---------------------------------------------------------
+## ----base-ternary-plot, echo=FALSE---------------------------------------------------------------------------------------------------------
 base_ternary <- function(
     data,
     axis_cols = c("racy","relaxed","rowdy"),
@@ -1104,7 +1104,7 @@ base_ternary <- function(
 }
 
 
-## ----scatter-fig---------------------------------------------------------------------------
+## ----scatter-fig---------------------------------------------------------------------------------------------------------------------------
 scatter_fig <- function(data = my_fit,
                         x_col = "reach", y_col = "stack", g_col = "model_size",
                         x_label = "Reach", y_label = "Stack",
@@ -1227,7 +1227,7 @@ scatter_fig <- function(data = my_fit,
 
 
 
-## ----scatter-fig-new, echo=FALSE-----------------------------------------------------------
+## ----scatter-fig-new, echo=FALSE-----------------------------------------------------------------------------------------------------------
 scatter_fig_new <- function(data = geobike,
                         x_col = "reach", y_col = "stack", g_col = "model_size",
                         x_label = "Reach", y_label = "Stack",
@@ -1236,21 +1236,25 @@ scatter_fig_new <- function(data = geobike,
                         dot_palette = pal_okabe_ito_7,
                         dot_opacity = 0.3,
                         same_xy_scale = TRUE){ # if units are same on x and y then scales should be preserved
-  #shared_data <- highlight_key(data, ~model)
-  bike_x <- highlight_key(data)
 
+  y_cols <- c(x_col, y_col, "model_size", "restyle", "color", "Size")
+  subdata <- na.omit(data[, .SD, .SDcols = y_cols])
+
+  #shared_data <- highlight_key(data, ~model)
+  bike_x <- highlight_key(subdata)
+  
   if(is.null(x_info)){x_info <- x_label}
   if(is.null(y_info)){y_info <- y_label}
   restyle_legend <- ifelse(g_col == "restyle",
                            TRUE,
                            FALSE)
-  n_colors <- length(levels(data[, restyle]))
+  n_colors <- length(levels(subdata[, restyle]))
   
   # set range of axes
-  min_data_x <- min(data[, get(x_col)], na.rm = TRUE)
-  min_data_y <- min(data[, get(y_col)], na.rm = TRUE)
-  max_data_x <- max(data[, get(x_col)], na.rm = TRUE)
-  max_data_y <- max(data[, get(y_col)], na.rm = TRUE)
+  min_data_x <- min(subdata[, get(x_col)], na.rm = TRUE)
+  min_data_y <- min(subdata[, get(y_col)], na.rm = TRUE)
+  max_data_x <- max(subdata[, get(x_col)], na.rm = TRUE)
+  max_data_y <- max(subdata[, get(y_col)], na.rm = TRUE)
   range_x <- max_data_x - min_data_x
   range_y <- max_data_y - min_data_y
   range_axis_x <- range_x * 1.1
@@ -1268,6 +1272,7 @@ scatter_fig_new <- function(data = geobike,
   
   fig <- bike_x %>% plot_ly()
   fig <- fig %>%
+    # add dots colored by restyle
     add_trace(
       type = "scatter",
       mode = "markers",
@@ -1283,12 +1288,12 @@ scatter_fig_new <- function(data = geobike,
         line = list('width' = 2)
       ),
       hoverinfo = "text",
-      text = ~paste(model, frame_size,
+      text = ~paste(model_size,
                     "<br>Cat:", restyle,
                     paste0("<br>", x_info, ":"), round(get(x_col), digits),
                     paste0("<br>", y_info, ":"), round(get(y_col), digits))
     )
-  
+  # superimpose dots colored by column "color" but using model_size as the legend item
   fig <- fig  %>%
     add_trace(
       type = "scatter",
@@ -1298,10 +1303,11 @@ scatter_fig_new <- function(data = geobike,
       marker = list( 
         size = 14,
         opacity = 1,
-        color = ~color, # color is a column in the data with the hex code for the color
-        colors = dot_palette[1:n_colors]
+ #       color = ~restyle,
+        color = ~color # color is a column in the data with the hex code for the color
+ #       colors = dot_palette[1:n_colors]
       ),
-      text = ~paste(model, frame_size),
+      text = ~paste("\U2B05", model_size),
       textfont = list(size = 12),
       name = ~model_size,
       textposition = "right",
@@ -1336,7 +1342,7 @@ scatter_fig_new <- function(data = geobike,
 }
 
 
-## ----output-as-R-file----------------------------------------------------------------------
+## ----output-as-R-file----------------------------------------------------------------------------------------------------------------------
 # highlight and run to put update into R folder
 write_it_as_R <- FALSE
 if(write_it_as_R == TRUE){

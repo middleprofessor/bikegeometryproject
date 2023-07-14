@@ -108,3 +108,4 @@ Wilde Earth Ship Steel 2023	steel	a6:h29	M
 Chumba Terlingua SL Tit 2023	titanium	a6:h26	56
 Chumba Yaupon Steel Sus 2023	steel	a6:f27	MD
 Enigma Escape XR 2023	titanium	a6:h30	54
+Lynskey GR300 2023	titanium	a6:h29	ML

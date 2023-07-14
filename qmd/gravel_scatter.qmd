@@ -8,7 +8,8 @@ format:
 ::: {.callout-tip}
 1. Hover over data for model and frame size identification.
 2. Scroll legend and click on items to identify specific model and frame size combinations.
-3. Click on popup icon-bar over legend to zoom in/out and pan.
+3. Click on **Focal** checkbox to view to the frame size used for the classification
+4. Click on popup icon-bar over legend to zoom in/out and pan.
 :::
 
 ::: {.callout-note}
@@ -48,6 +49,7 @@ plot_grid(gg_legend)
 ```
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "90%", out.height = "90%"}
+
 p1 <- scatter_fig_new(data = geobike,
                   x_col = "reach", y_col = "stack",
                   x_label = "Reach (mm)", y_label = "Stack (mm)")
