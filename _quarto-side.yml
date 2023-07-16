@@ -1,0 +1,50 @@
+project:
+  type: website
+  output-dir: docs
+  resources: googlef06d37c17cf410a9.html
+
+website:
+  title: "Bike Geometry Project"
+  description: "Not just another bike geometry comparison tool"
+  site-url: https://bikegeometry.site
+  navbar:
+    background: primary
+    search: true
+    logo: "images/GravelR_1080.png"
+    right:
+      - text: "About"
+        file: about.qmd 
+
+  sidebar:
+    style: "docked"
+    search: false
+    contents:
+      - text: "Home"
+        file: index.qmd
+      - section: "Gravel Plots"
+        contents:
+          - qmd/gravel_histo.qmd
+          - qmd/gravel_scatter.qmd
+          - qmd/gravel_ternary.qmd
+      - section: "Gravel Style"
+        contents:
+          - qmd/what_is_a_gravel_bike.qmd
+          - qmd/gravel_tree.qmd
+          - qmd/gravel_class.qmd
+      - section: "Gravel Stories"
+        contents:
+          - qmd/which_gravel_bikes_are_mtb_inspired.qmd
+          - qmd/mtb_90s.qmd
+      - section: "New Bike Day"
+        contents:
+          - qmd/nbd/revoltx.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    page-layout: full
+
+editor: source
+
