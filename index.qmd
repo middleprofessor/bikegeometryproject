@@ -1,6 +1,6 @@
 ---
-title: "Bike Geometry Project"
-subtitle: "A component of the gravelRRR multiverse"
+title: "GravelRrr"
+subtitle: "Not just another bike geometry comparison tool"
 ---
 
 ```{r setup-index, echo=FALSE, warning=FALSE, message=FALSE}

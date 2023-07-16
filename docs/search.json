@@ -72,7 +72,7 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Bike Geometry Project",
+    "title": "GravelRrr",
     "section": "",
     "text": "The Gravel 2D page contains interactive, 2D scatter plots of different pairs of frame geometry measures for all gravel bike models and frame sizes in the database.\n\n\n\n\n\nThe Gravel Ternary page contains an interactive, ternary plot for all gravel bike models in the database. Each ternary plot axis is a style score (0 – 100) for one of the styles: Racy, Relaxed, and Rowdy.\n\n\n\n\n\nThe What is Gravel Style? page contains interactive, 2D scatter plots of different pairs of frame geometry measures to compare gravel bikes in the database to Road Race, Road Endurance, Cyclocross, and XC Mountain bikes.\n\n\n\n\n\nThe Gravel Tree page contains a tree diagram showing the relative similarity in frame geometry among all gravel bikes in the database and the clustering of the models into three major styles.\n\n\n\n\n\nThe Gravel Table page contains a table of the classification of all gravel bike models in the database into All-road, Endurance, and Trail categories.\n\n\n\n\n\nAlso, check out the Gravel Stories\nWhich gravel bikes have mountain bike inspired geometry?\nIs a gravel bike a 1990s mountain bike?\ncopyright 2022 Jeffrey A. Walker"
   }
