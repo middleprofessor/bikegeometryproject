@@ -1,7 +1,7 @@
 model	frame	data_range	my_fit
-Breezer Radar X Pro 2022	steel	b1:i19	51cm (M)
+Breezer Radar X Pro 2022	steel	a1:h24	51cm (M)
 Evil Chamois Hagar GRX 2022	carbon	b1:g24	M
-BMC URS One 2022	carbon	b1:g25	M
+BMC URS One 2022	carbon	a1:f29	M
 Mason InSearchOf 2022	steel	b1:h28	50CM
 Surly Ghost Grappler 2022	steel	a1:g23	MD
 Tumbleweed Stargazer 2022	steel	a1:g21	Medium
@@ -13,7 +13,7 @@ Ritchey Outback frameset 2022	steel	a1:g24	M
 Knolly Cache Steel 2022	steel	b1:j19	56CM
 No22 Drifter X 2022	titanium	a1:i23	56cm
 Niner RLT 9 RDO 2022	carbon	b1:i21	56
-Bombtrack Beyond 2 2022	steel	b1:h24	M
+Bombtrack Beyond 2 2022	steel	a1:g26	M
 OPEN U.P. 2022	carbon	b1:g22	M
 Salsa Vaya 2022	steel	a1:h22	55cm
 Salsa Fargo front dropout 2022	steel	a1:g22	MD
@@ -35,8 +35,8 @@ Shand Stooshie 2022	steel	a1:g23	S
 Salsa Warbird 2022	carbon	a1:i22	56cm
 Salsa Cutthroat 2022	carbon	a1:g22	54cm
 Pinarello Grevil F 2023	carbon	b1:i21	54.7
-Canyon Grail 7 1by 2022	aluminum	b1:j28	M
-Canyon Grizl 7 1by 2022	aluminum	b1:j28	M
+Canyon Grail 7 1by 2022	aluminum	a1:i30	M
+Canyon Grizl 7 1by 2022	aluminum	a1:j30	M
 Moots Routt ESC 2022	titanium	a6:f26	M
 Merida Silex 2022	carbon	b1:h20	M
 Fiftyone Assassin long-low 2022	carbon	b1:g24	M
@@ -51,8 +51,8 @@ Kanzo Adventure New 2022	carbon	b1:h20	M
 Santa Cruz Stigmata 2022	carbon	a1:g23	56
 Why R+ V4 2022	titanium	a1:g24	M
 Specialized Diverge 2022	carbon	a1:i27	56
-Bombtrack Beyond+ Adv 2022	steel	b1:g23	M
-Bombtrack Hook 2022	steel	b1:h25	M
+Bombtrack Beyond+ Adv 2022	steel	a1:f25	M
+Bombtrack Hook 2022	steel	a1:g27	M
 Squid Gravtron 2022	steel	a1:h23	LRG
 Amigo Bug Out 2022	steel	a1:f35	Medium
 Hudski Doggler Gravel 2022	aluminum	b1:g23	M
@@ -63,11 +63,11 @@ Otso Fenrir 2022	steel	a1:g25	M
 Alchemy Rogue 2022	carbon	a1:h23	M
 Mosaic GT-1X 2022	titanium	b1:j22	55
 Panorama Taiga EXP 2022	steel	b1:f20	medium
-Cotic Cascade 2022	steel	b1:g20	Medium
+Cotic Cascade 2022	steel	a1:f22	Medium
 Chumba Yaupon 2022	steel	a1:f22	MD
 Otso Warakin Stainless 2022	steel	a1:h24	56cm
-BMC URS AL 2022	aluminum	b1:h27	M
-BMC URS AL SUS 2022	aluminum	b1:d27	M
+BMC URS AL 2022	aluminum	a1:g31	M
+BMC URS AL SUS 2022	aluminum	a1:c29	M
 Blackheart All Road TI 2022	titanium	a1:j24	54
 Nordest Kutxo 2022	steel	b1:f21	M
 Cervelo Aspero 2022	carbon	b1:i22	54

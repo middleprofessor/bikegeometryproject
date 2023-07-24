@@ -1,0 +1,46 @@
+---
+title: "Allometry"
+---
+```{r}
+log_alpha_trunk <- c(-0.22, -0.47)
+beta_trunk <- c(0.84, 0.88)
+log_alpha_arm <- c(-2.4, -2.345) # average
+beta_arm <- c(1.26, 1.245) # average
+
+#ln y = ln alpha + beta ln H
+# y = exp(ln(alpha) + beta ln H)
+# y = alpha * H^beta
+height <- c(seq(from = 60, to = 74, by = 1))*2.54
+height <- c(155:185)
+trunk_m_allo <- exp(alpha_trunk[1]) * height ^ beta_trunk[1]
+trunk_f_allo <- exp(alpha_trunk[2]) * height ^ beta_trunk[2]
+trunk_m_iso <- exp(alpha_trunk[1]) * height ^ 1 - (122.3039 -54.72208)
+trunk_f_iso <- exp(alpha_trunk[1]) * height ^ 1 - (122.3039 - 52.10848)
+arm_m_allo <- exp(alpha_arm[1]) * height ^ beta_arm[1]
+arm_f_allo <- exp(alpha_arm[2]) * height ^ beta_arm[2]
+arm_m_iso <- exp(alpha_arm[1]) * height ^ 1 - (13.82542 - 51.08040)
+arm_f_iso <- exp(alpha_arm[1]) * height ^ 1 - (13.82542 - 50.04904)
+
+# 30 degree trunk anlgle
+# cos(theta) = reach_trunk/trunk
+# reach_trunk = trunk*cos(theta)
+theta_deg <- 30
+theta <- theta_deg *pi/180
+cos_theta <- cos(theta)
+data.table(
+  Height = height,
+  trunk_m = trunk_m_allo * cos_theta,
+  trunk_m_iso = trunk_m_iso * cos_theta,
+  arm_m = arm_m_allo * cos_theta,
+  arm_m_iso = arm_m_iso * cos_theta,
+  func_reach_m = trunk_m_allo * cos_theta + arm_m_allo * cos_theta,
+  trunk_f = trunk_f_allo * cos_theta,
+  trunk_f_iso = trunk_f_iso * cos_theta,
+  arm_f = arm_f_allo * cos_theta,
+  arm_f_iso = arm_f_iso * cos_theta,
+  func_reach_f = trunk_f_allo * cos_theta + arm_f_allo * cos_theta
+) %>%
+  kable(digits = 1) %>%
+  kable_styling()
+```
+

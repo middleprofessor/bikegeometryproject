@@ -54,29 +54,35 @@ p1 <- scatter_fig_new(data = geobike,
                   x_col = "reach", y_col = "stack",
                   x_label = "Reach (mm)", y_label = "Stack (mm)")
 p2 <- scatter_fig_new(data = geobike,
-                  x_col = "rear_center", y_col = "front_center",
-                  x_label = "Rear Center (mm)", y_label = "Front Center (mm)",
-                  x_info = "RC", y_info = "FC")
+                  x_col = "top_tube_effective_length",
+                  y_col = "chainstay_length",
+                  x_label = "TT Effective Length (mm)",
+                  y_label = "Chainstay Length (mm)",
+                  x_info = "ETT", y_info = "CS")
 p3 <- scatter_fig_new(data = geobike,
+                  x_col = "front_center", y_col = "rear_center",
+                  x_label = "Front Center (mm)", y_label = "Rear Center (mm)",
+                  x_info = "FC", y_info = "RC")
+p4 <- scatter_fig_new(data = geobike,
                   x_col = "seat_tube_angle", y_col = "head_tube_angle",
                   x_label = "Seat Tube Angle (°)", y_label = "Head Tube Angle (°)",
                   x_info = "STA", y_info = "HTA", digits = 1)
-p4 <- scatter_fig_new(data = geobike,
+p5 <- scatter_fig_new(data = geobike,
                   x_col = "seat_tube_length", y_col = "top_tube_angle",
                   x_label = "Seat Tube Length (mm)", y_label = "Top Tube Angle (°)",
                   x_info = "STL", y_info = "TTA", digits = 1,
                   same_xy_scale = FALSE)
-p5 <- scatter_fig_new(data = geobike,
+p6 <- scatter_fig_new(data = geobike,
                   x_col = "head_tube_angle", y_col = "trail",
                   x_label = "Head Tube Angle (°)", y_label = "Trail (mm)",
                   x_info = "HTA", y_info = "Trail", digits = 1,
                   same_xy_scale = FALSE)
-p6 <- scatter_fig_new(data = geobike,
+p7 <- scatter_fig_new(data = geobike,
                   x_col = "front_wheelbase", y_col = "stack_reach",
                   x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
                   x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
                   same_xy_scale = FALSE)
-p7 <- scatter_fig_new(data = geobike,
+p8 <- scatter_fig_new(data = geobike,
                   x_col = "front_wheelbase", y_col = "sta_hta",
                   x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
                   x_info = "FC/WB", y_info = "STA/HTA", digits = 2,
@@ -89,40 +95,46 @@ p7 <- scatter_fig_new(data = geobike,
 p1
 ```
 
-### Front Center vs. Rear Center
+### Chainstay Length vs. Effective top tube length
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
 p2
 ```
 
-### Head Tube Angle vs. Seat Tube Angle
+### Rear Center vs. Front Center
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
 p3
 ```
 
-### Top Tube Angle vs. Seat Tube Angle
+### Head Tube Angle vs. Seat Tube Angle
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
 p4
 ```
 
-### Trail vs. Head Tube Angle
+### Top Tube Angle vs. Seat Tube Angle
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
 p5
 ```
 
-### Stack/Reach vs. Front Center/Wheelbase
+### Trail vs. Head Tube Angle
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
 p6
 ```
 
-### Seat Tube Angle/Head Tube Angle vs. Front Center/Wheelbase
+### Stack/Reach vs. Front Center/Wheelbase
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
 p7
+```
+
+### Seat Tube Angle/Head Tube Angle vs. Front Center/Wheelbase
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%", out.height = "100%"}
+p8
 
 ```
 

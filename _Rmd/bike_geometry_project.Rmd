@@ -853,7 +853,7 @@ gravel_scores <- function(data){
 
 ```
 
-```{r import-gravel}
+```{r import-gravel, eval=TRUE}
 import_it <- FALSE
 geo_bike_path <- here("rds", "geobike.Rds")
 my_fit_path <- here("rds", "my_fit.Rds")
@@ -1266,7 +1266,7 @@ scatter_fig_new <- function(data = geobike,
                         dot_opacity = 0.3,
                         same_xy_scale = TRUE){ # if units are same on x and y then scales should be preserved
 
-  y_cols <- c(x_col, y_col, "model_size", "restyle", "color", "Size")
+  y_cols <- c(x_col, y_col, g_col, "model_size", "restyle", "color", "Size")
   subdata <- na.omit(data[, .SD, .SDcols = y_cols])
 
   #shared_data <- highlight_key(data, ~model)
@@ -1338,7 +1338,7 @@ scatter_fig_new <- function(data = geobike,
       ),
       text = ~paste("\U2B05", model_size),
       textfont = list(size = 12),
-      name = ~model_size,
+      name = ~get(g_col),
       textposition = "right",
       visible = "legendonly",
       showlegend = TRUE
