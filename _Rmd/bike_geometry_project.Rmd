@@ -1354,7 +1354,7 @@ scatter_fig_new <- function(data = geobike,
            # title = list(text = paste(y_label, "vs.", x_label),
            #              x = 0.5,
            #              xanchor = "center"),
-#           autosize = F, width = 800, height = 600,
+           autosize = F, width = 6*96, height = 4*96,
            NULL
     )
   
@@ -1365,7 +1365,7 @@ scatter_fig_new <- function(data = geobike,
 
 # plot check boxes and fig
   p <- bscols(
-    widths = c(10, 1), fig, boxes
+    widths = c(8, 2), fig, boxes
   )
   return(p)
 }
