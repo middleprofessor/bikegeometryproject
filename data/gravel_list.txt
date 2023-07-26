@@ -110,3 +110,4 @@ Chumba Yaupon Steel Sus 2023	steel	a6:f27	MD
 Enigma Escape XR 2023	titanium	a6:h30	54
 Lynskey GR300 2023	titanium	a6:h29	ML
 Specialized Crux 2023	carbon	a6:h32	56
+Curve GMX+ Steel 2023	steel	a6:h31	XM

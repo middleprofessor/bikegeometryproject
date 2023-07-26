@@ -13,7 +13,7 @@ format:
 :::
 
 ::: {.callout-note}
-Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") cm high rider, according to manufacturer's charts.
+Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") high rider, according to manufacturer's charts.
 :::
 
 
