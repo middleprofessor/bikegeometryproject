@@ -1331,7 +1331,7 @@ scatter_fig_new <- function(data = geobike,
   
   
   # set up check boxes
-  boxes <- filter_checkbox("size", "Size", bike_x, ~Size, inline = FALSE)
+  boxes <- filter_checkbox("size", "Size", bike_x, ~Size, inline = TRUE)
   # boxes$attribs$style <- css(font.size = "90%") # <-change the font size
 
 # plot check boxes and fig
