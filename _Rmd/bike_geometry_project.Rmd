@@ -1354,7 +1354,7 @@ scatter_fig_new <- function(data = geobike,
            # title = list(text = paste(y_label, "vs.", x_label),
            #              x = 0.5,
            #              xanchor = "center"),
-           autosize = F, width = 6*96, height = 4*96,
+           autosize = F, width = 7*96, height = 5*96,
            NULL
     )
   

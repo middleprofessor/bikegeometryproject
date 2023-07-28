@@ -1,0 +1,65 @@
+project:
+  type: website
+  output-dir: docs
+  resources: googlef06d37c17cf410a9.html
+
+website:
+  title: "GravelRrr"
+  description: "Not just another bike geometry comparison tool"
+  site-url: https://bikegeometry.site
+  navbar:
+    background: primary
+    search: true
+    right:
+      - text: "About"
+        file: about.qmd
+    left:
+      - sidebar:plots
+      - sidebar:style
+      - sidebar:stories
+      - sidebar:nbd
+  sidebar:
+    - id: plots
+      title: "Gravel Plots"
+      style: "docked"
+      background: light
+      collapse-level: 1
+      logo: "images/gravelR-200-insta.png"
+      contents: 
+        - qmd/gravel_histo.qmd
+        - qmd/gravel_scatter.qmd
+        - qmd/gravel_ternary.qmd
+    - id: "style"
+      title: "Gravel Style"
+      style: "docked"
+      background: light
+      collapse-level: 1
+      contents:
+        - qmd/what_is_a_gravel_bike.qmd
+        - qmd/gravel_tree.qmd
+        - qmd/gravel_class.qmd
+    - id: "stories"
+      title: "Gravel Stories"
+      style: "docked"
+      background: light
+      collapse-level: 1
+      contents:
+        - qmd/which_gravel_bikes_are_mtb_inspired.qmd
+        - qmd/mtb_90s.qmd
+    - id: "nbd"
+      title: "New Bike Day"
+      style: "docked"
+      background: light
+      collapse-level: 1
+      contents:
+        - qmd/nbd/revoltx.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    page-layout: full
+
+editor: source
+
