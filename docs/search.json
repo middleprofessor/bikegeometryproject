@@ -1,5 +1,12 @@
 [
   {
+    "objectID": "qmd/gravel_scatter_model.html",
+    "href": "qmd/gravel_scatter_model.html",
+    "title": "Gravel 2D",
+    "section": "",
+    "text": "Tip\n\n\n\n\nHover over data for model and frame size identification.\nScroll legend and click on items to identify specific model and frame size combinations.\nClick on Focal checkbox to view the frame size used for the classification.\nClick on popup icon-bar over legend to zoom in/out and pan.\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts.\n\n\nClick here to see a version of this page that highlights single frame sizes within a model\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal"
+  },
+  {
     "objectID": "qmd/gravel_class.html",
     "href": "qmd/gravel_class.html",
     "title": "Gravel Table",
@@ -53,7 +60,7 @@
     "href": "qmd/gravel_scatter.html",
     "title": "Gravel 2D",
     "section": "",
-    "text": "Tip\n\n\n\n\nHover over data for model and frame size identification.\nScroll legend and click on items to identify specific model and frame size combinations.\nClick on Focal checkbox to view the frame size used for the classification.\nClick on popup icon-bar over legend to zoom in/out and pan.\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts.\n\n\n\n\n\n\n\n\nStack vs. Reach\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal\n\n\n\n\n\n\n\n\n\n\n\n\nChainstay Length vs. Effective top tube length\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal\n\n\n\n\n\n\n\n\n\n\n\n\nRear Center vs. Front Center\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal\n\n\n\n\n\n\n\n\n\n\n\n\nHead Tube Angle vs. Seat Tube Angle\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal\n\n\n\n\n\n\n\n\n\n\n\n\nTop Tube Angle vs. Seat Tube Angle\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal\n\n\n\n\n\n\n\n\n\n\n\n\nTrail vs. Head Tube Angle\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal\n\n\n\n\n\n\n\n\n\n\n\n\nStack/Reach vs. Front Center/Wheelbase\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal\n\n\n\n\n\n\n\n\n\n\n\n\nSeat Tube Angle/Head Tube Angle vs. Front Center/Wheelbase\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal"
+    "text": "Tip\n\n\n\n\nHover over data for model and frame size identification.\nScroll legend and click on items to identify specific model and frame size combinations.\nClick on Focal checkbox to view only the frame size used for the classification.\nClick on popup icon-bar over legend to zoom in/out and pan.\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts.\n\n\nClick here to see a version of this page that simulataneously highlights all frame sizes within a model\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal"
   },
   {
     "objectID": "qmd/gravel_histo.html",

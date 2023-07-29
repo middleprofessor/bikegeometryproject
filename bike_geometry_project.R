@@ -1342,6 +1342,115 @@ scatter_fig_new <- function(data = geobike,
 }
 
 
+## ----scatter-fig-global, echo=FALSE-----------------------------------------------------
+scatter_fig_global <- function(data = geobike,
+                        x_col = "reach", y_col = "stack", g_col = "model_size",
+                        x_label = "Reach", y_label = "Stack",
+                        x_info = NULL, y_info = NULL,
+                        digits = 0,
+                        dot_palette = pal_okabe_ito_7,
+                        dot_opacity = 0.3,
+                        same_xy_scale = TRUE){ # if units are same on x and y then scales should be preserved
+  
+  # this version links all plots so that size can be filtered globally
+
+  y_cols <- c(x_col, y_col, g_col, "model_size", "restyle", "color", "Size")
+  #subdata <- na.omit(data$origData()[, .SD, .SDcols = y_cols])
+
+  #shared_data <- highlight_key(data, ~model)
+  # bike_x <- highlight_key(subdata)
+  
+  if(is.null(x_info)){x_info <- x_label}
+  if(is.null(y_info)){y_info <- y_label}
+  restyle_legend <- ifelse(g_col == "restyle",
+                           TRUE,
+                           FALSE)
+  n_colors <- length(levels(data$origData()[, restyle]))
+  
+  # set range of axes
+  min_data_x <- min(data$origData()[, get(x_col)], na.rm = TRUE)
+  min_data_y <- min(data$origData()[, get(y_col)], na.rm = TRUE)
+  max_data_x <- max(data$origData()[, get(x_col)], na.rm = TRUE)
+  max_data_y <- max(data$origData()[, get(y_col)], na.rm = TRUE)
+  range_x <- max_data_x - min_data_x
+  range_y <- max_data_y - min_data_y
+  range_axis_x <- range_x * 1.1
+  range_axis_y <- range_y * 1.1
+  if(same_xy_scale == TRUE){
+    if(range_x > range_y){
+      range_axis_y <- range_axis_y * range_x/range_y
+    }else{
+      range_axis_x <- range_axis_x * range_y/range_x
+    }}
+  min_axis_x <- (min_data_x + max_data_x)/2 - 0.5*range_axis_x
+  max_axis_x <- (min_data_x + max_data_x)/2 + 0.5*range_axis_x
+  min_axis_y <- (min_data_y + max_data_y)/2 - 0.5*range_axis_y
+  max_axis_y <- (min_data_y + max_data_y)/2 + 0.5*range_axis_y
+  
+  fig <- data %>% plot_ly(width = 6.5*96, height = 4.5*96)
+  fig <- fig %>%
+    # add dots colored by restyle
+    add_trace(
+      type = "scatter",
+      mode = "markers",
+      x = ~get(x_col),
+      y = ~get(y_col),
+      color = ~restyle,
+      colors = dot_palette[1:n_colors],
+      opacity = dot_opacity,
+      size = 10,
+      showlegend = FALSE,
+      marker = list( 
+        size = 10,
+        line = list('width' = 2)
+      ),
+      hoverinfo = "text",
+      text = ~paste(model_size,
+                    "<br>Cat:", restyle,
+                    paste0("<br>", x_info, ":"), round(get(x_col), digits),
+                    paste0("<br>", y_info, ":"), round(get(y_col), digits))
+    )
+  # superimpose dots colored by column "color" but using model_size as the legend item
+  fig <- fig  %>%
+    add_trace(
+      type = "scatter",
+      mode = "markers",
+      x = ~get(x_col),
+      y = ~get(y_col),
+      marker = list( 
+        size = 14,
+        opacity = 1,
+ #       color = ~restyle,
+        color = ~color # color is a column in the data with the hex code for the color
+ #       colors = dot_palette[1:n_colors]
+      ),
+      text = ~paste("\U2B05", model_size),
+      textfont = list(size = 12),
+      name = ~get(g_col),
+      textposition = "right",
+      visible = "legendonly",
+      showlegend = TRUE
+    ) %>% 
+    layout(xaxis = list(title = x_label,
+                        tickfont = list(size = 12), titlefont = list(size = 12),
+                        range = c(min_axis_x, max_axis_x)),
+           yaxis = list(title = y_label,
+                        tickfont = list(size = 12), titlefont = list(size = 12),
+                        range = c(min_axis_y, max_axis_y)),
+           legend = list(font = list(size = 10),
+                         itemsizing = "constant"),
+           title = list(text = paste(y_label, "vs.", x_label),
+                        x = 0.5,
+                        xanchor = "center"),
+           # autosize = F, width = 7*96, height = 5*96,
+           NULL
+    )
+  
+  
+  return(fig)
+}
+
+
 ## ----output-as-R-file-------------------------------------------------------------------
 # highlight and run to put update into R folder
 write_it_as_R <- FALSE

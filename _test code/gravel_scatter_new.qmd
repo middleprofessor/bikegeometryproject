@@ -7,11 +7,203 @@ source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 ```
 
-```{r}
-p1 <- scatter_fig_new(data = geobike,
-                  x_col = "top_tube_effective_length", y_col = "seat_tube_effective_length",
-                  x_label = "TT (mm)", y_label = "ST (mm)",
-                  g_col = "model")
-p1
+```{r echo=FALSE}
+scatter_fig_test <- function(data = geobike,
+                        x_col = "reach", y_col = "stack", g_col = "model_size",
+                        x_label = "Reach", y_label = "Stack",
+                        x_info = NULL, y_info = NULL,
+                        digits = 0,
+                        dot_palette = pal_okabe_ito_7,
+                        dot_opacity = 0.3,
+                        same_xy_scale = TRUE){ # if units are same on x and y then scales should be preserved
+  
+  # this version links all plots so that size can be filtered globally
+
+  y_cols <- c(x_col, y_col, g_col, "model_size", "restyle", "color", "Size")
+  #subdata <- na.omit(data$origData()[, .SD, .SDcols = y_cols])
+
+  #shared_data <- highlight_key(data, ~model)
+  # bike_x <- highlight_key(subdata)
+  
+  if(is.null(x_info)){x_info <- x_label}
+  if(is.null(y_info)){y_info <- y_label}
+  restyle_legend <- ifelse(g_col == "restyle",
+                           TRUE,
+                           FALSE)
+  n_colors <- length(levels(data$origData()[, restyle]))
+  
+  # set range of axes
+  min_data_x <- min(data$origData()[, get(x_col)], na.rm = TRUE)
+  min_data_y <- min(data$origData()[, get(y_col)], na.rm = TRUE)
+  max_data_x <- max(data$origData()[, get(x_col)], na.rm = TRUE)
+  max_data_y <- max(data$origData()[, get(y_col)], na.rm = TRUE)
+  range_x <- max_data_x - min_data_x
+  range_y <- max_data_y - min_data_y
+  range_axis_x <- range_x * 1.1
+  range_axis_y <- range_y * 1.1
+  if(same_xy_scale == TRUE){
+    if(range_x > range_y){
+      range_axis_y <- range_axis_y * range_x/range_y
+    }else{
+      range_axis_x <- range_axis_x * range_y/range_x
+    }}
+  min_axis_x <- (min_data_x + max_data_x)/2 - 0.5*range_axis_x
+  max_axis_x <- (min_data_x + max_data_x)/2 + 0.5*range_axis_x
+  min_axis_y <- (min_data_y + max_data_y)/2 - 0.5*range_axis_y
+  max_axis_y <- (min_data_y + max_data_y)/2 + 0.5*range_axis_y
+  
+  fig <- data %>% plot_ly(width = 6.5*96, height = 4.5*96)
+  fig <- fig %>%
+    # add dots colored by restyle
+    add_trace(
+      type = "scatter",
+      mode = "markers",
+      x = ~get(x_col),
+      y = ~get(y_col),
+      color = ~restyle,
+      colors = dot_palette[1:n_colors],
+      opacity = dot_opacity,
+      size = 10,
+      showlegend = FALSE,
+      marker = list( 
+        size = 10,
+        line = list('width' = 2)
+      ),
+      hoverinfo = "text",
+      text = ~paste(model_size,
+                    "<br>Cat:", restyle,
+                    paste0("<br>", x_info, ":"), round(get(x_col), digits),
+                    paste0("<br>", y_info, ":"), round(get(y_col), digits))
+    )
+  # superimpose dots colored by column "color" but using model_size as the legend item
+  fig <- fig  %>%
+    add_trace(
+      type = "scatter",
+      mode = "markers",
+      x = ~get(x_col),
+      y = ~get(y_col),
+      marker = list( 
+        size = 14,
+        opacity = 1,
+ #       color = ~restyle,
+        color = ~color # color is a column in the data with the hex code for the color
+ #       colors = dot_palette[1:n_colors]
+      ),
+      text = ~paste("\U2B05", model_size),
+      textfont = list(size = 12),
+      name = ~get(g_col),
+      textposition = "right",
+      visible = "legendonly",
+      showlegend = TRUE
+    ) %>% 
+    layout(xaxis = list(title = x_label,
+                        tickfont = list(size = 12), titlefont = list(size = 12),
+                        range = c(min_axis_x, max_axis_x)),
+           yaxis = list(title = y_label,
+                        tickfont = list(size = 12), titlefont = list(size = 12),
+                        range = c(min_axis_y, max_axis_y)),
+           legend = list(font = list(size = 10),
+                         itemsizing = "constant"),
+           title = list(text = paste(y_label, "vs.", x_label),
+                        x = 0.5,
+                        xanchor = "center"),
+           # autosize = F, width = 7*96, height = 5*96,
+           NULL
+    )
+  
+  
+  return(fig)
+}
 ```
+
+```{r echo=FALSE}
+
+geobike_shared <- SharedData$new(geobike)
+
+p1 <- scatter_fig_test(data = geobike_shared,
+                  x_col = "reach", y_col = "stack",
+                  x_label = "Reach (mm)", y_label = "Stack (mm)",
+                  g_col = "model_size")
+p2 <- scatter_fig_test(data = geobike_shared,
+                  x_col = "top_tube_effective_length",
+                  y_col = "chainstay_length",
+                  x_label = "TT Effective Length (mm)",
+                  y_label = "Chainstay Length (mm)",
+                  x_info = "ETT", y_info = "CS",
+                  g_col = "model_size")
+p3 <- scatter_fig_test(data = geobike_shared,
+                  x_col = "front_center", y_col = "rear_center",
+                  x_label = "Front Center (mm)", y_label = "Rear Center (mm)",
+                  x_info = "FC", y_info = "RC",
+                  g_col = "model_size")
+p4 <- scatter_fig_test(data = geobike_shared,
+                  x_col = "seat_tube_angle", y_col = "head_tube_angle",
+                  x_label = "Seat Tube Angle (°)", y_label = "Head Tube Angle (°)",
+                  x_info = "STA", y_info = "HTA", digits = 1,
+                  g_col = "model_size")
+p5 <- scatter_fig_test(data = geobike_shared,
+                  x_col = "seat_tube_length", y_col = "top_tube_angle",
+                  x_label = "Seat Tube Length (mm)", y_label = "Top Tube Angle (°)",
+                  x_info = "STL", y_info = "TTA", digits = 1,
+                  same_xy_scale = FALSE,
+                  g_col = "model_size")
+p6 <- scatter_fig_test(data = geobike_shared,
+                  x_col = "head_tube_angle", y_col = "trail",
+                  x_label = "Head Tube Angle (°)", y_label = "Trail (mm)",
+                  x_info = "HTA", y_info = "Trail", digits = 1,
+                  same_xy_scale = FALSE,
+                  g_col = "model_size")
+p7 <- scatter_fig_test(data = geobike_shared,
+                  x_col = "front_wheelbase", y_col = "stack_reach",
+                  x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
+                  x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
+                  same_xy_scale = FALSE,
+                  g_col = "model_size")
+p8 <- scatter_fig_test(data = geobike_shared,
+                  x_col = "front_wheelbase", y_col = "sta_hta",
+                  x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
+                  x_info = "FC/WB", y_info = "STA/HTA", digits = 2,
+                  same_xy_scale = FALSE,
+                  g_col = "model_size")
+
+
+# plot check boxes and fig
+  # p <- bscols(
+  #   widths = c(12), boxes
+  # )
+  # 
+  # 
+
+ #p
+```
+
+```{r echo=FALSE}
+# make a blank plot
+gg <- ggplot(geobike,                               # theme_void scatterplot
+       aes(x = reach,
+           y = stack)) +
+  geom_point(color = "white") +
+  theme_void()
+pp <- ggplotly(gg, width = 6.5*96, height = 1*96)
+
+```
+
+```{r echo = FALSE}
+
+  # set up check boxes
+  boxes <- filter_checkbox("size", "Size", geobike_shared, ~Size, inline = TRUE)
+  # boxes$attribs$style <- css(font.size = "90%") # <-change the font size
+
+boxes
+p1
+p2
+p3
+p4
+p5
+p6
+p7
+p8
+
+```
+
 
