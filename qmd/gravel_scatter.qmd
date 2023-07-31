@@ -49,45 +49,7 @@ plot_grid(gg_legend)
 
 ```
 
-```{r, warning=FALSE, message=FALSE, eval=FALSE, echo=FALSE, out.width = "90%", out.height = "90%"}
-
-p1 <- scatter_fig_new(data = geobike,
-                  x_col = "reach", y_col = "stack",
-                  x_label = "Reach (mm)", y_label = "Stack (mm)")
-p2 <- scatter_fig_new(data = geobike,
-                  x_col = "top_tube_effective_length",
-                  y_col = "chainstay_length",
-                  x_label = "TT Effective Length (mm)",
-                  y_label = "Chainstay Length (mm)",
-                  x_info = "ETT", y_info = "CS")
-p3 <- scatter_fig_new(data = geobike,
-                  x_col = "front_center", y_col = "rear_center",
-                  x_label = "Front Center (mm)", y_label = "Rear Center (mm)",
-                  x_info = "FC", y_info = "RC")
-p4 <- scatter_fig_new(data = geobike,
-                  x_col = "seat_tube_angle", y_col = "head_tube_angle",
-                  x_label = "Seat Tube Angle (°)", y_label = "Head Tube Angle (°)",
-                  x_info = "STA", y_info = "HTA", digits = 1)
-p5 <- scatter_fig_new(data = geobike,
-                  x_col = "seat_tube_length", y_col = "top_tube_angle",
-                  x_label = "Seat Tube Length (mm)", y_label = "Top Tube Angle (°)",
-                  x_info = "STL", y_info = "TTA", digits = 1,
-                  same_xy_scale = FALSE)
-p6 <- scatter_fig_new(data = geobike,
-                  x_col = "head_tube_angle", y_col = "trail",
-                  x_label = "Head Tube Angle (°)", y_label = "Trail (mm)",
-                  x_info = "HTA", y_info = "Trail", digits = 1,
-                  same_xy_scale = FALSE)
-p7 <- scatter_fig_new(data = geobike,
-                  x_col = "front_wheelbase", y_col = "stack_reach",
-                  x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
-                  x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
-                  same_xy_scale = FALSE)
-p8 <- scatter_fig_new(data = geobike,
-                  x_col = "front_wheelbase", y_col = "sta_hta",
-                  x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
-                  x_info = "FC/WB", y_info = "STA/HTA", digits = 2,
-                  same_xy_scale = FALSE)
+```{r plot-headers, warning=FALSE, message=FALSE, eval=FALSE, echo=FALSE, out.width = "90%", out.height = "90%"}
 
 ### Stack vs. Reach
 ### Chainstay Length vs. Effective top tube length
@@ -100,7 +62,7 @@ p8 <- scatter_fig_new(data = geobike,
 
 ```
 
-```{r echo=FALSE}
+```{r make-plots, echo=FALSE}
 
 geobike_shared <- SharedData$new(geobike)
 
@@ -189,7 +151,7 @@ pp <- ggplotly(gg, width = 6.5*96, height = 1*96)
 ```
 
 
-```{r, echo = FALSE, out.height="100%", out.width="100%"}
+```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
 # boxes
 # p1
 p2

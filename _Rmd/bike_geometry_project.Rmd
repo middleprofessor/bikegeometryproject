@@ -854,7 +854,7 @@ gravel_scores <- function(data){
 ```
 
 ```{r import-gravel, eval=TRUE}
-import_it <- FALSE
+import_it <- TRUE
 geo_bike_path <- here("rds", "geobike.Rds")
 my_fit_path <- here("rds", "my_fit.Rds")
 if(import_it != TRUE){
@@ -1440,13 +1440,13 @@ scatter_fig_global <- function(data = geobike,
                     paste0("<br>", y_info, ":"), round(get(y_col), digits))
     )
   # superimpose dots colored by column "color" but using model_size as the legend item
-  fig <- fig  %>%
+   fig <- fig  %>%
     add_trace(
       type = "scatter",
       mode = "markers",
       x = ~get(x_col),
       y = ~get(y_col),
-      marker = list( 
+      marker = list(
         size = 14,
         opacity = 1,
  #       color = ~restyle,
@@ -1459,7 +1459,7 @@ scatter_fig_global <- function(data = geobike,
       textposition = "right",
       visible = "legendonly",
       showlegend = TRUE
-    ) %>% 
+    ) %>%
     layout(xaxis = list(title = x_label,
                         tickfont = list(size = 12), titlefont = list(size = 12),
                         range = c(min_axis_x, max_axis_x)),
