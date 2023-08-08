@@ -854,7 +854,7 @@ gravel_scores <- function(data){
 ```
 
 ```{r import-gravel, eval=TRUE}
-import_it <- TRUE
+import_it <- FALSE
 geo_bike_path <- here("rds", "geobike.Rds")
 my_fit_path <- here("rds", "my_fit.Rds")
 if(import_it != TRUE){
