@@ -115,3 +115,4 @@ Panorama Katahdin 2023	carbon	a6:e27	MEDIUM
 Nukeproof Digger 2022	aluminum	a6:f34	MEDIUM
 Santa Cruz Stigmata 2022	carbon	a1:g23	56
 Santa Cruz Stigmata CC 2023	carbon	a6:g33	L
+Salsa Journeyer 700c 2023	aluminum	a6:h29	55cm
