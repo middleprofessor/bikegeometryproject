@@ -1,66 +1,10 @@
 [
   {
-    "objectID": "qmd/gravel_scatter_corrupt.html",
-    "href": "qmd/gravel_scatter_corrupt.html",
-    "title": "Gravel 2D",
+    "objectID": "qmd/wilde_rambler.html",
+    "href": "qmd/wilde_rambler.html",
+    "title": "Wilde Rambler",
     "section": "",
-    "text": "Tip\n\n\n\n\nHover over data for model and frame size identification.\nScroll legend and click on items to identify specific model and frame size combinations.\nClick on Focal checkbox to view only the frame size used for the classification.\nClick on popup icon-bar over legend to zoom in/out and pan.\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts.\n\n\nClick here to see a version of this page that simulataneously highlights all frame sizes within a model\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal"
-  },
-  {
-    "objectID": "qmd/gravel_scatter_model.html",
-    "href": "qmd/gravel_scatter_model.html",
-    "title": "Gravel 2D",
-    "section": "",
-    "text": "Tip\n\n\n\n\nHover over data for model and frame size identification.\nScroll legend and click on items to identify specific model and frame size combinations.\nClick on Focal checkbox to view the frame size used for the classification.\nClick on popup icon-bar over legend to zoom in/out and pan.\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts.\n\n\nClick here to see a version of this page that highlights single frame sizes within a model\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal"
-  },
-  {
-    "objectID": "qmd/gravel_class.html",
-    "href": "qmd/gravel_class.html",
-    "title": "Gravel Table",
-    "section": "",
-    "text": "Classification of bikes is based on a frame size that fits a 176 cm (5' 9.3\") cm high rider, according to manufacturer's charts.\n\n\nRacy\nRelaxed\nRowdy\n\n\n\n\nAlchemy Lycos\nBlackMtnCy La Cabra\nAmigo Bug Out\n\n\nAlchemy Rogue\nBombtrack Beyond 2\nBMC URS AL\n\n\nAll-City Cosmic Stallion\nChiru Kegeti\nBMC URS AL SUS\n\n\nAll-City Gorilla Monsoon\nCinelli Hobootleg Geo\nBMC URS One\n\n\nAll-City Space Horse\nCotic Cascade\nBombtrack Beyond+ Adv\n\n\nArgonaut GR3\nGenesis Vagabond\nBreezer Radar X Pro\n\n\nBearclaw Beaux Jaxon\nKona Sutra ULTD\nChumba Yaupon\n\n\nBlackMtnCy Monstercross V5\nLight Blue Darwin\nChumba Yaupon Steel Sus\n\n\nBlackheart All Road TI\nMason InSearchOf\nCurve GMX+ Steel\n\n\nBombtrack Hook\nMoots Routt ESC\nEvil Chamois Hagar GRX\n\n\nCannondale SuperSix Evo SE\nPanorama Taiga EXP\nFezzari Shafer\n\n\nCannondale Topstone Lefty\nReeb Sams Pants\nFiftyone Assassin long-low\n\n\nCanyon Grail 7 1by\nRitchey Outback frameset\nFiftyone Assassin short-hi\n\n\nCanyon Grizl 7 1by\nSalsa Cutthroat\nFustle Causway GR1\n\n\nCervelo Aspero\nSalsa Fargo front dropout\nHudski Doggler Gravel\n\n\nChumba Terlingua SL Tit\nSalsa Fargo rear dropout\nMarin DSX 2\n\n\nChumba Terlingua Steel fdo\nSalsa Journeyer 700c\nNordest Kutxo\n\n\nCommencal 365\nSalsa Vaya\nNukeproof Digger\n\n\nDevinci Hatchet\nTout Terrain Scrambler 28\nOtso Fenrir\n\n\nEnigma Escape XR\nTumbleweed Stargazer\nPanorama Katahdin\n\n\nEnigma Explor Flat Bar\n\nRondo MYLC CF Hi\n\n\nEnve Mog\n\nRondo MYLC CF Lo\n\n\nFocus Atlas 8.9\n\nSanta Cruz Stigmata CC\n\n\nGiant Revolt X pro 1 long\n\nSonder Camino AL\n\n\nGiant Revolt X pro 1 short\n\nSpecialized Diverge Evo\n\n\nGiant Revolt pro long\n\nSurly Ghost Grappler\n\n\nGiant Revolt pro short\n\nWhyte Friston Gravel\n\n\nIbis Hakka MX\n\nYT Szepter\n\n\nKnolly Cache Steel\n\n\n\n\nLauf Siegla\n\n\n\n\nLiz Devote Advance\n\n\n\n\nLynskey GR300\n\n\n\n\nMerida Silex\n\n\n\n\nMosaic GT-1X\n\n\n\n\nNiner RLT 9 RDO\n\n\n\n\nNo22 Drifter X\n\n\n\n\nNoble GX 5\n\n\n\n\nOPEN U.P.\n\n\n\n\nObed Boundary\n\n\n\n\nOpen WI.DE\n\n\n\n\nOrbea Terra H\n\n\n\n\nOrbea Terra M\n\n\n\n\nOtso Waheela C front\n\n\n\n\nOtso Waheela C rear\n\n\n\n\nOtso Warakin Stainless\n\n\n\n\nPinarello Grevil F\n\n\n\n\nRevel Rover\n\n\n\n\nRibble Gravel SL\n\n\n\n\nRidley Kanzo Adventure New\n\n\n\n\nRodeo TrailDonkey 4.0\n\n\n\n\nRose Backroad XPLR\n\n\n\n\nSalsa Warbird\n\n\n\n\nSanta Cruz Stigmata\n\n\n\n\nScott Addict Gravel\n\n\n\n\nShand Stooshie\n\n\n\n\nSolace OM-3 Short\n\n\n\n\nSoma Wolverine\n\n\n\n\nSpecialized Crux\n\n\n\n\nSpecialized Diverge\n\n\n\n\nSpecialized Diverge STR\n\n\n\n\nSquid Gravtron\n\n\n\n\nThesis OB1\n\n\n\n\nTrek Checkpoint SL5\n\n\n\n\nVentum GS1\n\n\n\n\nWhy R+ V4\n\n\n\n\nWilde Earth Ship Steel\n\n\n\n\nWilde Rambler SL\n\n\n\n\nWilier Jena\n\n\n\n\nWilier Rave SLR"
-  },
-  {
-    "objectID": "qmd/which_gravel_bikes_are_mtb_inspired.html",
-    "href": "qmd/which_gravel_bikes_are_mtb_inspired.html",
-    "title": "Which gravel bikes have mountain bike inspired geometry?",
-    "section": "",
-    "text": "Note\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts."
-  },
-  {
-    "objectID": "qmd/what_is_a_gravel_bike.html",
-    "href": "qmd/what_is_a_gravel_bike.html",
-    "title": "What is Gravel Style?",
-    "section": "",
-    "text": "It’s common to read from company websites or from bike influencers on YouTube that gravel bikes come in two flavors: race and off-road. 2D scatter plots suggest three classes:\n\nRacy. Effectively, these have cyclocross bike geometry\nRelaxed. Compared to Racy: More upright, longer rearends, and longer trail – this is the direction of endurance road bikes compared to race road bikes.\nRowdy. Compared to Racy: Longer, slacker front ends, and steeper seat tubes – this is the direction of XC mountain bikes compared to road bikes.\n\n\n\n\n\n\n\nNote\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts."
-  },
-  {
-    "objectID": "qmd/gravel_tree.html",
-    "href": "qmd/gravel_tree.html",
-    "title": "Gravel Tree",
-    "section": "",
-    "text": "Note\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts."
-  },
-  {
-    "objectID": "qmd/mtb_90s.html",
-    "href": "qmd/mtb_90s.html",
-    "title": "Is a gravel bike a 1990s mountain bike?",
-    "section": "",
-    "text": "Note\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) cm high rider, according to manufacturer’s charts."
-  },
-  {
-    "objectID": "qmd/gravel_ternary.html",
-    "href": "qmd/gravel_ternary.html",
-    "title": "Gravel Ternary",
-    "section": "",
-    "text": "Tip\n\n\n\n\nHover over data for model and frame size identification.\nScroll legend and click on items to identify specific model in the plot.\nClick on popup icon-bar over legend to zoom in/out and pan.\n\n\n\n\n\n\n\n\n\nNote\n\n\n\n\nThe ternary scores are the projections of the centered, scaled data onto the style (Racy, Relaxed, Rowdy) axes.\nEach style axes was constructed as the multivariate axis from the centroid to the style mean of the centered, scaled data.\nThe input data is the ML subset of bikes that fit a 176 cm rider"
-  },
-  {
-    "objectID": "qmd/nbd/revoltx.html",
-    "href": "qmd/nbd/revoltx.html",
-    "title": "Giant Revolt X",
-    "section": "",
-    "text": "Note\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts."
+    "text": "“So in my lineage, as I progressed through the industry, we had the Space Horse, then we had the Cosmic Stallion, and then I created the Earth ship, which was an iter iteration of those works, an evolution of those works. And now we have the Rambler. And so when I, things I like in gravel bikes. I believe that an endurance bike comfortable is fast.”\n– Jeff Frane, Gravel Ride Podcast"
   },
   {
     "objectID": "qmd/gravel_scatter.html",
@@ -70,18 +14,74 @@
     "text": "Tip\n\n\n\n\nHover over data for model and frame size identification.\nScroll legend and click on items to identify specific model and frame size combinations.\nClick on Focal checkbox to view only the frame size used for the classification.\nClick on popup icon-bar over legend to zoom in/out and pan.\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts.\n\n\nClick here to see a version of this page that simulataneously highlights all frame sizes within a model\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal"
   },
   {
+    "objectID": "qmd/gravel_ternary.html",
+    "href": "qmd/gravel_ternary.html",
+    "title": "Gravel Ternary",
+    "section": "",
+    "text": "Tip\n\n\n\n\nHover over data for model and frame size identification.\nScroll legend and click on items to identify specific model in the plot.\nClick on popup icon-bar over legend to zoom in/out and pan.\n\n\n\n\n\n\n\n\n\nNote\n\n\n\n\nThe ternary scores are the projections of the centered, scaled data onto the style (Racy, Relaxed, Rowdy) axes.\nEach style axes was constructed as the multivariate axis from the centroid to the style mean of the centered, scaled data.\nThe input data is the ML subset of bikes that fit a 176 cm rider"
+  },
+  {
+    "objectID": "qmd/gravel_tree.html",
+    "href": "qmd/gravel_tree.html",
+    "title": "Gravel Tree",
+    "section": "",
+    "text": "Note\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts."
+  },
+  {
+    "objectID": "qmd/which_gravel_bikes_are_mtb_inspired.html",
+    "href": "qmd/which_gravel_bikes_are_mtb_inspired.html",
+    "title": "Which gravel bikes have mountain bike inspired geometry?",
+    "section": "",
+    "text": "Note\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts."
+  },
+  {
+    "objectID": "qmd/gravel_scatter_model.html",
+    "href": "qmd/gravel_scatter_model.html",
+    "title": "Gravel 2D",
+    "section": "",
+    "text": "Tip\n\n\n\n\nHover over data for model and frame size identification.\nScroll legend and click on items to identify specific model and frame size combinations.\nClick on Focal checkbox to view the frame size used for the classification.\nClick on popup icon-bar over legend to zoom in/out and pan.\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts.\n\n\nClick here to see a version of this page that highlights single frame sizes within a model\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal"
+  },
+  {
+    "objectID": "qmd/gravel_scatter_corrupt.html",
+    "href": "qmd/gravel_scatter_corrupt.html",
+    "title": "Gravel 2D",
+    "section": "",
+    "text": "Tip\n\n\n\n\nHover over data for model and frame size identification.\nScroll legend and click on items to identify specific model and frame size combinations.\nClick on Focal checkbox to view only the frame size used for the classification.\nClick on popup icon-bar over legend to zoom in/out and pan.\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts.\n\n\nClick here to see a version of this page that simulataneously highlights all frame sizes within a model\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSize\n\n\n\n\nFocal\n\n\n\n\n\nNon-focal"
+  },
+  {
+    "objectID": "qmd/gravel_class.html",
+    "href": "qmd/gravel_class.html",
+    "title": "Gravel Table",
+    "section": "",
+    "text": "Classification of bikes is based on a frame size that fits a 176 cm (5' 9.3\") cm high rider, according to manufacturer's charts.\n\n\nRacy\nRelaxed\nRowdy\n\n\n\n\nAlchemy Lycos\nBlackMtnCy La Cabra\nAmigo Bug Out\n\n\nAlchemy Rogue\nBombtrack Beyond 2\nBMC URS AL\n\n\nAll-City Cosmic Stallion\nChiru Kegeti\nBMC URS AL SUS\n\n\nAll-City Gorilla Monsoon\nCinelli Hobootleg Geo\nBMC URS One\n\n\nAll-City Space Horse\nCotic Cascade\nBombtrack Beyond+ Adv\n\n\nArgonaut GR3\nGenesis Vagabond\nBreezer Radar X Pro\n\n\nBearclaw Beaux Jaxon\nKona Sutra ULTD\nChumba Yaupon\n\n\nBlackMtnCy Monstercross V5\nLight Blue Darwin\nChumba Yaupon Steel Sus\n\n\nBlackheart All Road TI\nMason InSearchOf\nCurve GMX+ Steel\n\n\nBombtrack Hook\nMoots Routt ESC\nEvil Chamois Hagar GRX\n\n\nCannondale SuperSix Evo SE\nPanorama Taiga EXP\nFezzari Shafer\n\n\nCannondale Topstone Lefty\nReeb Sams Pants\nFiftyone Assassin long-low\n\n\nCanyon Grail 7 1by\nRitchey Outback frameset\nFiftyone Assassin short-hi\n\n\nCanyon Grizl 7 1by\nSalsa Cutthroat\nFustle Causway GR1\n\n\nCervelo Aspero\nSalsa Fargo front dropout\nHudski Doggler Gravel\n\n\nChumba Terlingua SL Tit\nSalsa Fargo rear dropout\nMarin DSX 2\n\n\nChumba Terlingua Steel fdo\nSalsa Journeyer 700c\nNordest Kutxo\n\n\nCommencal 365\nSalsa Vaya\nNukeproof Digger\n\n\nDevinci Hatchet\nTout Terrain Scrambler 28\nOtso Fenrir\n\n\nEnigma Escape XR\nTumbleweed Stargazer\nPanorama Katahdin\n\n\nEnigma Explor Flat Bar\n\nRondo MYLC CF Hi\n\n\nEnve Mog\n\nRondo MYLC CF Lo\n\n\nFocus Atlas 8.9\n\nSanta Cruz Stigmata CC\n\n\nGiant Revolt X pro 1 long\n\nSonder Camino AL\n\n\nGiant Revolt X pro 1 short\n\nSpecialized Diverge Evo\n\n\nGiant Revolt pro long\n\nSurly Ghost Grappler\n\n\nGiant Revolt pro short\n\nWhyte Friston Gravel\n\n\nIbis Hakka MX\n\nYT Szepter\n\n\nKnolly Cache Steel\n\n\n\n\nLauf Siegla\n\n\n\n\nLiz Devote Advance\n\n\n\n\nLynskey GR300\n\n\n\n\nMerida Silex\n\n\n\n\nMosaic GT-1X\n\n\n\n\nNiner RLT 9 RDO\n\n\n\n\nNo22 Drifter X\n\n\n\n\nNoble GX 5\n\n\n\n\nOPEN U.P.\n\n\n\n\nObed Boundary\n\n\n\n\nOpen WI.DE\n\n\n\n\nOrbea Terra H\n\n\n\n\nOrbea Terra M\n\n\n\n\nOtso Waheela C front\n\n\n\n\nOtso Waheela C rear\n\n\n\n\nOtso Warakin Stainless\n\n\n\n\nPinarello Grevil F\n\n\n\n\nRevel Rover\n\n\n\n\nRibble Gravel SL\n\n\n\n\nRidley Kanzo Adventure New\n\n\n\n\nRodeo TrailDonkey 4.0\n\n\n\n\nRose Backroad XPLR\n\n\n\n\nSalsa Warbird\n\n\n\n\nSanta Cruz Stigmata\n\n\n\n\nScott Addict Gravel\n\n\n\n\nShand Stooshie\n\n\n\n\nSolace OM-3 Short\n\n\n\n\nSoma Wolverine\n\n\n\n\nSpecialized Crux\n\n\n\n\nSpecialized Diverge\n\n\n\n\nSpecialized Diverge STR\n\n\n\n\nSquid Gravtron\n\n\n\n\nThesis OB1\n\n\n\n\nTrek Checkpoint SL5\n\n\n\n\nVentum GS1\n\n\n\n\nWhy R+ V4\n\n\n\n\nWilde Earth Ship Steel\n\n\n\n\nWilde Rambler SL\n\n\n\n\nWilier Jena\n\n\n\n\nWilier Rave SLR"
+  },
+  {
+    "objectID": "qmd/what_is_a_gravel_bike.html",
+    "href": "qmd/what_is_a_gravel_bike.html",
+    "title": "What is Gravel Style?",
+    "section": "",
+    "text": "It’s common to read from company websites or from bike influencers on YouTube that gravel bikes come in two flavors: race and off-road. 2D scatter plots suggest three classes:\n\nRacy. Effectively, these have cyclocross bike geometry\nRelaxed. Compared to Racy: More upright, longer rearends, and longer trail – this is the direction of endurance road bikes compared to race road bikes.\nRowdy. Compared to Racy: Longer, slacker front ends, and steeper seat tubes – this is the direction of XC mountain bikes compared to road bikes.\n\n\n\n\n\n\n\nNote\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts."
+  },
+  {
+    "objectID": "qmd/mtb_90s.html",
+    "href": "qmd/mtb_90s.html",
+    "title": "Is a gravel bike a 1990s mountain bike?",
+    "section": "",
+    "text": "Note\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) cm high rider, according to manufacturer’s charts."
+  },
+  {
+    "objectID": "qmd/nbd/revoltx.html",
+    "href": "qmd/nbd/revoltx.html",
+    "title": "Giant Revolt X",
+    "section": "",
+    "text": "Note\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts."
+  },
+  {
     "objectID": "qmd/gravel_histo.html",
     "href": "qmd/gravel_histo.html",
     "title": "Gravel 1D",
     "section": "",
     "text": "Note\n\n\n\nClassification of gravel bikes is based on a frame size that fits a 176 cm (5’ 9.3”) high rider, according to manufacturer’s charts."
-  },
-  {
-    "objectID": "qmd/wilde_rambler.html",
-    "href": "qmd/wilde_rambler.html",
-    "title": "Wilde Rambler",
-    "section": "",
-    "text": "“So in my lineage, as I progressed through the industry, we had the Space Horse, then we had the Cosmic Stallion, and then I created the Earth ship, which was an iter iteration of those works, an evolution of those works. And now we have the Rambler. And so when I, things I like in gravel bikes. I believe that an endurance bike comfortable is fast.”\n– Jeff Frane, Gravel Ride Podcast"
   },
   {
     "objectID": "index.html",

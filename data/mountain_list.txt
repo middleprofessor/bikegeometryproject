@@ -2,3 +2,5 @@ model	frame	data_range	my_fit
 Specialized Epic Hardtail 2023	carbon	a1:g28	M
 Trek Procaliber 2023	carbon	a1:g26	ML
 Cannondale Scalpel HT 100 2023	carbon	a5:f29	LG
+Specialized Chisel 2023	aluminum	a6:g32	M
+Factor Lando 2023	carbon	a6:f29	M
