@@ -4,3 +4,4 @@ Trek Procaliber 2023	carbon	a1:g26	ML
 Cannondale Scalpel HT 100 2023	carbon	a5:f29	LG
 Specialized Chisel 2023	aluminum	a6:g32	M
 Factor Lando 2023	carbon	a6:f29	M
+Giant XTC SLR 2023	aluminum	a6:f27	M
