@@ -116,5 +116,5 @@ Nukeproof Digger 2022	aluminum	a6:f34	MEDIUM
 Santa Cruz Stigmata 2022	carbon	a1:g23	56
 Santa Cruz Stigmata CC 2023	carbon	a6:g33	L
 Salsa Journeyer 700c 2023	aluminum	a6:h29	55cm
-Blackheart Gravel AL 2024	aluminum	a6:g29	56
+Blackheart Gravel AL 2024	aluminum	a6:j29	56
 Rodeo Flaanimal 5.0 2024	titanium	a6:h29	56 cm

@@ -1,5 +1,5 @@
 ---
-title: "GravelRrr"
+title: "Gravel Bike Geometry Project"
 subtitle: "Not just another bike geometry comparison tool"
 ---
 
