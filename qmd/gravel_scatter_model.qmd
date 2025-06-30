@@ -51,7 +51,7 @@ plot_grid(gg_legend)
 
 ```
 
-```{r, warning=FALSE, message=FALSE, evale = FALSE, echo=FALSE, out.width = "90%", out.height = "90%"}
+```{r, warning=FALSE, message=FALSE, eval = FALSE, echo=FALSE, out.width = "90%", out.height = "90%"}
 
 p1 <- scatter_fig_new(data = geobike,
                   x_col = "reach", y_col = "stack",

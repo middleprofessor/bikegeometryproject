@@ -513,6 +513,7 @@ read_bike <- function(bike_label = "Breezer Radar X Pro 2022",
   ## trail
   bike[, trail := radius/tan(head_tube_angle*pi/180) - 
          compute_offset_h(bike)]
+  # bike[, trail := (radius * cos(head_tube_angle*pi/180) - fork_offset_rake) / sin(head_tube_angle * pi / 180)]
   ## bb height
   bike[, bb_height := radius - bottom_bracket_drop]
   
@@ -731,12 +732,7 @@ import_bikes_full <- function(style = "gravel",
 ```{r gravel-classifier, echo=FALSE}
 gravel_classifier <- function(
     data,
-    y_cols = c("stack", "reach", "front_center", "rear_center",
-               "head_tube_angle", "seat_tube_angle",
-               "trail",
-               "seat_tube_length",
-#               "top_tube_angle",
-               NULL),
+    y_cols,
     pca = FALSE
 ){
   
@@ -819,35 +815,45 @@ gravel_classifier <- function(
 ```
 
 ```{r gravel-scores, echo = FALSE}
-gravel_scores <- function(data){
-  y_cols <- c("stack", "reach", "front_center", "rear_center", "head_tube_angle", "seat_tube_angle", "trail", "seat_tube_length")
-  
+gravel_scores <- function(data, y_cols){
+
+  gravel_style <- data[, restyle]
+  gravel_style_matrix <- data.table(
+    racy = ifelse(gravel_style == "Racy", 1, 0),
+    relaxed = ifelse(gravel_style == "Relaxed", 1, 0),
+    rowdy = ifelse(gravel_style == "Rowdy", 1, 0)
+  ) |>
+    as.matrix()
+    
+  # are class labels correlated with PCA scores?
   Y <- data.table(
-    restyle = data[, restyle],
-    scale(data[, .SD, .SDcols = y_cols]))
-  
-  E <- Y[, .("stack" = mean(stack),
-             "reach" = mean(reach),
-             "front_center" = mean(front_center),
-             "rear_center" = mean(rear_center),
-             "head_tube_angle" = mean(head_tube_angle),
-             "seat_tube_angle" = mean(seat_tube_angle),
-             "trail" = mean(trail, na.rm = TRUE),
-             "seat_tube_length" = mean(seat_tube_length, na.rm = TRUE)),
-         by = .(restyle)] %>%
-    transpose(make.names = "restyle") %>%
+    scale(data[, .SD, .SDcols = y_cols])) |>
     as.matrix()
-  Y <- Y[, .SD, .SDcols = y_cols] %>%
-    as.matrix()
+  R <- cor(Y)
+  decomp <- eigen(R)
+  E <- decomp$vectors
   scores <- Y %*% E
-  scale_by_range <- function(x){
-    s <- (x - min(x, na.rm = TRUE))/(max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
-    return(s)
-  }
-  scores <- apply(scores, 2, scale_by_range)
-  data[, c(tolower(colnames(E)[1])) := scores[, 1]]
-  data[, c(tolower(colnames(E)[2])) := scores[, 2]]
-  data[, c(tolower(colnames(E)[3])) := scores[, 3]]
+  # cor(gravel_style_matrix, scores[, 1:4]) # not good
+  
+  # style vector
+  E_raw <- cor(gravel_style_matrix, Y) |>
+    t()
+  EtE <- diag(3)
+  diag(EtE) <- 1/sqrt(diag(t(E_raw) %*% E_raw))
+  E <- E_raw %*% EtE
+  # t(E) %*% E # check!
+  scores <- Y %*% E
+  # cor(gravel_style_matrix, scores) # better
+
+  
+  scores_0 <- apply(scores, 2, function(x) x - min(x))
+  scores_1 <- apply(scores_0, 1, function(x) x/sum(x)) |>
+    t()
+  # apply(scores_1, 1, sum) # check!
+
+  data[, racy := scores_1[, 1]]
+  data[, relaxed := scores_1[, 2]]
+  data[, rowdy := scores_1[, 3]]
   return(data)
 }
 
@@ -855,6 +861,27 @@ gravel_scores <- function(data){
 
 ```{r import-gravel, eval=TRUE}
 import_it <- FALSE
+classifier_cols <- c("stack", "reach",
+                     "front_center","rear_center",
+                     "head_tube_angle", "seat_tube_angle",
+                     "fork_offset_rake",
+#                     "bottom_bracket_drop",
+#                     "trail"
+#               "seat_tube_length",
+#               "top_tube_angle",
+               NULL)
+# classifier_cols <- c("stack_reach",
+#                      "front_rear",
+#                      "sta_hta",
+#                      "fork_offset_rake",
+#                     "bottom_bracket_drop",
+#                     "trail"
+#               "seat_tube_length",
+#               "top_tube_angle",
+#               NULL)
+
+  
+equalize_tire_width = TRUE
 geo_bike_path <- here("rds", "geobike.Rds")
 my_fit_path <- here("rds", "my_fit.Rds")
 if(import_it != TRUE){
@@ -866,12 +893,7 @@ if(import_it != TRUE){
   # classify bikes
   geobike_classes <- gravel_classifier(
     geobike,
-    y_cols = c("stack", "reach", "front_center", "rear_center",
-               "head_tube_angle", "seat_tube_angle",
-               "trail",
-               "seat_tube_length",
-#               "top_tube_angle",
-               NULL),
+    y_cols = classifier_cols,
     pca = FALSE
   )
   geobike <- merge(geobike, geobike_classes, by = "model")
@@ -888,12 +910,27 @@ if(import_it != TRUE){
   my_fit <- geobike[my_fit == TRUE]
   
   # gravel scores
-  my_fit <- gravel_scores(my_fit)
+  my_fit <- gravel_scores(my_fit,
+                          classifier_cols)
   
   # save
   saveRDS(geobike, geo_bike_path)
   saveRDS(my_fit, my_fit_path)
 }
+```
+
+# check correlations
+
+```{r}
+
+frontcenter_cols <- c("reach", "head_tube_angle", "fork_offset_rake") #
+frontcenter_y <- my_fit[, .SD, .SDcols = frontcenter_cols] |>
+  scale()
+classifier_y <- my_fit[, .SD, .SDcols = classifier_cols] |>
+  scale() |>
+  data.table()
+classifier_y[, fc_proxy := reach - head_tube_angle + fork_offset_rake]
+cor(classifier_y)
 ```
 
 # figure functions

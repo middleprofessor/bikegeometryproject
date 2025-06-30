@@ -118,3 +118,5 @@ Santa Cruz Stigmata CC 2023	carbon	a6:g33	L
 Salsa Journeyer 700c 2023	aluminum	a6:h29	55cm
 Blackheart Gravel AL 2024	aluminum	a6:j29	56
 Rodeo Flaanimal 5.0 2024	titanium	a6:h29	56 cm
+Sklar SS Ti 2025	titanium	a6:g31	M-L
+Sklar SS Ti Sus 2025	titanium	a6:h31	M-L Invert 30

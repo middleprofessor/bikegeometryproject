@@ -1,0 +1,173 @@
+---
+title: "What makes a relaxed frame relaxed?"
+editor: source
+format:
+  html:
+    toc: false
+---
+::: {.callout-tip}
+1. Hover over data for model and frame size identification.
+2. Scroll legend and click on items to identify specific model and frame size combinations.
+3. Click on **Focal** checkbox to view only the frame size used for the classification.
+4. Click on popup icon-bar over legend to zoom in/out and pan.
+:::
+
+::: {.callout-note}
+Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") high rider, according to manufacturer's charts.
+:::
+
+[Click here to see a version of this page that simulataneously highlights all frame sizes within a model](../qmd/gravel_scatter_model.qmd)
+
+```{r setup-gravel-scatter, echo=FALSE, warning=FALSE, message=FALSE}
+source_path <- here::here("bike_geometry_project.R")
+source(source_path)
+```
+
+```{r legend, echo=FALSE, fig.width= 8, fig.height=0.5}
+# plot_ly(data = geobike, type = "scatter", mode = "markers",
+#         x = ~ reach,
+#         y = ~ stack,
+#         color = ~restyle,
+#         colors = my_palette,
+#         size = 10,
+#         visible = "legendonly"
+# )
+#| fig-height: 1
+gg <- ggplot(data = geobike,
+       aes(x = reach,
+           y = stack,
+           color = restyle)) +
+  geom_point() +
+  scale_color_manual(name = "Classification",
+                     values = pal_okabe_ito_3) +
+  theme_pubr() +
+  theme(legend.position="top") +
+  NULL
+  
+gg_legend <- get_legend(gg)
+plot_grid(gg_legend)
+
+```
+
+```{r plot-headers, warning=FALSE, message=FALSE, eval=FALSE, echo=FALSE, out.width = "90%", out.height = "90%"}
+
+### Stack vs. Reach
+### Chainstay Length vs. Effective top tube length
+### Rear Center vs. Front Center
+### Head Tube Angle vs. Seat Tube Angle
+### Top Tube Angle vs. Seat Tube Angle
+### Trail vs. Head Tube Angle
+### Stack/Reach vs. Front Center/Wheelbase
+### Seat Tube Angle/Head Tube Angle vs. Front Center/Wheelbase
+
+```
+
+```{r make-plots, echo=FALSE}
+
+geobike_shared <- SharedData$new(my_fit)
+
+p1 <- scatter_fig_global(data = geobike_shared,
+                  y_col = "relaxed", x_col = "stack",
+                  y_label = "Relaxed Index", x_label = "Stack (mm)",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p2 <- scatter_fig_global(data = geobike_shared,
+                  y_col = "relaxed", x_col = "reach",
+                  y_label = "Relaxed Index", x_label = "Reach (mm)",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p3 <- scatter_fig_global(data = geobike_shared,
+                  y_col = "relaxed", x_col = "head_tube_angle",
+                  y_label = "Relaxed Index", x_label = "Head Tube Angle (°)",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p4 <- scatter_fig_global(data = geobike_shared,
+                  y_col = "relaxed", x_col = "seat_tube_angle",
+                  y_label = "Relaxed Index", x_label = "Seat Tube Angle (°)",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p5 <- scatter_fig_global(data = geobike_shared,
+                  y_col = "relaxed", x_col = "fork_offset_rake",
+                  y_label = "Relaxed Index", x_label = "Fork Offset (mm)",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p6 <- scatter_fig_global(data = geobike_shared,
+                  y_col = "relaxed", x_col = "chainstay_length",
+                  y_label = "Relaxed Index", x_label = "Chainstay Length (mm)",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p7 <- scatter_fig_global(data = geobike_shared,
+                  y_col = "relaxed", x_col = "front_center",
+                  y_label = "Relaxed Index", x_label = "Front Center (mm)",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p8 <- scatter_fig_global(data = geobike_shared,
+                  y_col = "relaxed", x_col = "stack_reach",
+                  y_label = "Relaxed Index", x_label = "Stack:Reach",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p9 <- scatter_fig_global(data = geobike_shared,
+                  y_col = "relaxed", x_col = "front_rear",
+                  y_label = "Relaxed Index", x_label = "Front Center:Rear Center",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p10 <- scatter_fig_global(data = geobike_shared,
+                  y_col = "relaxed", x_col = "trail",
+                  y_label = "Relaxed Index", x_label = "Trail (mm)",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+
+
+# plot check boxes and fig
+  # p <- bscols(
+  #   widths = c(12), boxes
+  # )
+  # 
+  # 
+
+ #p
+```
+
+```{r echo=FALSE}
+# make a blank plot
+gg <- ggplot(geobike,                               # theme_void scatterplot
+       aes(x = reach,
+           y = stack)) +
+  geom_point(color = "white") +
+  theme_dendro()
+pp <- ggplotly(gg, width = 6.5*96, height = 1*96)
+
+```
+
+```{r, echo = FALSE, out.height="100%", out.width="100%"}
+# set up check boxes
+
+  # gg_legend_ly <- ggplotly(gg_legend, width = 6.5*96, height = 1*96)
+
+  boxes <- filter_checkbox("size", "Size", geobike_shared, ~Size, inline = FALSE)
+  # boxes$attribs$style <- css(font.size = "90%") # <-change the font size
+
+  p <- bscols(
+    widths = c(7,3,2), p1, boxes
+  )
+  
+  p
+# cowplot::plot_grid(gg_legend, boxes)
+```
+
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
+# boxes
+# p1 automatically plots p1
+p2
+p3
+p4
+p5
+p6
+p7
+p8
+p9
+p10
+```
+
+

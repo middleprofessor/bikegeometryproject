@@ -24,6 +24,8 @@ website:
           - qmd/what_is_a_gravel_bike.qmd
           - qmd/gravel_tree.qmd
           - qmd/gravel_class.qmd
+          - qmd/what_makes_a_rowdy_bike_rowdy.qmd
+          - qmd/what_makes_a_relaxed_bike_relaxed.qmd
       - text: "Gravel Stories"
         menu:
           - qmd/which_gravel_bikes_are_mtb_inspired.qmd
