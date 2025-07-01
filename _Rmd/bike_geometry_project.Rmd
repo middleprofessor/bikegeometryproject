@@ -1416,7 +1416,8 @@ scatter_fig_global <- function(data = geobike,
                         digits = 0,
                         dot_palette = pal_okabe_ito_7,
                         dot_opacity = 0.3,
-                        same_xy_scale = TRUE){ # if units are same on x and y then scales should be preserved
+                        same_xy_scale = TRUE,
+                        add_regression = FALSE){ # if units are same on x and y then scales should be preserved
   
   # this version links all plots so that size can be filtered globally
 
@@ -1511,6 +1512,30 @@ scatter_fig_global <- function(data = geobike,
            # autosize = F, width = 7*96, height = 5*96,
            NULL
     )
+   
+   if(add_regression == TRUE){
+     xy <- data.table(
+       x = data$origData()[, get(x_col)],
+       y = data$origData()[, get(y_col)]
+     ) |>
+       na.omit()
+     fit <- lm(y ~ x, data = xy)
+     r <- cor(xy$x, xy$y)
+     fig <- fig |>
+       add_trace(
+         type = "scatter",
+         mode = "lines",
+         x = xy$x,
+         y = fitted(fit),
+         alpha = 1,
+         name = 'prediction',
+         hoverinfo = "text",
+         text = ~paste(
+           "<br>Slope:", round(coef(fit)[2], 2),
+           "<br>Cor:", round(r, 2)),
+         NULL
+       )
+   }
   
   
   return(fig)

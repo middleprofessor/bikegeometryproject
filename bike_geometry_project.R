@@ -1,4 +1,4 @@
-## ----setup, message = FALSE, warning = FALSE-----------------------------------
+## ----setup, message = FALSE, warning = FALSE------------------------
 knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE,
                       warning = FALSE,
@@ -78,7 +78,7 @@ pal_okabe_ito_3 <- pal_okabe_ito[c(2,3,1)]
 pal_okabe_ito_4 <- c(pal_okabe_ito_3, pal_okabe_ito[c(6)])
 
 
-## ----deg_2_rad-----------------------------------------------------------------
+## ----deg_2_rad------------------------------------------------------
 deg_2_rad <- function(x){
   rad <- x*pi/180
   return(rad)
@@ -86,7 +86,7 @@ deg_2_rad <- function(x){
   
 
 
-## ----ggdendro-extensions-------------------------------------------------------
+## ----ggdendro-extensions--------------------------------------------
 # https://atrebas.github.io/post/2019-06-08-lightweight-dendrograms/
 dendro_data_k <- function(hc, k) {
   hcdata    <-  ggdendro::dendro_data(hc, type = "rectangle")
@@ -215,7 +215,7 @@ plot_ggdendro <- function(hcdata,
 
 
 
-## ----treed---------------------------------------------------------------------
+## ----treed----------------------------------------------------------
 get_tree <- function(geobike_subset,
                   y_cols,
                   scale_it = TRUE,
@@ -247,7 +247,7 @@ get_tree <- function(geobike_subset,
 }
 
 
-## ----bike-geometry-helpers-----------------------------------------------------
+## ----bike-geometry-helpers------------------------------------------
 compute_axle_crown <- function(){
   
 }
@@ -311,7 +311,7 @@ compute_steering_h <- function(bike){
 
 
 
-## ----missing data--------------------------------------------------------------
+## ----missing data---------------------------------------------------
 compute_wheelbase <- function(bike){
   steering_v <- compute_steering_v(bike)
   steering_h <- compute_steering_h(bike)
@@ -377,7 +377,7 @@ compute_effective_top_tube_length <- function(bike){
 }
 
 
-## ------------------------------------------------------------------------------
+## -------------------------------------------------------------------
 geom_checker <- function(chainstay_length, # chainstay length
                          bottom_bracket_drop, # bottom bracket drop
                          reach,
@@ -398,7 +398,7 @@ geom_checker <- function(chainstay_length, # chainstay length
   }
 
 
-## ----read-bike-function, echo=FALSE--------------------------------------------
+## ----read-bike-function, echo=FALSE---------------------------------
 # data_path <- here(data_folder, "ghost_grappler.txt")
 # dt <- fread(data_path)
 # bike_label = "Tumbleweed Stargazer 2022"
@@ -492,6 +492,7 @@ read_bike <- function(bike_label = "Breezer Radar X Pro 2022",
   ## trail
   bike[, trail := radius/tan(head_tube_angle*pi/180) - 
          compute_offset_h(bike)]
+  # bike[, trail := (radius * cos(head_tube_angle*pi/180) - fork_offset_rake) / sin(head_tube_angle * pi / 180)]
   ## bb height
   bike[, bb_height := radius - bottom_bracket_drop]
   
@@ -562,7 +563,7 @@ read_bike <- function(bike_label = "Breezer Radar X Pro 2022",
 
 
 
-## ----import-bikes, echo=FALSE--------------------------------------------------
+## ----import-bikes, echo=FALSE---------------------------------------
 # need to modify so all imports use this function
 import_bikes <- function(style = "gravel",
                          prefix = ""){
@@ -588,7 +589,7 @@ import_bikes <- function(style = "gravel",
 
 
 
-## ----import-bikes-full, echo=FALSE---------------------------------------------
+## ----import-bikes-full, echo=FALSE----------------------------------
 import_bikes_full <- function(style = "gravel",
                          prefix = ""){
   
@@ -704,15 +705,10 @@ import_bikes_full <- function(style = "gravel",
 }
 
 
-## ----gravel-classifier, echo=FALSE---------------------------------------------
+## ----gravel-classifier, echo=FALSE----------------------------------
 gravel_classifier <- function(
     data,
-    y_cols = c("stack", "reach", "front_center", "rear_center",
-               "head_tube_angle", "seat_tube_angle",
-               "trail",
-               "seat_tube_length",
-#               "top_tube_angle",
-               NULL),
+    y_cols,
     pca = FALSE
 ){
   
@@ -794,43 +790,74 @@ gravel_classifier <- function(
 
 
 
-## ----gravel-scores, echo = FALSE-----------------------------------------------
-gravel_scores <- function(data){
-  y_cols <- c("stack", "reach", "front_center", "rear_center", "head_tube_angle", "seat_tube_angle", "trail", "seat_tube_length")
-  
+## ----gravel-scores, echo = FALSE------------------------------------
+gravel_scores <- function(data, y_cols){
+
+  gravel_style <- data[, restyle]
+  gravel_style_matrix <- data.table(
+    racy = ifelse(gravel_style == "Racy", 1, 0),
+    relaxed = ifelse(gravel_style == "Relaxed", 1, 0),
+    rowdy = ifelse(gravel_style == "Rowdy", 1, 0)
+  ) |>
+    as.matrix()
+    
+  # are class labels correlated with PCA scores?
   Y <- data.table(
-    restyle = data[, restyle],
-    scale(data[, .SD, .SDcols = y_cols]))
-  
-  E <- Y[, .("stack" = mean(stack),
-             "reach" = mean(reach),
-             "front_center" = mean(front_center),
-             "rear_center" = mean(rear_center),
-             "head_tube_angle" = mean(head_tube_angle),
-             "seat_tube_angle" = mean(seat_tube_angle),
-             "trail" = mean(trail, na.rm = TRUE),
-             "seat_tube_length" = mean(seat_tube_length, na.rm = TRUE)),
-         by = .(restyle)] %>%
-    transpose(make.names = "restyle") %>%
+    scale(data[, .SD, .SDcols = y_cols])) |>
     as.matrix()
-  Y <- Y[, .SD, .SDcols = y_cols] %>%
-    as.matrix()
+  R <- cor(Y)
+  decomp <- eigen(R)
+  E <- decomp$vectors
   scores <- Y %*% E
-  scale_by_range <- function(x){
-    s <- (x - min(x, na.rm = TRUE))/(max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
-    return(s)
-  }
-  scores <- apply(scores, 2, scale_by_range)
-  data[, c(tolower(colnames(E)[1])) := scores[, 1]]
-  data[, c(tolower(colnames(E)[2])) := scores[, 2]]
-  data[, c(tolower(colnames(E)[3])) := scores[, 3]]
+  # cor(gravel_style_matrix, scores[, 1:4]) # not good
+  
+  # style vector
+  E_raw <- cor(gravel_style_matrix, Y) |>
+    t()
+  EtE <- diag(3)
+  diag(EtE) <- 1/sqrt(diag(t(E_raw) %*% E_raw))
+  E <- E_raw %*% EtE
+  # t(E) %*% E # check!
+  scores <- Y %*% E
+  # cor(gravel_style_matrix, scores) # better
+
+  
+  scores_0 <- apply(scores, 2, function(x) x - min(x))
+  scores_1 <- apply(scores_0, 1, function(x) x/sum(x)) |>
+    t()
+  # apply(scores_1, 1, sum) # check!
+
+  data[, racy := scores_1[, 1]]
+  data[, relaxed := scores_1[, 2]]
+  data[, rowdy := scores_1[, 3]]
   return(data)
 }
 
 
 
-## ----import-gravel, eval=TRUE--------------------------------------------------
+## ----import-gravel, eval=TRUE---------------------------------------
 import_it <- FALSE
+classifier_cols <- c("stack", "reach",
+                     "front_center","rear_center",
+                     "head_tube_angle", "seat_tube_angle",
+                     "fork_offset_rake",
+#                     "bottom_bracket_drop",
+#                     "trail"
+#               "seat_tube_length",
+#               "top_tube_angle",
+               NULL)
+# classifier_cols <- c("stack_reach",
+#                      "front_rear",
+#                      "sta_hta",
+#                      "fork_offset_rake",
+#                     "bottom_bracket_drop",
+#                     "trail"
+#               "seat_tube_length",
+#               "top_tube_angle",
+#               NULL)
+
+  
+equalize_tire_width = TRUE
 geo_bike_path <- here("rds", "geobike.Rds")
 my_fit_path <- here("rds", "my_fit.Rds")
 if(import_it != TRUE){
@@ -842,12 +869,7 @@ if(import_it != TRUE){
   # classify bikes
   geobike_classes <- gravel_classifier(
     geobike,
-    y_cols = c("stack", "reach", "front_center", "rear_center",
-               "head_tube_angle", "seat_tube_angle",
-               "trail",
-               "seat_tube_length",
-#               "top_tube_angle",
-               NULL),
+    y_cols = classifier_cols,
     pca = FALSE
   )
   geobike <- merge(geobike, geobike_classes, by = "model")
@@ -864,7 +886,8 @@ if(import_it != TRUE){
   my_fit <- geobike[my_fit == TRUE]
   
   # gravel scores
-  my_fit <- gravel_scores(my_fit)
+  my_fit <- gravel_scores(my_fit,
+                          classifier_cols)
   
   # save
   saveRDS(geobike, geo_bike_path)
@@ -872,7 +895,19 @@ if(import_it != TRUE){
 }
 
 
-## ----base-plot, echo = FALSE---------------------------------------------------
+## -------------------------------------------------------------------
+
+frontcenter_cols <- c("reach", "head_tube_angle", "fork_offset_rake") #
+frontcenter_y <- my_fit[, .SD, .SDcols = frontcenter_cols] |>
+  scale()
+classifier_y <- my_fit[, .SD, .SDcols = classifier_cols] |>
+  scale() |>
+  data.table()
+classifier_y[, fc_proxy := reach - head_tube_angle + fork_offset_rake]
+cor(classifier_y)
+
+
+## ----base-plot, echo = FALSE----------------------------------------
 base_plot <- function(data = geobike,
                       x_col = "reach",
                       y_col = "stack",
@@ -971,7 +1006,7 @@ base_plot <- function(data = geobike,
 
 
 
-## ----annotate, echo = FALSE----------------------------------------------------
+## ----annotate, echo = FALSE-----------------------------------------
 annotate_model <- function(p,
                            data = geobike,
                            x_col = "reach",
@@ -1010,7 +1045,7 @@ annotate_model <- function(p,
 }
 
 
-## ----base-ternary-plot, echo=FALSE---------------------------------------------
+## ----base-ternary-plot, echo=FALSE----------------------------------
 base_ternary <- function(
     data,
     axis_cols = c("racy","relaxed","rowdy"),
@@ -1104,7 +1139,7 @@ base_ternary <- function(
 }
 
 
-## ----scatter-fig---------------------------------------------------------------
+## ----scatter-fig----------------------------------------------------
 scatter_fig <- function(data = my_fit,
                         x_col = "reach", y_col = "stack", g_col = "model_size",
                         x_label = "Reach", y_label = "Stack",
@@ -1227,7 +1262,7 @@ scatter_fig <- function(data = my_fit,
 
 
 
-## ----scatter-fig-new, echo=FALSE-----------------------------------------------
+## ----scatter-fig-new, echo=FALSE------------------------------------
 scatter_fig_new <- function(data = geobike,
                         x_col = "reach", y_col = "stack", g_col = "model_size",
                         x_label = "Reach", y_label = "Stack",
@@ -1342,7 +1377,7 @@ scatter_fig_new <- function(data = geobike,
 }
 
 
-## ----scatter-fig-global, echo=FALSE--------------------------------------------
+## ----scatter-fig-global, echo=FALSE---------------------------------
 scatter_fig_global <- function(data = geobike,
                         x_col = "reach", y_col = "stack", g_col = "model_size",
                         x_label = "Reach", y_label = "Stack",
@@ -1350,7 +1385,8 @@ scatter_fig_global <- function(data = geobike,
                         digits = 0,
                         dot_palette = pal_okabe_ito_7,
                         dot_opacity = 0.3,
-                        same_xy_scale = TRUE){ # if units are same on x and y then scales should be preserved
+                        same_xy_scale = TRUE,
+                        add_regression = FALSE){ # if units are same on x and y then scales should be preserved
   
   # this version links all plots so that size can be filtered globally
 
@@ -1445,13 +1481,37 @@ scatter_fig_global <- function(data = geobike,
            # autosize = F, width = 7*96, height = 5*96,
            NULL
     )
+   
+   if(add_regression == TRUE){
+     xy <- data.table(
+       x = data$origData()[, get(x_col)],
+       y = data$origData()[, get(y_col)]
+     ) |>
+       na.omit()
+     fit <- lm(y ~ x, data = xy)
+     r <- cor(xy$x, xy$y)
+     fig <- fig |>
+       add_trace(
+         type = "scatter",
+         mode = "lines",
+         x = xy$x,
+         y = fitted(fit),
+         alpha = 1,
+         name = 'prediction',
+         hoverinfo = "text",
+         text = ~paste(
+           "<br>Slope:", round(coef(fit)[2], 2),
+           "<br>Cor:", round(r, 2)),
+         NULL
+       )
+   }
   
   
   return(fig)
 }
 
 
-## ----output-as-R-file----------------------------------------------------------
+## ----output-as-R-file-----------------------------------------------
 # highlight and run to put update into R folder
 write_it_as_R <- FALSE
 if(write_it_as_R == TRUE){

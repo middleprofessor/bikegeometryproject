@@ -16,14 +16,12 @@ format:
 Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") high rider, according to manufacturer's charts.
 :::
 
-[Click here to see a version of this page that simulataneously highlights all frame sizes within a model](../qmd/gravel_scatter_model.qmd)
-
 ```{r setup-gravel-scatter, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 ```
 
-```{r legend, echo=FALSE, fig.width= 8, fig.height=0.5}
+```{r legend, echo=FALSE, fig.width= 8, fig.height=0.5, eval=FALSE}
 # plot_ly(data = geobike, type = "scatter", mode = "markers",
 #         x = ~ reach,
 #         y = ~ stack,
@@ -65,57 +63,68 @@ plot_grid(gg_legend)
 ```{r make-plots, echo=FALSE}
 
 geobike_shared <- SharedData$new(my_fit)
+add_regression <- TRUE
 
 p1 <- scatter_fig_global(data = geobike_shared,
                   y_col = "rowdy", x_col = "stack",
                   y_label = "Rowdy Index", x_label = "Stack (mm)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p2 <- scatter_fig_global(data = geobike_shared,
                   y_col = "rowdy", x_col = "reach",
                   y_label = "Rowdy Index", x_label = "Reach (mm)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p3 <- scatter_fig_global(data = geobike_shared,
                   y_col = "rowdy", x_col = "head_tube_angle",
                   y_label = "Rowdy Index", x_label = "Head Tube Angle (°)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p4 <- scatter_fig_global(data = geobike_shared,
                   y_col = "rowdy", x_col = "seat_tube_angle",
                   y_label = "Rowdy Index", x_label = "Seat Tube Angle (°)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p5 <- scatter_fig_global(data = geobike_shared,
                   y_col = "rowdy", x_col = "fork_offset_rake",
                   y_label = "Rowdy Index", x_label = "Fork Offset (mm)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p6 <- scatter_fig_global(data = geobike_shared,
                   y_col = "rowdy", x_col = "chainstay_length",
                   y_label = "Rowdy Index", x_label = "Chainstay Length (mm)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p7 <- scatter_fig_global(data = geobike_shared,
                   y_col = "rowdy", x_col = "front_center",
                   y_label = "Rowdy Index", x_label = "Front Center (mm)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p8 <- scatter_fig_global(data = geobike_shared,
                   y_col = "rowdy", x_col = "stack_reach",
                   y_label = "Rowdy Index", x_label = "Stack:Reach",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p9 <- scatter_fig_global(data = geobike_shared,
                   y_col = "rowdy", x_col = "front_rear",
                   y_label = "Rowdy Index", x_label = "Front Center:Rear Center",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p10 <- scatter_fig_global(data = geobike_shared,
                   y_col = "rowdy", x_col = "trail",
                   y_label = "Rowdy Index", x_label = "Trail (mm)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 
 
 # plot check boxes and fig
@@ -128,7 +137,7 @@ p10 <- scatter_fig_global(data = geobike_shared,
  #p
 ```
 
-```{r echo=FALSE}
+```{r echo=FALSE, eval=FALSE}
 # make a blank plot
 gg <- ggplot(geobike,                               # theme_void scatterplot
        aes(x = reach,
@@ -139,8 +148,9 @@ pp <- ggplotly(gg, width = 6.5*96, height = 1*96)
 
 ```
 
-```{r, echo = FALSE, out.height="100%", out.width="100%"}
+```{r check-boxes, echo = FALSE, out.height="100%", out.width="100%", eval=FALSE}
 # set up check boxes
+# this also plots p1
 
   # gg_legend_ly <- ggplotly(gg_legend, width = 6.5*96, height = 1*96)
 
@@ -150,15 +160,20 @@ pp <- ggplotly(gg, width = 6.5*96, height = 1*96)
   p <- bscols(
     widths = c(7,3,2), p1, boxes
   )
-  
   p
+
+  p <- bscols(
+    widths = c(7,3,2), p2, boxes
+  )
+  p
+  
 # cowplot::plot_grid(gg_legend, boxes)
 ```
 
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
+```{r plots, echo=FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
 # boxes
-# p1 automatically plots p1
+p1
 p2
 p3
 p4
@@ -167,7 +182,8 @@ p6
 p7
 p8
 p9
-p10
+#p10
+
 ```
 
 
