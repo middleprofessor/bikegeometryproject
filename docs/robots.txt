@@ -1,1 +1,1 @@
-Sitemap: https://bikegeometry.site/sitemap.xml
+Sitemap: https://middleprofessor.github.io/bikegeometryproject/sitemap.xml

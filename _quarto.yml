@@ -6,7 +6,7 @@ project:
 website:
   title: "GravelRrr"
   description: "Not just another bike geometry comparison tool"
-  site-url: https://bikegeometry.site
+  site-url: https://middleprofessor.github.io/bikegeometryproject
   navbar:
     background: primary
     search: true

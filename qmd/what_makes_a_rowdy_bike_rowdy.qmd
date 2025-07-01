@@ -137,16 +137,6 @@ p10 <- scatter_fig_global(data = geobike_shared,
  #p
 ```
 
-```{r echo=FALSE, eval=FALSE}
-# make a blank plot
-gg <- ggplot(geobike,                               # theme_void scatterplot
-       aes(x = reach,
-           y = stack)) +
-  geom_point(color = "white") +
-  theme_dendro()
-pp <- ggplotly(gg, width = 6.5*96, height = 1*96)
-
-```
 
 ```{r check-boxes, echo = FALSE, out.height="100%", out.width="100%", eval=FALSE}
 # set up check boxes

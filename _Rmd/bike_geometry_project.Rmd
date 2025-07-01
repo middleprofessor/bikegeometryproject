@@ -1531,8 +1531,7 @@ scatter_fig_global <- function(data = geobike,
          name = 'prediction',
          hoverinfo = "text",
          text = ~paste(
-           "<br>Slope:", round(coef(fit)[2], 2),
-           "<br>Cor:", round(r, 2)),
+             "<br>Cor:", round(r, 2)),
          NULL
        )
    }
