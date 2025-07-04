@@ -8,15 +8,13 @@ format:
 ::: {.callout-tip}
 1. Hover over data for model and frame size identification.
 2. Scroll legend and click on items to identify specific model and frame size combinations.
-3. Click on **Focal** checkbox to view only the frame size used for the classification.
-4. Click on popup icon-bar over legend to zoom in/out and pan.
+3. Click on popup icon-bar over legend to zoom in/out and pan.
 :::
 
 ::: {.callout-note}
 Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") high rider, according to manufacturer's charts.
 :::
 
-[Click here to see a version of this page that simulataneously highlights all frame sizes within a model](../qmd/gravel_scatter_model.qmd)
 
 ```{r setup-gravel-scatter, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("bike_geometry_project.R")
@@ -65,57 +63,74 @@ plot_grid(gg_legend)
 ```{r make-plots, echo=FALSE}
 
 geobike_shared <- SharedData$new(my_fit)
+add_regression <- TRUE
+
+# p0 <- base_ternary(data = geobike_shared,
+#                    axis_cols = c("stack", "reach", "chainstay_length"),
+#                    axis_labels = c("Stack", "Reach", "Chainstay"),
+#                    g_col = "restyle"
+#                    )
 
 p1 <- scatter_fig_global(data = geobike_shared,
                   y_col = "relaxed", x_col = "stack",
                   y_label = "Relaxed Index", x_label = "Stack (mm)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p2 <- scatter_fig_global(data = geobike_shared,
                   y_col = "relaxed", x_col = "reach",
                   y_label = "Relaxed Index", x_label = "Reach (mm)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p3 <- scatter_fig_global(data = geobike_shared,
                   y_col = "relaxed", x_col = "head_tube_angle",
                   y_label = "Relaxed Index", x_label = "Head Tube Angle (°)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p4 <- scatter_fig_global(data = geobike_shared,
                   y_col = "relaxed", x_col = "seat_tube_angle",
                   y_label = "Relaxed Index", x_label = "Seat Tube Angle (°)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p5 <- scatter_fig_global(data = geobike_shared,
                   y_col = "relaxed", x_col = "fork_offset_rake",
                   y_label = "Relaxed Index", x_label = "Fork Offset (mm)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p6 <- scatter_fig_global(data = geobike_shared,
                   y_col = "relaxed", x_col = "chainstay_length",
                   y_label = "Relaxed Index", x_label = "Chainstay Length (mm)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p7 <- scatter_fig_global(data = geobike_shared,
                   y_col = "relaxed", x_col = "front_center",
                   y_label = "Relaxed Index", x_label = "Front Center (mm)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p8 <- scatter_fig_global(data = geobike_shared,
                   y_col = "relaxed", x_col = "stack_reach",
                   y_label = "Relaxed Index", x_label = "Stack:Reach",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p9 <- scatter_fig_global(data = geobike_shared,
                   y_col = "relaxed", x_col = "front_rear",
                   y_label = "Relaxed Index", x_label = "Front Center:Rear Center",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 p10 <- scatter_fig_global(data = geobike_shared,
                   y_col = "relaxed", x_col = "trail",
                   y_label = "Relaxed Index", x_label = "Trail (mm)",
                   g_col = "model_size",
-                  same_xy_scale = FALSE)
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
 
 
 # plot check boxes and fig
@@ -139,7 +154,7 @@ pp <- ggplotly(gg, width = 6.5*96, height = 1*96)
 
 ```
 
-```{r, echo = FALSE, out.height="100%", out.width="100%"}
+```{r, echo = FALSE, out.height="100%", out.width="100%", eval=FALSE}
 # set up check boxes
 
   # gg_legend_ly <- ggplotly(gg_legend, width = 6.5*96, height = 1*96)
@@ -155,19 +170,29 @@ pp <- ggplotly(gg, width = 6.5*96, height = 1*96)
 # cowplot::plot_grid(gg_legend, boxes)
 ```
 
+### Relaxed bike frames have a combination of high stack, short reach, and long chain stays
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
+```{r relaxed-high, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
 # boxes
-# p1 automatically plots p1
+p8
+p6
+```
+
+### By themselves, stack and reach aren't really related to relaxedness
+
+```{r relaxed-stack-reach, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
+p1
 p2
+```
+
+### Headtube, seattube angle, and fork offset aren't really related to relaxedness
+
+```{r relaxed-low, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
 p3
 p4
 p5
-p6
 p7
-p8
 p9
-p10
+# p10
 ```
-
 

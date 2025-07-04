@@ -916,7 +916,11 @@ if(import_it != TRUE){
   # save
   saveRDS(geobike, geo_bike_path)
   saveRDS(my_fit, my_fit_path)
+  
+  # make images for index page
+  
 }
+
 ```
 
 # check correlations
@@ -1516,11 +1520,21 @@ scatter_fig_global <- function(data = geobike,
    if(add_regression == TRUE){
      xy <- data.table(
        x = data$origData()[, get(x_col)],
-       y = data$origData()[, get(y_col)]
+       y = data$origData()[, get(y_col)],
+       style = data$origData()[, restyle]
      ) |>
        na.omit()
+     
      fit <- lm(y ~ x, data = xy)
      r <- cor(xy$x, xy$y)
+     
+     # style means
+     xy_means <- xy[, .(x = mean(x),
+                        y = mean(y)),
+                    by = .(style)]
+#     fit <- lm(y ~ x, data = xy_means)
+#     r <- cor(xy_means$x, xy_means$y)
+     
      fig <- fig |>
        add_trace(
          type = "scatter",

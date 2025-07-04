@@ -8,6 +8,23 @@ source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 ```
 
+### Start here
+
+The [Which bikes are racy/rowdy/relaxed?](qmd/gravel_ternary.qmd) page contains an interactive, ternary plot for all gravel bike models in the database. Click on the points for finding bikes in the style you're seeking.
+
+```{r echo=FALSE}
+image_folder <- "images"
+image_file <- "gravel-ternary.png"
+image_path <- here(image_folder, image_file)
+include_graphics(image_path)
+```
+
+### A little deeper
+
+The [What makes a rowdy frame rowdy?](qmd/what_makes_a_rowdy_bike_rowdy.qmd) and [What makes a relaxed frame relaxed?](qmd/what_makes_a_relaxed_bike_relaxed.qmd) pages are full of plots showing which frame measures are most correlated with a style, and which aren't.
+
+### Into the weeds
+
 The [Gravel 2D](qmd/gravel_scatter.qmd) page contains interactive, 2D scatter plots of different pairs of frame geometry measures for all gravel bike models and frame sizes in the database.
 
 ```{r echo=FALSE}
@@ -17,16 +34,9 @@ image_path <- here(image_folder, image_file)
 include_graphics(image_path)
 ```
 
-The [Gravel Ternary](qmd/gravel_ternary.qmd) page contains an interactive, ternary plot for all gravel bike models in the database. Each ternary plot axis is a style score (0 -- 100) for one of the styles: Racy, Relaxed, and Rowdy.
+### A view from afar
 
-```{r echo=FALSE}
-image_folder <- "images"
-image_file <- "gravel-ternary.png"
-image_path <- here(image_folder, image_file)
-include_graphics(image_path)
-```
-
-The [What is Gravel Style?](qmd/what_is_a_gravel_bike.qmd) page contains interactive, 2D scatter plots of different pairs of frame geometry measures to compare gravel bikes in the database to Road Race, Road Endurance, Cyclocross, and XC Mountain bikes.
+The [What is Gravel Style?](qmd/what_is_a_gravel_bike.qmd) page compares gravel bikes in the database to Road Race, Road Endurance, Cyclocross, and XC Mountain bikes.
 
 ```{r echo=FALSE}
 image_folder <- "images"
@@ -34,6 +44,8 @@ image_file <- "gravel-style.png"
 image_path <- here(image_folder, image_file)
 include_graphics(image_path)
 ```
+
+### The classification
 
 The [Gravel Tree](qmd/gravel_tree.qmd) page contains a tree diagram showing the relative similarity in frame geometry among all gravel bikes in the database and the clustering of the models into three major styles.
 
@@ -53,7 +65,7 @@ image_path <- here(image_folder, image_file)
 include_graphics(image_path)
 ```
 
-Also, check out the Gravel Stories
+### Also, check out the Gravel Stories
 
 [Which gravel bikes have mountain bike inspired geometry?](qmd/which_gravel_bikes_are_mtb_inspired.qmd)
 

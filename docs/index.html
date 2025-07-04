@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Gravel Bike Geometry Project – GravelRrr</title>
+<title>Gravel Bike Geometry Project</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -79,7 +79,7 @@ ul.task-list li input[type="checkbox"] {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">GravelRrr</span>
+    <span class="navbar-title">Gravel Bike Geometry Project</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -89,29 +89,22 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-gravel-plots" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Gravel Plots</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-gravel-plots">    
-        <li>
-    <a class="dropdown-item" href="./qmd/gravel_histo.html">
- <span class="dropdown-text">Gravel 1D</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./qmd/gravel_scatter.html">
- <span class="dropdown-text">Gravel 2D</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./qmd/gravel_ternary.html">
- <span class="dropdown-text">Gravel Ternary</span></a>
-  </li>  
-    </ul>
-  </li>
-  <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-gravel-style" role="link" data-bs-toggle="dropdown" aria-expanded="false">
  <span class="menu-text">Gravel Style</span>
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-gravel-style">    
+        <li>
+    <a class="dropdown-item" href="./qmd/gravel_ternary.html">
+ <span class="dropdown-text">Which bikes are racy/rowdy/relaxed?</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./qmd/what_makes_a_rowdy_bike_rowdy.html">
+ <span class="dropdown-text">What makes a rowdy frame rowdy?</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./qmd/what_makes_a_relaxed_bike_relaxed.html">
+ <span class="dropdown-text">What makes a relaxed frame relaxed?</span></a>
+  </li>  
         <li>
     <a class="dropdown-item" href="./qmd/what_is_a_gravel_bike.html">
  <span class="dropdown-text">What is Gravel Style?</span></a>
@@ -124,13 +117,20 @@ ul.task-list li input[type="checkbox"] {
     <a class="dropdown-item" href="./qmd/gravel_class.html">
  <span class="dropdown-text">Gravel Table</span></a>
   </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-gravel-plots" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Gravel Plots</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-gravel-plots">    
         <li>
-    <a class="dropdown-item" href="./qmd/what_makes_a_rowdy_bike_rowdy.html">
- <span class="dropdown-text">What makes a rowdy frame rowdy?</span></a>
+    <a class="dropdown-item" href="./qmd/gravel_histo.html">
+ <span class="dropdown-text">Gravel 1D</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./qmd/what_makes_a_relaxed_bike_relaxed.html">
- <span class="dropdown-text">What makes a relaxed frame relaxed?</span></a>
+    <a class="dropdown-item" href="./qmd/gravel_scatter.html">
+ <span class="dropdown-text">Gravel 2D</span></a>
   </li>  
     </ul>
   </li>
@@ -177,11 +177,22 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#start-here" id="toc-start-here" class="nav-link active" data-scroll-target="#start-here">Start here</a></li>
+  <li><a href="#a-little-deeper" id="toc-a-little-deeper" class="nav-link" data-scroll-target="#a-little-deeper">A little deeper</a></li>
+  <li><a href="#into-the-weeds" id="toc-into-the-weeds" class="nav-link" data-scroll-target="#into-the-weeds">Into the weeds</a></li>
+  <li><a href="#a-view-from-afar" id="toc-a-view-from-afar" class="nav-link" data-scroll-target="#a-view-from-afar">A view from afar</a></li>
+  <li><a href="#the-classification" id="toc-the-classification" class="nav-link" data-scroll-target="#the-classification">The classification</a></li>
+  <li><a href="#also-check-out-the-gravel-stories" id="toc-also-check-out-the-gravel-stories" class="nav-link" data-scroll-target="#also-check-out-the-gravel-stories">Also, check out the Gravel Stories</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
-<main class="content column-page" id="quarto-document-content">
+<main class="content column-page-left" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -191,7 +202,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<div class="quarto-title-meta column-page">
+<div class="quarto-title-meta column-page-left">
 
     
   
@@ -203,6 +214,25 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="start-here" class="level3">
+<h3 class="anchored" data-anchor-id="start-here">Start here</h3>
+<p>The <a href="./qmd/gravel_ternary.html">Which bikes are racy/rowdy/relaxed?</a> page contains an interactive, ternary plot for all gravel bike models in the database. Click on the points for finding bikes in the style you’re seeking.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="images/gravel-ternary.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="a-little-deeper" class="level3">
+<h3 class="anchored" data-anchor-id="a-little-deeper">A little deeper</h3>
+<p>The <a href="./qmd/what_makes_a_rowdy_bike_rowdy.html">What makes a rowdy frame rowdy?</a> and <a href="./qmd/what_makes_a_relaxed_bike_relaxed.html">What makes a relaxed frame relaxed?</a> pages are full of plots showing which frame measures are most correlated with a style, and which aren’t.</p>
+</section>
+<section id="into-the-weeds" class="level3">
+<h3 class="anchored" data-anchor-id="into-the-weeds">Into the weeds</h3>
 <p>The <a href="./qmd/gravel_scatter.html">Gravel 2D</a> page contains interactive, 2D scatter plots of different pairs of frame geometry measures for all gravel bike models and frame sizes in the database.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -213,17 +243,10 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<p>The <a href="./qmd/gravel_ternary.html">Gravel Ternary</a> page contains an interactive, ternary plot for all gravel bike models in the database. Each ternary plot axis is a style score (0 – 100) for one of the styles: Racy, Relaxed, and Rowdy.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="images/gravel-ternary.png" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>The <a href="./qmd/what_is_a_gravel_bike.html">What is Gravel Style?</a> page contains interactive, 2D scatter plots of different pairs of frame geometry measures to compare gravel bikes in the database to Road Race, Road Endurance, Cyclocross, and XC Mountain bikes.</p>
+</section>
+<section id="a-view-from-afar" class="level3">
+<h3 class="anchored" data-anchor-id="a-view-from-afar">A view from afar</h3>
+<p>The <a href="./qmd/what_is_a_gravel_bike.html">What is Gravel Style?</a> page compares gravel bikes in the database to Road Race, Road Endurance, Cyclocross, and XC Mountain bikes.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -233,6 +256,9 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
+</section>
+<section id="the-classification" class="level3">
+<h3 class="anchored" data-anchor-id="the-classification">The classification</h3>
 <p>The <a href="./qmd/gravel_tree.html">Gravel Tree</a> page contains a tree diagram showing the relative similarity in frame geometry among all gravel bikes in the database and the clustering of the models into three major styles.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -253,12 +279,15 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<p>Also, check out the Gravel Stories</p>
+</section>
+<section id="also-check-out-the-gravel-stories" class="level3">
+<h3 class="anchored" data-anchor-id="also-check-out-the-gravel-stories">Also, check out the Gravel Stories</h3>
 <p><a href="./qmd/which_gravel_bikes_are_mtb_inspired.html">Which gravel bikes have mountain bike inspired geometry?</a></p>
 <p><a href="./qmd/mtb_90s.html">Is a gravel bike a 1990s mountain bike?</a></p>
 <p>copyright 2022 Jeffrey A. Walker</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

@@ -1,5 +1,6 @@
 ---
-title: "Gravel Ternary"
+title: "Which bikes are racy/rowdy/relaxed?"
+subtitle: "And how race/rowdy/relaxed are they?"
 ---
 
 ```{r gravel-ternary-setup, echo=FALSE, warning=FALSE, message=FALSE}
@@ -34,7 +35,7 @@ p
 ```
 
 
-::: {.callout-tip}
+::: {.callout-tip title="Which bikes are racy? rowdy? relaxed?"}
 1. Hover over data for model and frame size identification.
 2. Scroll legend and click on items to identify specific model in the plot.
 3. Click on popup icon-bar over legend to zoom in/out and pan.
@@ -42,7 +43,9 @@ p
 
 ::: {.callout-note}
 1. The ternary scores are the projections of the centered, scaled data onto the style (Racy, Relaxed, Rowdy) axes.
-2. Each style axes was constructed as the multivariate axis from the centroid to the style mean of the centered, scaled data.
+2. There are several ways to construct a style axis. The ternary plot uses the 2nd of these two ways:
+    i. the vector of differences from the centroid to the style mean of the centered, scaled data.
+    ii. the vector of correlation coefficients between the style classification (1 is "in style" and 0 is "out of style") and each measure.
 3. The input data is the ML subset of bikes that fit a 176 cm rider
 :::
 
