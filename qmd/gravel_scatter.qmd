@@ -16,14 +16,14 @@ format:
 Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") high rider, according to manufacturer's charts.
 :::
 
-[Click here to see a version of this page that simulataneously highlights all frame sizes within a model](../qmd/gravel_scatter_model.qmd)
+[Click here to see a version of this page that simultaneously highlights all frame sizes within a model](../qmd/gravel_scatter_model.qmd)
 
 ```{r setup-gravel-scatter, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 ```
 
-```{r legend, echo=FALSE, fig.width= 8, fig.height=0.5}
+```{r legend, echo=FALSE, eval=FALSE, fig.width= 8, fig.height=0.5}
 # plot_ly(data = geobike, type = "scatter", mode = "markers",
 #         x = ~ reach,
 #         y = ~ stack,
@@ -143,7 +143,8 @@ pp <- ggplotly(gg, width = 6.5*96, height = 1*96)
 
   # gg_legend_ly <- ggplotly(gg_legend, width = 6.5*96, height = 1*96)
 
-  boxes <- filter_checkbox("size", "Size", geobike_shared, ~Size, inline = FALSE)
+  #boxes <- filter_checkbox("size", "Size", geobike_shared, ~Size, inline = FALSE)
+  boxes <- filter_checkbox("size", "Size", geobike_shared, ~size_5, inline = FALSE)
   # boxes$attribs$style <- css(font.size = "90%") # <-change the font size
 
   p <- bscols(
@@ -157,7 +158,7 @@ pp <- ggplotly(gg, width = 6.5*96, height = 1*96)
 
 ```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
 # boxes
-# p1
+# p1 is plotted above
 p2
 p3
 p4

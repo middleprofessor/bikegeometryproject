@@ -185,7 +185,7 @@ p1
 p2
 ```
 
-### Headtube, seattube angle, and fork offset aren't really related to relaxedness
+### Headtube, seattube angle, fork offset, and trail aren't really related to relaxedness
 
 ```{r relaxed-low, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
 p3
@@ -193,6 +193,6 @@ p4
 p5
 p7
 p9
-# p10
+p10
 ```
 

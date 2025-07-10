@@ -2,7 +2,7 @@ model	frame	data_range	my_fit
 Breezer Radar X Pro 2022	steel	a1:h24	51cm (M)
 Evil Chamois Hagar GRX 2022	carbon	b1:g24	M
 BMC URS One 2022	carbon	a1:f29	M
-Mason InSearchOf 2022	steel	b1:h28	50CM
+Mason InSearchOf 2022	steel	b1:h30	50CM
 Surly Ghost Grappler 2022	steel	a1:g23	MD
 Tumbleweed Stargazer 2022	steel	a1:g21	Medium
 Trek Checkpoint SL5 2022	carbon	a1:h22	56 cm
@@ -29,7 +29,6 @@ Whyte Friston Gravel 2022	aluminum	a1:g23	54
 Noble GX 5 2022	carbon	b1:i20	54cm
 BlackMtnCy Monstercross V5 2022	steel	b1:j22	56cm
 BlackMtnCy La Cabra 2022	steel	a1:g24	18"
-Enigma Explor Flat Bar 2023	titanium	a6:f30	MED
 Chumba Terlingua Steel fdo 2022	steel	a1:h23	54
 Shand Stooshie 2022	steel	a1:g23	S
 Salsa Warbird 2022	carbon	a1:i22	56cm
@@ -68,11 +67,10 @@ BMC URS AL 2022	aluminum	a1:g31	M
 BMC URS AL SUS 2022	aluminum	a1:c29	M
 Blackheart All Road TI 2022	titanium	a1:j24	54
 Nordest Kutxo 2022	steel	b1:f21	M
-Cervelo Aspero 2022	carbon	b1:i22	54
 Open WI.DE 2022	carbon	b1:h24	M
 Devinci Hatchet 2022	carbon	a1:g22	M - 54cm
 Wilier Jena 2022	carbon	a1:g22	L
-Wilier Rave SLR 2022	carbon	a1:g22	L
+Wilier Rave SLR 2022	carbon	a1:h22	L
 Cannondale SuperSix Evo SE 2022	carbon	a1:g25	54
 Scott Addict Gravel 2022	carbon	a1:g23	M/54
 Fezzari Shafer 2022	carbon	a1:g25	M
@@ -80,8 +78,8 @@ Rondo MYLC CF Lo 2022	carbon	b1:g23	M
 Rondo MYLC CF Hi 2022	carbon	b1:g23	M
 Fustle Causway GR1 2022	aluminum	b1:g23	MD/LG
 Rose Backroad XPLR 2022	carbon	b1:j27	55cm
-Otso Waheela C rear 2022	carbon	c52:h75	L
-Otso Waheela C front 2022	carbon	c26:h49	L
+Otso Waheela C rear 2022	carbon	a1:f26	M
+Otso Waheela C front 2022	carbon	a1:f26	M
 Argonaut GR3 2023	carbon	a1:i23	560
 YT Szepter 2023	carbon	a1:g24	L
 Specialized Diverge STR 2023	carbon	a1:h27	56
@@ -116,6 +114,6 @@ Nukeproof Digger 2022	aluminum	a6:f34	MEDIUM
 Santa Cruz Stigmata CC 2023	carbon	a6:g33	L
 Salsa Journeyer 700c 2023	aluminum	a6:h29	55cm
 Blackheart Gravel AL 2024	aluminum	a6:j29	56
-Rodeo Flaanimal 5.0 2024	titanium	a6:h29	56 cm
+Rodeo Flaanimal 5.0 2024	titanium	a6:h30	56 cm
 Sklar SS Ti 2025	titanium	a6:g31	M-L
 Sklar SS Ti Sus 2025	titanium	a6:h31	M-L Invert 30

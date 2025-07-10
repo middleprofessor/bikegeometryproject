@@ -159,7 +159,7 @@ p10 <- scatter_fig_global(data = geobike_shared,
 # cowplot::plot_grid(gg_legend, boxes)
 ```
 
-### Long front ends and slack headtube angles make a frame rowdy
+### Rowdy frames have long front ends, slack headtube angles and high trail
 
 ```{r rowdy-high, echo=FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
 # boxes
@@ -168,7 +168,7 @@ p2
 p3
 p7
 p9
-#p10
+p10
 
 ```
 
@@ -181,7 +181,6 @@ p4
 p5
 p6
 p8
-#p10
 
 ```
 

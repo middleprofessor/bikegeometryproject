@@ -396,6 +396,13 @@ compute_effective_top_tube_length <- function(bike){
 }
 ```
 
+## compute size class
+
+```{r eval=FALSE}
+
+my_fit[is.na(rider_min), .SD, .SDcols = c("model", "rider_min")]
+```
+
 ## geometery checker
 
 ```{r}
@@ -425,14 +432,14 @@ geom_checker <- function(chainstay_length, # chainstay length
 # bike_label = "Tumbleweed Stargazer 2022"
 # bike_range = "b1:h21"
 
-read_bike <- function(bike_label = "Breezer Radar X Pro 2022",
-                      bike_range = "B1:I19",
-                      data_file = "bikes.xlsx"){
+read_bike <- function(bike_label = "Alchemy Lycos 2023",
+                      bike_range = "a1:h23",
+                      data_file = "gravel.xlsx"){
   data_path <- here(data_folder, data_file)
   bike_wide <- read_excel(data_path,
                           sheet = bike_label,
-                          range = bike_range) %>%
-    data.table
+                          range = bike_range) |>
+    data.table()
   # re-read with coltype = numeric
   # col_type_list <- c("text", "text", rep("numeric", ncol(bike_wide)-2))
   # bike_wide <- read_excel(data_path,
@@ -464,7 +471,7 @@ read_bike <- function(bike_label = "Breezer Radar X Pro 2022",
                   "wheelbase", "bottom_bracket_drop", "fork_offset_rake", "stack", "reach",
                   "standover", "stem_length", "handlebar_width", "crank_length", "wheel_size",
                   "tire_width_spec", "tire_width_max"
-#                  , "rider_min", "rider_max"
+                  , "rider_min", "rider_max"
   )
   bike <- bike[, .SD, .SDcols = keep_names]
   
@@ -612,10 +619,9 @@ import_bikes <- function(style = "gravel",
 
 ```
 
-```{r import-bikes-full, echo=FALSE}
-import_bikes_full <- function(style = "gravel",
+```{r}
+import_bikes_excel_multiple <- function(style = "gravel",
                          prefix = ""){
-  
   bike_list_file = paste0(style, "_list.txt")
   bike_file = paste0(style, ".xlsx")
   data_path <- here(data_folder, bike_list_file)
@@ -630,7 +636,42 @@ import_bikes_full <- function(style = "gravel",
     bike_i[, my_fit := ifelse(frame_size == c(bike_list[i, "my_fit"]), TRUE, FALSE)]
     geobike <- rbind(geobike, bike_i)
   }
+ return(geobike)
+}
+```
+
+```{r}
+import_bikes_excel_single <- function(style = "gravel",
+                         prefix = ""){
+  bike_list_file = paste0(paste0(style, "/"), style, "_list.txt")
+  bike_list_path <- here(data_folder, bike_list_file)
+  bike_list <- fread(bike_list_path, sep = "\t", header = FALSE)
+  geobike <- data.table(NULL)
+  for(i in 1:nrow(bike_list)){
+    bike_file = bike_list[i]
+    bike_path <- here(data_folder, style, bike_file)
+    bike_data <- read_excel(bike_path, range = "A1:B9", col_names = FALSE) |>
+      data.table()
+    bike_label_i <- paste(bike_data[1, 2], bike_data[2, 2], bike_data[3, 2])
+    bike_range_i <- bike_data[9, 2] |> as.character()
+    bike_i <- read_bike(bike_label = bike_label_i,
+                        bike_range = bike_range_i,
+                        data_file = paste0("gravel/", bike_file))
+    bike_i[, my_fit := NA]
+    geobike <- rbind(geobike, bike_i)
+  }
+ return(geobike)
+}
+```
+
+```{r import-bike-list, echo=FALSE}
+import_bike_list <- function(style = "gravel",
+                         prefix = ""){
   
+  geobike <- rbind(
+    import_bikes_excel_multiple(style, prefix),
+    import_bikes_excel_single(style, prefix)
+  )
   # my_fit: use 176 cm (I am 175.5)
   # add Breezer small to my_fit
   # geobike[model == "Breezer Radar X Pro" & frame_size == "48cm (S)", my_fit := TRUE]
@@ -666,7 +707,7 @@ import_bikes_full <- function(style = "gravel",
   
   # clean frame_size
   setorder(geobike, "model")
-  
+  geobike[, frame_size_orig := frame_size]
   geobike[, frame_size := toupper(frame_size)]
   geobike[, frame_size := str_remove(frame_size, "CM")]
   geobike[, frame_size := str_remove(frame_size, "\"")]
@@ -681,27 +722,52 @@ import_bikes_full <- function(style = "gravel",
   geobike[, frame_size := str_replace(frame_size, "EXTRA-", "X")]
   geobike[, frame_size := str_replace(frame_size, "EXTRA ", "X")]
   geobike[, frame_size := str_replace(frame_size, "2X", "XX")]
+  geobike[, frame_size := str_replace(frame_size, "3X", "XXX")]
   geobike[, frame_size := str_replace(frame_size, " - ", "/")]
   geobike[, frame_size := str_remove(frame_size, "-")]
   geobike[, frame_size := str_remove(frame_size, " ")]
   
-  geobike[, frame_size := paste0(" ", frame_size)]
-  geobike[, frame_size := str_replace(frame_size, " XXS", paste0("\U200B", " XXS"))]
-  geobike[, frame_size := str_replace(frame_size, " XS", paste0("\U200C", " XS"))]
-  geobike[, frame_size := str_replace(frame_size, " S", paste0("\U200D", " S", "\U200B"))]
-  geobike[, frame_size := str_replace(frame_size, " M", paste0("\U200E", " M", "\U200B"))]
-  geobike[, frame_size := str_replace(frame_size, " XM", paste0("\U200E", " XM"))]
-  geobike[, frame_size := str_replace(frame_size, " L", paste0("\U200F", " L"))]
-  geobike[, frame_size := str_replace(frame_size, " XL", paste0("\U200F", " XL"))]
-  geobike[, frame_size := str_replace(frame_size, " XXL", paste0("\U200F", " XXL"))]
-  
-  # order is S/M, S, M/L, M. Solution:
+  geobike[, frame_size_std_m := ifelse(rider_min < 175 & rider_max >= 175, TRUE, FALSE)]
+  nrow(geobike[frame_size_std_m == TRUE])
+  medium_list <- c("M","54","54(L)","54.7","54.5","M(55)","545","M/54", "53")
+  geobike[is.na(frame_size_std_m), frame_size_std_m := ifelse(frame_size %in% medium_list, TRUE, FALSE)]
+
+  geobike[, frame_size_std_l := ifelse(rider_min < 180 & rider_max >= 180, TRUE, FALSE)]
+  nrow(geobike[frame_size_std_l == TRUE])
+  large_list <- c("L", "560", "56", "L/57", "L/56", "57.5", "57", "L(57)")
+  geobike[is.na(frame_size_std_l), frame_size_std_l := ifelse(frame_size %in% large_list, TRUE, FALSE)]
+
+  # checks
+  a <- data.table(geobike[frame_size_std_m == TRUE, ])
+  b <- a[, .(N = .N), by = .(model)]
+  b[N > 1, model]
+  geobike[is.na(frame_size_std_l), .SD, .SDcol = c("model", "frame_size")]
+  setdiff(geobike[frame_size_std_m == TRUE, model], unique(geobike$model))
+  setdiff(unique(geobike$model), geobike[frame_size_std_l == TRUE, model])
+  geobike[frame_size_std_l == TRUE, model]
+  geobike[model == "Mason InSearchOf", .SD, .SDcol = c("frame_size", "frame_size_std_l", "rider_min", "rider_max")]
+
+  # set my_fit or classifier fit
+  geobike[, my_fit := frame_size_std_m] 
+
+  # order in legend of plots is S/M, S, M/L, M. Solution:
   # 1) add U200B after " S" and " M"
   # 2) replace U200B/ with U200F/
+
+  # geobike[, frame_size := paste0(" ", frame_size)]
+  # geobike[, frame_size := str_replace(frame_size, " XXS", paste0("\U200B", " XXS"))]
+  # geobike[, frame_size := str_replace(frame_size, " XS", paste0("\U200C", " XS"))]
+  # geobike[, frame_size := str_replace(frame_size, " S", paste0("\U200D", " S", "\U200B"))]
+  # geobike[, frame_size := str_replace(frame_size, " M", paste0("\U200E", " M", "\U200B"))]
+  # geobike[, frame_size := str_replace(frame_size, " XM", paste0("\U200E", " XM"))]
+  # geobike[, frame_size := str_replace(frame_size, " L", paste0("\U200F", " L"))]
+  # geobike[, frame_size := str_replace(frame_size, " XL", paste0("\U200F", " XL"))]
+  # geobike[, frame_size := str_replace(frame_size, " XXL", paste0("\U200F", " XXL"))]
+  
   # this screws up Scott addict gravel in a way that I cannot understand so this is a very kludgy wrangle
   # model != "Scott Addict Gravel" |
-  geobike[model != "Devinci Hatchet" & model != "Scott Addict Gravel",
-          frame_size := str_replace(frame_size, paste0("\U200B", "/"), paste0("\U200F", "/"))]
+  # geobike[model != "Devinci Hatchet" & model != "Scott Addict Gravel",
+  #         frame_size := str_replace(frame_size, paste0("\U200B", "/"), paste0("\U200F", "/"))]
   
   # add model-frame_size column
   geobike[, model_size := paste(model, frame_size)]
@@ -722,7 +788,7 @@ import_bikes_full <- function(style = "gravel",
   # }
   
   # create my_fit alternative
-  geobike[, Size := ifelse(my_fit == TRUE, "Focal", "Non-focal")]
+  geobike[, Size := ifelse(my_fit == TRUE, "M/L (54-56)", "All sizes")] # was focal/non-focal
 
   return(geobike)
 }
@@ -865,20 +931,11 @@ classifier_cols <- c("stack", "reach",
                      "front_center","rear_center",
                      "head_tube_angle", "seat_tube_angle",
                      "fork_offset_rake",
+                     "trail",
 #                     "bottom_bracket_drop",
-#                     "trail"
 #               "seat_tube_length",
 #               "top_tube_angle",
                NULL)
-# classifier_cols <- c("stack_reach",
-#                      "front_rear",
-#                      "sta_hta",
-#                      "fork_offset_rake",
-#                     "bottom_bracket_drop",
-#                     "trail"
-#               "seat_tube_length",
-#               "top_tube_angle",
-#               NULL)
 
   
 equalize_tire_width = TRUE
@@ -889,7 +946,7 @@ if(import_it != TRUE){
   my_fit <- readRDS(my_fit_path)
 }else{
   # import from xlsx
-  geobike <- import_bikes_full(style = "gravel")
+  geobike <- import_bike_list(style = "gravel")
   # classify bikes
   geobike_classes <- gravel_classifier(
     geobike,
@@ -906,6 +963,41 @@ if(import_it != TRUE){
   
   geobike[, color := pal_okabe_ito_3[as.integer(restyle)]]
   
+  # sizes
+  # average M is 175
+  # average L is 183.5
+  geobike[frame_size_orig == "M", .(M_low = median(rider_min, na.rm=TRUE))]
+  geobike[frame_size_orig == "M", .(M_hi = median(rider_max, na.rm=TRUE))]
+  geobike[frame_size_orig == "L", .(M_low = median(rider_min, na.rm=TRUE))]
+  geobike[frame_size_orig == "L", .(M_hi = median(rider_max, na.rm=TRUE))]
+  size_list_10 <- seq(150, 195, 5)
+  # four sizes
+  # 5.2 5.6, 5.10, 6.2
+  # xs, s, m, l
+  size_list_5 <- seq(160, 192, 8)
+  size_list_3 <- seq(152, 200, 3)
+  for(i in 1:nrow(geobike)){
+    rider_min <- geobike[i, rider_min]
+    rider_max <- geobike[i, rider_max]
+    if(!is.na(rider_min)){
+      for(j in 1:length(size_list_5)){
+        if(size_list_5[j] >= rider_min & size_list_5[j] < rider_max){
+          geobike[i, size_5 := size_list_5[j]]
+        }
+      }
+      for(j in 1:length(size_list_3)){
+        if(size_list_3[j] >= rider_min & size_list_3[j] < rider_max){
+          geobike[i, size_3 := size_list_3[j]]
+        }
+      }
+      
+    }else{
+      geobike[i, size_5 := NA]
+      geobike[i, size_3 := NA]
+    }
+  }
+
+
   # my_fit
   my_fit <- geobike[my_fit == TRUE]
   
@@ -1421,6 +1513,7 @@ scatter_fig_global <- function(data = geobike,
                         dot_palette = pal_okabe_ito_7,
                         dot_opacity = 0.3,
                         same_xy_scale = TRUE,
+                        set_autorange = TRUE,
                         add_regression = FALSE){ # if units are same on x and y then scales should be preserved
   
   # this version links all plots so that size can be filtered globally
@@ -1501,13 +1594,13 @@ scatter_fig_global <- function(data = geobike,
       textposition = "right",
       visible = "legendonly",
       showlegend = TRUE
-    ) %>%
+    ) |>
     layout(xaxis = list(title = x_label,
-                        tickfont = list(size = 12), titlefont = list(size = 12),
-                        range = c(min_axis_x, max_axis_x)),
+                        tickfont = list(size = 12), titlefont = list(size = 12)
+                        ),
            yaxis = list(title = y_label,
-                        tickfont = list(size = 12), titlefont = list(size = 12),
-                        range = c(min_axis_y, max_axis_y)),
+                        tickfont = list(size = 12), titlefont = list(size = 12)
+                        ),
            legend = list(font = list(size = 10),
                          itemsizing = "constant"),
            title = list(text = paste(y_label, "vs.", x_label),
@@ -1516,6 +1609,16 @@ scatter_fig_global <- function(data = geobike,
            # autosize = F, width = 7*96, height = 5*96,
            NULL
     )
+   if(set_autorange == TRUE){
+     fig <- fig |>
+       layout(xaxis = list(autorange = TRUE),
+              yaxis = list(autorange = TRUE))
+     
+   }else{
+     fig <- fig |>
+       layout(xaxis = list(range = c(min_axis_x, max_axis_x)),
+              yaxis = list(range = c(min_axis_y, max_axis_y)))
+   }
    
    if(add_regression == TRUE){
      xy <- data.table(
