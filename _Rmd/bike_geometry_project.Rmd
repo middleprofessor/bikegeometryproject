@@ -844,7 +844,7 @@ gravel_classifier <- function(
     style_class[, model := tstrsplit(label, ",", keep = 1)]
     
     cluster_labels <- numeric(3)
-    rowdy <- "Breezer Radar X Pro"
+    rowdy <- "Santa Cruz Stigmata CC"
     cluster_labels[style_class[model == rowdy, clust]] <- "Rowdy"
     racy <- "OPEN U.P."
     cluster_labels[style_class[model == racy, clust]] <- "Racy"
@@ -927,15 +927,22 @@ gravel_scores <- function(data, y_cols){
 
 ```{r import-gravel, eval=TRUE}
 import_it <- FALSE
-classifier_cols <- c("stack", "reach",
-                     "front_center","rear_center",
-                     "head_tube_angle", "seat_tube_angle",
-                     "fork_offset_rake",
-                     "trail",
-#                     "bottom_bracket_drop",
-#               "seat_tube_length",
-#               "top_tube_angle",
-               NULL)
+classifier_cols <- c(
+  "stack",
+  "reach",
+  # "front_center",
+  "rear_center",
+  "head_tube_angle",
+  "seat_tube_angle",
+  # "fork_offset_rake",
+  "trail",
+  # "bottom_bracket_drop",
+  # "seat_tube_length",
+  # "top_tube_angle",
+  # "front_rear",
+  # "stack_reach",
+  NULL)
+
 
   
 equalize_tire_width = TRUE
