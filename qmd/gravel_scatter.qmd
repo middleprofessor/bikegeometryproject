@@ -144,7 +144,7 @@ pp <- ggplotly(gg, width = 6.5*96, height = 1*96)
   # gg_legend_ly <- ggplotly(gg_legend, width = 6.5*96, height = 1*96)
 
   #boxes <- filter_checkbox("size", "Size", geobike_shared, ~Size, inline = FALSE)
-  boxes <- filter_checkbox("size", "Size", geobike_shared, ~size_5, inline = FALSE)
+  boxes <- filter_checkbox("size", "Size", geobike_shared, ~frame_size_std, inline = FALSE)
   # boxes$attribs$style <- css(font.size = "90%") # <-change the font size
 
   p <- bscols(

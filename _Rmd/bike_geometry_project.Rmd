@@ -396,12 +396,6 @@ compute_effective_top_tube_length <- function(bike){
 }
 ```
 
-## compute size class
-
-```{r eval=FALSE}
-
-my_fit[is.na(rider_min), .SD, .SDcols = c("model", "rider_min")]
-```
 
 ## geometery checker
 
@@ -925,6 +919,76 @@ gravel_scores <- function(data, y_cols){
 
 ```
 
+```{r size-classes}
+
+assign_std_size <- function(geobike){
+  
+  # Trek checkpoint mapping old (numbers) to new (sizes) sizing
+  # xs - less than 49
+  # small - 49, 52
+  # medium - 52, 54
+  # ml - 56
+  # large - 58
+  # xl - 61
+  
+  
+  # get some data on average size for M and L
+  # average M is 175
+  # average L is 183.5
+  median_sizes <- c(
+    # XS
+    (median(geobike[frame_size == "XS", rider_min], na.rm=TRUE) +
+      median(geobike[frame_size == "XS", rider_max], na.rm=TRUE))/2,
+    # S
+    (median(geobike[frame_size == "S", rider_min], na.rm=TRUE) +
+      median(geobike[frame_size == "S", rider_max], na.rm=TRUE))/2,
+    # M
+    (median(geobike[frame_size == "M", rider_min], na.rm=TRUE) +
+      median(geobike[frame_size == "M", rider_max], na.rm=TRUE))/2,
+    # L
+    (median(geobike[frame_size == "L", rider_min], na.rm=TRUE) +
+      median(geobike[frame_size == "L", rider_max], na.rm=TRUE))/2,
+    # XL
+    (median(geobike[frame_size == "XL", rider_min], na.rm=TRUE) +
+      median(geobike[frame_size == "XL", rider_max], na.rm=TRUE))/2
+  ) |> round(0)
+
+  # five sizes: xs, s, m, l, xl
+  small_list <- c("S", "51", "52", "53")
+  medium_list <- c("M","54","54(L)","54.7","54.5","M(55)","545","M/54", "55")
+  large_list <- c("L", "560", "56", "L/57", "L/56", "57.5", "57", "L(57)")
+
+#  geobike[, frame_size_std := as.numeric(NA)]
+  for(i in 1:nrow(geobike)){
+    rider_min <- geobike[i, rider_min]
+    rider_max <- geobike[i, rider_max]
+    if(!is.na(rider_min)){
+      for(j in 1:length(median_sizes)){
+        if(median_sizes[j] > rider_min & median_sizes[j] <= rider_max){
+          geobike[i, frame_size_std := median_sizes[j]]
+        }
+      }
+    }else{
+    }
+  }
+  
+  # what are frame sizes for median size = small
+# size_m_top_tube <- geobike[frame_size_std == median_sizes[3], top_tube_effective_length]
+  
+      # if(geobike[i, frame_size] %in% small_list){
+      #   geobike[i, frame_size_std := median_sizes[2]]
+      # }
+      # if(geobike[i, frame_size] %in% medium_list){
+      #   geobike[i, frame_size_std := median_sizes[3]]
+      # }
+      # if(geobike[i, frame_size] %in% large_list){
+      #   geobike[i, frame_size_std := median_sizes[4]]
+      # }
+
+  return(geobike)
+}
+```
+
 ```{r import-gravel, eval=TRUE}
 import_it <- FALSE
 classifier_cols <- c(
@@ -968,43 +1032,10 @@ if(import_it != TRUE){
     geobike[my_fit == TRUE, .(N = .N), by = .(restyle)]
   }
   
+  geobike <- assign_std_size(geobike)
+  
   geobike[, color := pal_okabe_ito_3[as.integer(restyle)]]
   
-  # sizes
-  # average M is 175
-  # average L is 183.5
-  geobike[frame_size_orig == "M", .(M_low = median(rider_min, na.rm=TRUE))]
-  geobike[frame_size_orig == "M", .(M_hi = median(rider_max, na.rm=TRUE))]
-  geobike[frame_size_orig == "L", .(M_low = median(rider_min, na.rm=TRUE))]
-  geobike[frame_size_orig == "L", .(M_hi = median(rider_max, na.rm=TRUE))]
-  size_list_10 <- seq(150, 195, 5)
-  # four sizes
-  # 5.2 5.6, 5.10, 6.2
-  # xs, s, m, l
-  size_list_5 <- seq(160, 192, 8)
-  size_list_3 <- seq(152, 200, 3)
-  for(i in 1:nrow(geobike)){
-    rider_min <- geobike[i, rider_min]
-    rider_max <- geobike[i, rider_max]
-    if(!is.na(rider_min)){
-      for(j in 1:length(size_list_5)){
-        if(size_list_5[j] >= rider_min & size_list_5[j] < rider_max){
-          geobike[i, size_5 := size_list_5[j]]
-        }
-      }
-      for(j in 1:length(size_list_3)){
-        if(size_list_3[j] >= rider_min & size_list_3[j] < rider_max){
-          geobike[i, size_3 := size_list_3[j]]
-        }
-      }
-      
-    }else{
-      geobike[i, size_5 := NA]
-      geobike[i, size_3 := NA]
-    }
-  }
-
-
   # my_fit
   my_fit <- geobike[my_fit == TRUE]
   
@@ -1020,6 +1051,11 @@ if(import_it != TRUE){
   
 }
 
+```
+
+# check colors
+```{r}
+"#56B4E9" "#E69F00" "#009E73"
 ```
 
 # check correlations
@@ -1525,7 +1561,7 @@ scatter_fig_global <- function(data = geobike,
   
   # this version links all plots so that size can be filtered globally
 
-  y_cols <- c(x_col, y_col, g_col, "model_size", "restyle", "color", "Size")
+  # y_cols <- c(x_col, y_col, g_col, "model_size", "restyle", "color", "Size")
   #subdata <- na.omit(data$origData()[, .SD, .SDcols = y_cols])
 
   #shared_data <- highlight_key(data, ~model)
@@ -1591,9 +1627,9 @@ scatter_fig_global <- function(data = geobike,
       marker = list(
         size = 14,
         opacity = 1,
- #       color = ~restyle,
+        # color = ~restyle,
+        # colors = dot_palette[1:n_colors]
         color = ~color # color is a column in the data with the hex code for the color
- #       colors = dot_palette[1:n_colors]
       ),
       text = ~paste("\U2B05", model_size),
       textfont = list(size = 12),
