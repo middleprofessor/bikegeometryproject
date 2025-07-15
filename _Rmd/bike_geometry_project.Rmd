@@ -420,6 +420,72 @@ geom_checker <- function(chainstay_length, # chainstay length
   }
 ```
 
+# Read bike data
+
+```{r}
+get_frame_size_letters <- function(frame_size){
+  frame_size_letters <- str_replace_all(frame_size, "[^A-Za-z0-9]", "")
+  
+  frame_size_letters <- str_replace(frame_size_letters, "2X", "XX")
+  frame_size_letters <- str_replace(frame_size_letters, "3X", "XXX")
+
+# Extract letters
+  frame_size_letters <- str_extract_all(frame_size_letters,
+                                        "[A-Za-z]+")[[1]] |>
+    paste0(collapse = "")
+
+  frame_size_letters <- toupper(frame_size_letters)
+  frame_size_letters <- str_remove(frame_size_letters, "CM")
+  frame_size_letters <- str_remove(frame_size_letters, "SIZE")
+  frame_size_letters <- str_replace(frame_size_letters, "SMALL", "S")
+  frame_size_letters <- str_replace(frame_size_letters, "MEDIUM", "M")
+  frame_size_letters <- str_replace(frame_size_letters, "LARGE", "L")
+  frame_size_letters <- str_replace(frame_size_letters, "SM", "S")
+  frame_size_letters <- str_replace(frame_size_letters, "MD", "M")
+  frame_size_letters <- str_replace(frame_size_letters, "LG", "L")
+  frame_size_letters <- str_replace(frame_size_letters, "MED", "M")
+  frame_size_letters <- str_replace(frame_size_letters, "LRG", "L")
+  frame_size_letters <- str_replace(frame_size_letters, "EXTRA", "X")
+  frame_size_letters <- str_replace(frame_size_letters, "XM", "ML")
+  
+  # something like "SmallMedium" maps to small but should map to "SM"
+  if(frame_size == "Small/Medium"){frame_size_letters <- "SM"}
+  
+  return(frame_size_letters)
+}
+```
+
+```{r}
+get_frame_size_numbers <- function(frame_size){
+  frame_size_numbers <- str_replace_all(frame_size, "[^A-Za-z0-9]", "")
+  frame_size_numbers <- str_replace(frame_size_numbers, "2X", "XX")
+  frame_size_numbers <- str_replace(frame_size_numbers, "3X", "XXX")
+
+# Extract numbers
+  frame_size_numbers <- str_extract_all(frame_size_numbers,
+                                        "[0-9]+")[[1]] |>
+    paste0(collapse = "")
+  frame_size_numbers <- str_replace(frame_size_numbers, "4446", "45")
+  frame_size_numbers <- str_replace(frame_size_numbers, "4750", "49")
+  frame_size_numbers <- str_replace(frame_size_numbers, "5153", "52")
+  frame_size_numbers <- str_replace(frame_size_numbers, "5456", "55")
+  frame_size_numbers <- str_replace(frame_size_numbers, "5759", "58")
+  frame_size_numbers <- str_replace(frame_size_numbers, "6062", "61")
+  if(nchar(frame_size_numbers) > 0){
+    if(as.numeric(frame_size_numbers) > 100){
+      frame_size_numbers <- as.numeric(frame_size_numbers)/10 
+      frame_size_numbers <- as.character(frame_size_numbers)
+    }
+  }
+  if(frame_size_numbers == ""){
+    frame_size_numbers <- as.numeric(NA)
+  }
+  frame_size_numbers <- as.numeric(frame_size_numbers)
+
+  return(frame_size_numbers)
+}
+```
+
 ```{r read-bike-function, echo=FALSE}
 # data_path <- here(data_folder, "ghost_grappler.txt")
 # dt <- fread(data_path)
@@ -468,6 +534,20 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
                   , "rider_min", "rider_max"
   )
   bike <- bike[, .SD, .SDcols = keep_names]
+  
+  # clean frame size
+  
+  bike[, frame_size_letters := lapply(frame_size, get_frame_size_letters) |>
+         unlist()]
+  bike[, frame_size_numbers := lapply(frame_size, get_frame_size_numbers) |>
+         unlist()]
+  bike[, frame_size_orig := frame_size]
+  bike[!is.na(frame_size_numbers) & !is.na(frame_size_letters),
+       frame_size := paste0(frame_size_numbers, frame_size_letters)]
+  bike[!is.na(frame_size_numbers) & is.na(frame_size_letters),
+       frame_size := frame_size_numbers |> as.character()]
+  bike[is.na(frame_size_numbers) & !is.na(frame_size_letters),
+       frame_size := frame_size_letters]
   
   # fill in missing
     # wheelbase
@@ -547,6 +627,9 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
   # head_v and head_h are decomp of head tube
   bike[, head_v := head_tube_length * sin(deg_2_rad(head_tube_angle))]
   bike[, head_h := head_tube_length * cos(deg_2_rad(head_tube_angle))]
+  
+  bike[, effective_frame_reach := reach + seat_tube_h]
+  bike[, effective_reach := reach + seat_tube_h + stem_length]
 
   # landmarks with rear axle as origin
   bike[, x1 := 0] # rear axle
@@ -584,6 +667,89 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
 }
 
 ```
+
+
+```{r size-classes}
+
+assign_std_size <- function(geobike){
+  
+  # Trek checkpoint mapping old (numbers) to new (sizes) sizing
+  # xs - less than 49
+  # small - 49, 52
+  # medium - 52, 54
+  # ml - 56
+  # large - 58
+  # xl - 61
+  
+  # get some data on average size for M and L
+  # average M is 175
+  # average L is 183.5
+  median_sizes <- c(
+    # XS
+    (median(geobike[frame_size_letters == "XS", rider_min], na.rm=TRUE) +
+      median(geobike[frame_size_letters == "XS", rider_max], na.rm=TRUE))/2,
+    # S
+    (median(geobike[frame_size_letters == "S", rider_min], na.rm=TRUE) +
+      median(geobike[frame_size_letters == "S", rider_max], na.rm=TRUE))/2,
+    # M
+    (median(geobike[frame_size_letters == "M", rider_min], na.rm=TRUE) +
+      median(geobike[frame_size_letters == "M", rider_max], na.rm=TRUE))/2,
+    # L
+    (median(geobike[frame_size_letters == "L", rider_min], na.rm=TRUE) +
+      median(geobike[frame_size_letters == "L", rider_max], na.rm=TRUE))/2,
+    # XL
+    (median(geobike[frame_size_letters == "XL", rider_min], na.rm=TRUE) +
+      median(geobike[frame_size_letters == "XL", rider_max], na.rm=TRUE))/2
+  ) |> round(0)
+
+
+#  geobike[, frame_size_std := as.numeric(NA)]
+  for(i in 1:nrow(geobike)){
+    rider_min <- geobike[i, rider_min]
+    rider_max <- geobike[i, rider_max]
+    if(!is.na(rider_min)){
+      for(j in 1:length(median_sizes)){
+        if(median_sizes[j] > rider_min & median_sizes[j] <= rider_max){
+          geobike[i, frame_size_std := median_sizes[j]]
+        }
+      }
+    }else{
+      geobike[i, frame_size_std := NA]
+    }
+  }
+  
+# add size Medium
+  model_list <- unique(geobike[, model])
+  for(i in 1:length(model_list)){
+    frame_size_std_list <- geobike[model == model_list[i], frame_size_std]
+    frame_size_letters_list <- geobike[model == model_list[i],
+                                       frame_size_letters]
+    if(!175 %in% frame_size_std_list){
+      geobike[model == model_list[i] & frame_size_letters == "M", frame_size_std := 175]
+    }
+  }
+
+  for(i in 1:length(model_list)){
+    frame_size_std_list <- geobike[model == model_list[i], frame_size_std]
+    frame_size_numbers_list <- geobike[model == model_list[i],
+                                       frame_size_letters]
+    if(!175 %in% frame_size_std_list){
+      geobike[model == model_list[i] &
+                frame_size_numbers >= 53 &
+                frame_size_numbers <= 54, frame_size_std := 175]
+    }
+  }
+  
+  # total models
+  # length(model_list)
+  # nrow(geobike[frame_size_std == 175, ])
+  # setdiff(model_list, geobike[frame_size_std == 175, model])
+  # geobike[model == "Rose Backroad XPLR", frame_size]
+
+  return(geobike)
+}
+```
+
 
 # Import bikes
 
@@ -666,6 +832,7 @@ import_bike_list <- function(style = "gravel",
     import_bikes_excel_multiple(style, prefix),
     import_bikes_excel_single(style, prefix)
   )
+  geobike[, id := .I]
   # my_fit: use 176 cm (I am 175.5)
   # add Breezer small to my_fit
   # geobike[model == "Breezer Radar X Pro" & frame_size == "48cm (S)", my_fit := TRUE]
@@ -698,48 +865,12 @@ import_bike_list <- function(style = "gravel",
   geobike[, front_x := front_x - bottom_x]
   geobike[, bottom_x := bottom_x - bottom_x]
   geobike[, seattube_x := seattube_x - bottom_x]
-  
-  # clean frame_size
+ 
   setorder(geobike, "model")
-  geobike[, frame_size_orig := frame_size]
-  geobike[, frame_size := toupper(frame_size)]
-  geobike[, frame_size := str_remove(frame_size, "CM")]
-  geobike[, frame_size := str_remove(frame_size, "\"")]
-  geobike[, frame_size := str_replace(frame_size, "SMALL", "S")]
-  geobike[, frame_size := str_replace(frame_size, "MEDIUM", "M")]
-  geobike[, frame_size := str_replace(frame_size, "LARGE", "L")]
-  geobike[, frame_size := str_replace(frame_size, "SM", "S")]
-  geobike[, frame_size := str_replace(frame_size, "MD", "M")]
-  geobike[, frame_size := str_replace(frame_size, "LG", "L")]
-  geobike[, frame_size := str_replace(frame_size, "MED", "M")]
-  geobike[, frame_size := str_replace(frame_size, "LRG", "L")]
-  geobike[, frame_size := str_replace(frame_size, "EXTRA-", "X")]
-  geobike[, frame_size := str_replace(frame_size, "EXTRA ", "X")]
-  geobike[, frame_size := str_replace(frame_size, "2X", "XX")]
-  geobike[, frame_size := str_replace(frame_size, "3X", "XXX")]
-  geobike[, frame_size := str_replace(frame_size, " - ", "/")]
-  geobike[, frame_size := str_remove(frame_size, "-")]
-  geobike[, frame_size := str_remove(frame_size, " ")]
   
-  geobike[, frame_size_std_m := ifelse(rider_min < 175 & rider_max >= 175, TRUE, FALSE)]
-  nrow(geobike[frame_size_std_m == TRUE])
-  medium_list <- c("M","54","54(L)","54.7","54.5","M(55)","545","M/54", "53")
-  geobike[is.na(frame_size_std_m), frame_size_std_m := ifelse(frame_size %in% medium_list, TRUE, FALSE)]
-
-  geobike[, frame_size_std_l := ifelse(rider_min < 180 & rider_max >= 180, TRUE, FALSE)]
-  nrow(geobike[frame_size_std_l == TRUE])
-  large_list <- c("L", "560", "56", "L/57", "L/56", "57.5", "57", "L(57)")
-  geobike[is.na(frame_size_std_l), frame_size_std_l := ifelse(frame_size %in% large_list, TRUE, FALSE)]
-
-  # checks
-  a <- data.table(geobike[frame_size_std_m == TRUE, ])
-  b <- a[, .(N = .N), by = .(model)]
-  b[N > 1, model]
-  geobike[is.na(frame_size_std_l), .SD, .SDcol = c("model", "frame_size")]
-  setdiff(geobike[frame_size_std_m == TRUE, model], unique(geobike$model))
-  setdiff(unique(geobike$model), geobike[frame_size_std_l == TRUE, model])
-  geobike[frame_size_std_l == TRUE, model]
-  geobike[model == "Mason InSearchOf", .SD, .SDcol = c("frame_size", "frame_size_std_l", "rider_min", "rider_max")]
+  # get classifier size medium
+  geobike <- assign_std_size(geobike)
+  geobike[, frame_size_std_m := ifelse(frame_size_std == 175, TRUE, FALSE)]
 
   # set my_fit or classifier fit
   geobike[, my_fit := frame_size_std_m] 
@@ -919,76 +1050,6 @@ gravel_scores <- function(data, y_cols){
 
 ```
 
-```{r size-classes}
-
-assign_std_size <- function(geobike){
-  
-  # Trek checkpoint mapping old (numbers) to new (sizes) sizing
-  # xs - less than 49
-  # small - 49, 52
-  # medium - 52, 54
-  # ml - 56
-  # large - 58
-  # xl - 61
-  
-  
-  # get some data on average size for M and L
-  # average M is 175
-  # average L is 183.5
-  median_sizes <- c(
-    # XS
-    (median(geobike[frame_size == "XS", rider_min], na.rm=TRUE) +
-      median(geobike[frame_size == "XS", rider_max], na.rm=TRUE))/2,
-    # S
-    (median(geobike[frame_size == "S", rider_min], na.rm=TRUE) +
-      median(geobike[frame_size == "S", rider_max], na.rm=TRUE))/2,
-    # M
-    (median(geobike[frame_size == "M", rider_min], na.rm=TRUE) +
-      median(geobike[frame_size == "M", rider_max], na.rm=TRUE))/2,
-    # L
-    (median(geobike[frame_size == "L", rider_min], na.rm=TRUE) +
-      median(geobike[frame_size == "L", rider_max], na.rm=TRUE))/2,
-    # XL
-    (median(geobike[frame_size == "XL", rider_min], na.rm=TRUE) +
-      median(geobike[frame_size == "XL", rider_max], na.rm=TRUE))/2
-  ) |> round(0)
-
-  # five sizes: xs, s, m, l, xl
-  small_list <- c("S", "51", "52", "53")
-  medium_list <- c("M","54","54(L)","54.7","54.5","M(55)","545","M/54", "55")
-  large_list <- c("L", "560", "56", "L/57", "L/56", "57.5", "57", "L(57)")
-
-#  geobike[, frame_size_std := as.numeric(NA)]
-  for(i in 1:nrow(geobike)){
-    rider_min <- geobike[i, rider_min]
-    rider_max <- geobike[i, rider_max]
-    if(!is.na(rider_min)){
-      for(j in 1:length(median_sizes)){
-        if(median_sizes[j] > rider_min & median_sizes[j] <= rider_max){
-          geobike[i, frame_size_std := median_sizes[j]]
-        }
-      }
-    }else{
-    }
-  }
-  
-  # what are frame sizes for median size = small
-# size_m_top_tube <- geobike[frame_size_std == median_sizes[3], top_tube_effective_length]
-  
-      # if(geobike[i, frame_size] %in% small_list){
-      #   geobike[i, frame_size_std := median_sizes[2]]
-      # }
-      # if(geobike[i, frame_size] %in% medium_list){
-      #   geobike[i, frame_size_std := median_sizes[3]]
-      # }
-      # if(geobike[i, frame_size] %in% large_list){
-      #   geobike[i, frame_size_std := median_sizes[4]]
-      # }
-
-  return(geobike)
-}
-```
-
 ```{r import-gravel, eval=TRUE}
 import_it <- FALSE
 classifier_cols <- c(
@@ -1032,7 +1093,6 @@ if(import_it != TRUE){
     geobike[my_fit == TRUE, .(N = .N), by = .(restyle)]
   }
   
-  geobike <- assign_std_size(geobike)
   
   geobike[, color := pal_okabe_ito_3[as.integer(restyle)]]
   
