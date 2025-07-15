@@ -511,11 +511,11 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
   
   bike_model <- substr(bike_label, 1, nchar(bike_label) - 5)
   model_year <- substr(bike_label,
-                       nchar(bike_label) - 4,
+                       nchar(bike_label) - 3,
                        nchar(bike_label))
   bike_wide <- bike_wide[, -2]
   bike <- data.table(
-    model = bike_model,
+    model = paste(bike_model, model_year),
     year = model_year,
     transpose(bike_wide,
               keep.names = "frame_size",
@@ -969,9 +969,9 @@ gravel_classifier <- function(
     style_class[, model := tstrsplit(label, ",", keep = 1)]
     
     cluster_labels <- numeric(3)
-    rowdy <- "Santa Cruz Stigmata CC"
+    rowdy <- "Santa Cruz Stigmata CC 2023"
     cluster_labels[style_class[model == rowdy, clust]] <- "Rowdy"
-    racy <- "OPEN U.P."
+    racy <- "OPEN U.P. 2022"
     cluster_labels[style_class[model == racy, clust]] <- "Racy"
     # relaxed <- "Mason InSearchOf"
     # cluster_labels[style_class[model == relaxed, clust]] <- "Relaxed"
