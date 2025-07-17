@@ -30,8 +30,25 @@ plot_grid(gg_legend)
 
 
 ```{r ternary-plot, echo=FALSE, out.width = "100%", out.height = "100%"}
-p <- base_ternary(my_fit)
-p
+my_fit_shared <- SharedData$new(my_fit)
+
+p1 <- base_ternary(my_fit_shared)
+
+  boxes <- filter_checkbox("tire", "Max Tire", my_fit_shared, ~tire_class, inline = FALSE)
+  # boxes$attribs$style <- css(font.size = "90%") # <-change the font size
+
+  filters <- list(
+    filter_slider("tire", "Max Tire Width (mm)", my_fit_shared, ~tire_width_max),
+    filter_slider("axle_crown", "Axle-Crown (mm)", my_fit_shared, ~axle_crown)
+  )
+  
+  p <- bscols(
+    widths = c(3, 9),
+    filters,
+    p1
+  )
+  
+  p
 ```
 
 

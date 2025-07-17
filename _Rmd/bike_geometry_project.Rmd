@@ -526,14 +526,24 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
     bike[, rider_min := as.numeric(NA)]
     bike[, rider_max := as.numeric(NA)]
   }
+  bike[, axle_crown_in_data := TRUE]
+  if(!("axle_crown" %in% colnames(bike))){
+    bike[, axle_crown_in_data := FALSE]
+    bike[, axle_crown := as.numeric(NA)]
+  }
+  bike[is.na(axle_crown), axle_crown := 395]
+  
   keep_names <- c("model", "year", "frame_size", "seat_tube_length", "top_tube_effective_length",
                   "head_tube_length", "seat_tube_angle", "head_tube_angle", "chainstay_length",
-                  "wheelbase", "bottom_bracket_drop", "fork_offset_rake", "stack", "reach",
+                  "wheelbase", "bottom_bracket_drop", "fork_offset_rake", "stack", "reach", "axle_crown_in_data", "axle_crown",
                   "standover", "stem_length", "handlebar_width", "crank_length", "wheel_size",
                   "tire_width_spec", "tire_width_max"
                   , "rider_min", "rider_max"
   )
   bike <- bike[, .SD, .SDcols = keep_names]
+  
+  # clean tire_width_max
+  bike[, tire_width_max := round(tire_width_max, 0)]
   
   # clean frame size
   
@@ -874,6 +884,24 @@ import_bike_list <- function(style = "gravel",
 
   # set my_fit or classifier fit
   geobike[, my_fit := frame_size_std_m] 
+  
+  # max_tire size classes
+  max_tire <- c("45", "47", "50", "53", "57", "57+")
+  geobike[tire_width_max >= 45, tire_class := "45"]
+  geobike[tire_width_max >= 47, tire_class := "47"]
+  geobike[tire_width_max >= 50, tire_class := "50"]
+  geobike[tire_width_max >= 53, tire_class := "53"]
+  geobike[tire_width_max >= 57, tire_class := "57"]
+  geobike[tire_width_max > 57, tire_class := "57+"]
+  
+  # axle-crown classes
+  axle_crown_list <- c("< 409", "409", "415", "425", "435", "> 435")
+  geobike[axle_crown >= 409, axle_crown_class := axle_crown_list[2]]
+  geobike[axle_crown >= 415, axle_crown_class := axle_crown_list[3]]
+  geobike[axle_crown >= 425, axle_crown_class := axle_crown_list[4]]
+  geobike[axle_crown >= 435, axle_crown_class := axle_crown_list[5]]
+  geobike[axle_crown > 435, axle_crown_class := axle_crown_list[6]]
+
 
   # order in legend of plots is S/M, S, M/L, M. Solution:
   # 1) add U200B after " S" and " M"
@@ -1366,6 +1394,7 @@ base_ternary <- function(
   return(fig)  
 }
 ```
+
 
 
 ```{r scatter-fig}
