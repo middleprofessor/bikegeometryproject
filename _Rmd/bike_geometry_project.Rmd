@@ -1332,7 +1332,7 @@ gravel_scores <- function(data, y_cols){
 ```
 
 ```{r import-gravel, eval=TRUE}
-import_it <- TRUE
+import_it <- FALSE
 classifier_cols <- c(
   "stack",
   "reach",

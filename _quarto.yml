@@ -30,9 +30,9 @@ website:
         menu:
           - qmd/which_gravel_bikes_are_mtb_inspired.qmd
           - qmd/mtb_90s.qmd
-      - text: "New Bike Day"
+      - text: "Gravel Explore"
         menu:
-          - qmd/nbd/revoltx.qmd
+          - qmd/gravel_sus_fork.qmd
 
 format:
   html:

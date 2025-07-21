@@ -10,64 +10,94 @@ source(source_path)
 ```
 
 
-```{r geom-table, echo=FALSE, eval=FALSE, fig.width= 8, fig.height=0.5}
-#| fig-height: 1
+```{r geom-table, echo=FALSE, eval=TRUE}
+library(DT)
 
+row_i <- 573 # sklar ML
 table_cols <- c("stack", "reach", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "wheelbase", "front_center", "rear_center", "trail")
-rigid <- my_fit[14, .SD, .SDcols = table_cols] |> as.numeric()
-rudy_30_45 <- my_fit[14, .SD, .SDcols = paste(table_cols, "30 45")] |> as.numeric()
-geom_table <- data.table(
-  Measure = table_cols,
-  Rigid = values
-)
-fig <- plot_ly(
-  type = 'table',
-  header = list(
-    values = c("<b>Cars</b>", names(geom_table)),
-  align = c('left', rep('center', ncol(geom_table))),
-  line = list(width = 1, color = 'black'),
-  fill = list(color = 'rgb(235, 100, 230)'),
-  font = list(family = "Arial", size = 14, color = "white")
-  ),
-  cells = list(
-    values = rbind(
-      rownames(geom_table), 
-      t(as.matrix(unname(geom_table)))
-    ),
-    align = c('left', rep('center', ncol(geom_table))),
-    line = list(color = "black", width = 1),
-    fill = list(color = c('rgb(235, 193, 238)', 'rgba(228, 222, 249, 0.65)')),
-    font = list(family = "Arial", size = 12, color = c("black"))
-  ))
-
-fig
 
 
-```
+geom_table <- data.table(NULL)
+
+#for(row_i in 1:nrow(geobike)){
+for(row_i in 1:nrow(geobike)){
+  rigid <- geobike[row_i, .SD, .SDcols = table_cols] |> as.numeric()
+  rudy_30_45 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "30 45")] |> as.numeric()
+  rudy_30_51 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "30 51")] |> as.numeric()
+  rudy_40_45 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "40 45")] |> as.numeric()
+  rudy_40_51 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "40 51")] |> as.numeric()
+  
+  geom_table <- rbind(
+    geom_table,
+    data.table(
+      Model = geobike[row_i, model_size],
+      Measure = table_cols,
+      Rigid = as.integer(rigid),
+      "Travel = 30, Offset = 45" = as.integer(rudy_30_45),
+      "Travel = 40, Offset = 45" = as.integer(rudy_40_45),
+      "Travel = 30, Offset = 51" = as.integer(rudy_30_51),
+      "Travel = 40, Offset = 51" = as.integer(rudy_40_51)
+    ))
+}
+
+header_list <- names(geom_table)[-1]
+n_col <- ncol(geom_table)
+data_matrix <- t(as.matrix(unname(geom_table)))
+
+geom_table_shared <- SharedData$new(geom_table, group = "model_group")
+
+fig <- datatable(geom_table_shared,
+                 options = list(autoWidth = TRUE))
+
+filter_ui <- filter_select(id = "fsid", 
+                         label = "Model", 
+                         sharedData = geom_table_shared, 
+                         group = ~Model,
+                         multiple = FALSE)
 
 
-```{r ternary-plot, echo=FALSE, out.width = "100%", out.height = "100%"}
-my_fit_shared <- SharedData$new(my_fit)
-
-p1 <- base_ternary(my_fit_shared) |>
-  layout(height = 400)
-
-  boxes <- filter_checkbox("tire", "Max Tire", my_fit_shared, ~tire_class, inline = FALSE)
-  # boxes$attribs$style <- css(font.size = "90%") # <-change the font size
-
-  filters <- list(
-    filter_slider("tire", "Max Tire Width (mm)", my_fit_shared, ~tire_width_max),
-    filter_slider("axle_crown", "Axle-Crown (mm)", my_fit_shared, ~axle_crown)
-  )
-
-  p <- bscols(
-    widths = c(3, 9),
-    filters,
-    p1
+ p <- bscols(widths = c(2, 10), filter_ui, fig
   )
   
   p
+
+
+
 ```
+
+
+```{r echo=FALSE, eval=FALSE}
+
+library(plotly)
+library(crosstalk)
+library(DT)
+library(htmltools)
+
+df <- data.frame(
+  Model = c("A", "B", "A", "C", "B", "C"),
+  Value = c(10, 20, 15, 30, 25, 35)
+)
+
+# Create shared data
+geom_table_shared <- SharedData$new(df, group = "model_group")
+
+# Dropdown filter
+filter_ui <- filter_select(
+  id = "fsid", 
+  label = "Model", 
+  sharedData = geom_table_shared, 
+#  group = "model_group",
+  group = ~Model,
+  multiple = FALSE
+)
+
+# Crosstalk-friendly table
+fig <- datatable(geom_table_shared)
+
+# Layout
+bscols(widths = c(3, 9), filter_ui, fig)
+```
+
 
 
 ::: {.callout-tip title="Which bikes are racy? rowdy? relaxed?"}
