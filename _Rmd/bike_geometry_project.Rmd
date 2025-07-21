@@ -420,6 +420,136 @@ geom_checker <- function(chainstay_length, # chainstay length
   }
 ```
 
+# Add sus fork modifications
+
+```{r}
+geometry_with_sus_fork <- function(frame,
+                                   sus_length = 425,
+                                   sus_travel = 30,
+                                   sus_rake = 45,
+                                   sus_sag = 0.2,
+                                   headset_stack = 12){
+  # frame <- geobike[model == "BMC URS AL 2022" & frame_size == "M", ]
+  # frame <- geobike[model == "Sklar SS Ti 2025" & frame_size == "ML", ]
+  # check geom
+  # stack = bbdrop + fork.v + headtube.v
+  
+  hta <- frame[1, head_tube_angle]
+  sta <- frame[1, seat_tube_angle]
+  rake <- frame[1, fork_offset_rake]
+  wheelbase <- frame[1, wheelbase]
+  fork_length <- frame[1, axle_crown]
+  headtube_length <- frame[1, head_tube_length]
+  bb_drop <- frame[1, bottom_bracket_drop]
+  front_center <- frame[1, front_center]
+  rear_center <- frame[1, rear_center]
+  stack <- frame[1, stack]
+  reach <- frame[1, reach]
+ 
+  
+  hta_r <- hta * pi/180
+  fork_angle_r <- hta_r - asin(rake/fork_length)
+  fork_angle <- fork_angle_r * 180/pi
+  
+  headtube.h <- headtube_length * cos(hta_r)
+  headtube.v <- headtube_length * sin(hta_r)
+  headset_stack <- 12
+  headset_h <- headset_stack * cos(hta_r)
+  headset_v <- headset_stack * sin(hta_r)
+  fork.h <- fork_length * cos(fork_angle_r)
+  fork.v <- fork_length * sin(fork_angle_r)
+  # check geom
+  # bb_drop + fork.v + headtube.v + headset_v # computed stack
+  # stack
+  # rear_center + reach + headtube.h + headset_h + fork.h
+  # wheelbase
+  
+  # sqrt(fork.x.old^2 + fork.y.old^2)
+  # check with coords
+  dy.old <- frame[1, crown_y] - frame[1, front_y]
+  dx.old <- frame[1, crown_x] - frame[1, front_x]
+  sqrt(dy.old^2 + dx.old^2) # this isn't fork length
+  # check geom
+  # stack = bbdrop + fork.v + headtube.v
+  
+
+  # new fork
+  sag_length <- sus_length - sus_sag * sus_travel
+  sus_fork_angle_r <- hta_r - asin(sus_rake/sag_length)
+  sus_fork_angle <- sus_fork_angle_r * 180/pi # axle is now below horizon
+  fork.x.new <- sag_length * cos(sus_fork_angle_r)
+  fork.y.new<- sag_length * sin(sus_fork_angle_r)
+  # sqrt(fork.x.new^2 + fork.y.new^2)
+
+  dy = fork.y.new - fork.y.old
+  dx = fork.x.new - fork.x.old
+  # sqrt(dx^2 + dy^2)
+  
+  alpha_r <- atan(dy/(wheelbase + dx)) # angle of rotation about rear axle
+  alpha <- alpha_r * 180/pi
+  wheelbase.new <- sqrt(dy^2 + (wheelbase + dx)^2)
+  d_bb_drop <- rear_center/wheelbase * dy
+  d_stack <- (rear_center+reach)/wheelbase * dy
+  
+  # rotate frame coordinates by alpha_r
+  x_coords <- frame[1, .SD, .SDcols = paste0("x", 1:7)] |>
+    as.numeric()
+  y_coords <- frame[1, .SD, .SDcols = paste0("y", 1:7)] |>
+    as.numeric()
+  bike_coords <- matrix(c(x_coords, y_coords), ncol = 2)
+  row.names(bike_coords) <- c("rear_axle", "top_effect_seat_tube", "top_head_tube",
+                              "top_crown", "front_axle", "bottom_bracket",
+                              "top_seat_tube")
+  H = matrix(c(cos(alpha_r), -sin(alpha_r), sin(alpha_r), cos(alpha_r)),
+             nrow = 2)
+  new_coords <- bike_coords %*% H
+  stack.new <- new_coords["top_head_tube", 2] - new_coords["bottom_bracket", 2]
+  reach.new <- new_coords["top_head_tube", 1] - new_coords["bottom_bracket", 1]
+  hta.new <- hta - alpha
+  sta.new <- sta - alpha
+  bb_drop.new <- -new_coords["bottom_bracket", 2]
+  rear_center.new <- new_coords["bottom_bracket", 1]
+  front_center.new <- wheelbase.new - rear_center.new
+
+  # trail
+  radius <- (ifelse(frame$wheel_size == 700 | frame$wheel_size == 29, 622, 584) + frame$tire_width_spec*2)/2
+  offset_h <- sus_rake/sin(deg_2_rad(hta.new))
+
+  trail.new <- radius/tan(hta_r) - offset_h
+  
+  # rear_axle = 1, top_seat = 2, top_head_tube = 3, top_crown = 4,
+  # front_axle = 5, bottom_bracket = 6, top_seat_tube = 7
+  
+  measure_set <- c(wheelbase = wheelbase.new,
+          stack = stack.new,
+          reach = reach.new,
+          hta = hta.new,
+          sta = sta.new,
+          bb_drop = bb_drop.new,
+          rc = rear_center.new,
+          fc = front_center.new,
+          trail = trail.new
+          )
+  names(measure_set) <- c("wheelbase", "stack", "reach", "hta", "sta", "bb_drop", "rc", "fc", "trail")
+
+  return(measure_set)
+
+
+}  
+
+  
+```
+
+```{r eval=FALSE}
+    sus_measures <- geometry_with_sus_fork(bike[row_i],
+                                           sus_length = 425,
+                                           sus_travel = 30,
+                                           sus_rake = 45,
+                                           sus_sag = .2,
+                                           headset_stack = 12)
+
+```
+
 # Read bike data
 
 ```{r}
@@ -494,10 +624,11 @@ get_frame_size_numbers <- function(frame_size){
 
 read_bike <- function(bike_label = "Alchemy Lycos 2023",
                       bike_range = "a1:h23",
-                      data_file = "gravel.xlsx"){
+                      data_file = "gravel.xlsx",
+                      sheet = "Sheet1"){
   data_path <- here(data_folder, data_file)
   bike_wide <- read_excel(data_path,
-                          sheet = bike_label,
+                          sheet = sheet,
                           range = bike_range) |>
     data.table()
   # re-read with coltype = numeric
@@ -673,6 +804,113 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
   bike[, seattube_x := x7]
   bike[, seattube_y := y7]
   
+  # geometry_with_sus_fork <- function(frame,
+  #                                  sus_length = 425,
+  #                                  sus_travel = 30,
+  #                                  sus_rake = 45,
+  #                                  headset_stack = 12){
+
+  for(row_i in 1:nrow(bike)){
+    sus_length = 425
+    sus_travel = 30
+    sus_rake = 45
+    sus_sag = 0.2
+    headset_stack = 12
+    sus_measures <- geometry_with_sus_fork(
+      bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
+    bike[row_i, (paste("wheelbase", sus_travel, sus_rake)) :=
+           sus_measures["wheelbase"]]
+    bike[row_i, (paste("stack", sus_travel, sus_rake)) :=
+           sus_measures["stack"]]
+    bike[row_i, (paste("reach", sus_travel, sus_rake)) :=
+           sus_measures["reach"]]
+    bike[row_i, (paste("head_tube_angle", sus_travel, sus_rake)) :=
+           sus_measures["hta"]]
+    bike[row_i, (paste("seat_tube_angle", sus_travel, sus_rake)) :=
+           sus_measures["sta"]]
+    bike[row_i, (paste("bottom_bracket_drop", sus_travel, sus_rake)) :=
+           sus_measures["bb_drop"]]
+    bike[row_i, (paste("rear_center", sus_travel, sus_rake)) :=
+           sus_measures["rc"]]
+    bike[row_i, (paste("front_center", sus_travel, sus_rake)) :=
+           sus_measures["fc"]]
+    bike[row_i, (paste("trail", sus_travel, sus_rake)) :=
+           sus_measures["trail"]]
+
+    sus_length = 435
+    sus_travel = 40
+    sus_rake = 45
+    sus_measures <- geometry_with_sus_fork(
+      bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
+    bike[row_i, (paste("wheelbase", sus_travel, sus_rake)) :=
+           sus_measures["wheelbase"]]
+    bike[row_i, (paste("stack", sus_travel, sus_rake)) :=
+           sus_measures["stack"]]
+    bike[row_i, (paste("reach", sus_travel, sus_rake)) :=
+           sus_measures["reach"]]
+    bike[row_i, (paste("head_tube_angle", sus_travel, sus_rake)) :=
+           sus_measures["hta"]]
+    bike[row_i, (paste("seat_tube_angle", sus_travel, sus_rake)) :=
+           sus_measures["sta"]]
+    bike[row_i, (paste("bottom_bracket_drop", sus_travel, sus_rake)) :=
+           sus_measures["bb_drop"]]
+    bike[row_i, (paste("rear_center", sus_travel, sus_rake)) :=
+           sus_measures["rc"]]
+    bike[row_i, (paste("front_center", sus_travel, sus_rake)) :=
+           sus_measures["fc"]]
+    bike[row_i, (paste("trail", sus_travel, sus_rake)) :=
+           sus_measures["trail"]]
+
+    sus_length = 425
+    sus_travel = 30
+    sus_rake = 51
+    sus_measures <- geometry_with_sus_fork(
+      bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
+    bike[row_i, (paste("wheelbase", sus_travel, sus_rake)) :=
+           sus_measures["wheelbase"]]
+    bike[row_i, (paste("stack", sus_travel, sus_rake)) :=
+           sus_measures["stack"]]
+    bike[row_i, (paste("reach", sus_travel, sus_rake)) :=
+           sus_measures["reach"]]
+    bike[row_i, (paste("head_tube_angle", sus_travel, sus_rake)) :=
+           sus_measures["hta"]]
+    bike[row_i, (paste("seat_tube_angle", sus_travel, sus_rake)) :=
+           sus_measures["sta"]]
+    bike[row_i, (paste("bottom_bracket_drop", sus_travel, sus_rake)) :=
+           sus_measures["bb_drop"]]
+    bike[row_i, (paste("rear_center", sus_travel, sus_rake)) :=
+           sus_measures["rc"]]
+    bike[row_i, (paste("front_center", sus_travel, sus_rake)) :=
+           sus_measures["fc"]]
+    bike[row_i, (paste("trail", sus_travel, sus_rake)) :=
+           sus_measures["trail"]]
+
+    sus_length = 435
+    sus_travel = 40
+    sus_rake = 51
+    sus_measures <- geometry_with_sus_fork(
+      bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
+    bike[row_i, (paste("wheelbase", sus_travel, sus_rake)) :=
+           sus_measures["wheelbase"]]
+    bike[row_i, (paste("stack", sus_travel, sus_rake)) :=
+           sus_measures["stack"]]
+    bike[row_i, (paste("reach", sus_travel, sus_rake)) :=
+           sus_measures["reach"]]
+    bike[row_i, (paste("head_tube_angle", sus_travel, sus_rake)) :=
+           sus_measures["hta"]]
+    bike[row_i, (paste("seat_tube_angle", sus_travel, sus_rake)) :=
+           sus_measures["sta"]]
+    bike[row_i, (paste("bottom_bracket_drop", sus_travel, sus_rake)) :=
+           sus_measures["bb_drop"]]
+    bike[row_i, (paste("rear_center", sus_travel, sus_rake)) :=
+           sus_measures["rc"]]
+    bike[row_i, (paste("front_center", sus_travel, sus_rake)) :=
+           sus_measures["fc"]]
+    bike[row_i, (paste("trail", sus_travel, sus_rake)) :=
+           sus_measures["trail"]]
+    
+  }
+  
   return(bike)
 }
 
@@ -802,10 +1040,23 @@ import_bikes_excel_multiple <- function(style = "gravel",
     bike_range_i <- as.character(bike_list[i, "data_range"])
     bike_i <- read_bike(bike_label = bike_label_i,
                         bike_range = bike_range_i,
-                        data_file = "gravel.xlsx")
+                        data_file = "gravel.xlsx",
+                        sheet = bike_label_i)
     bike_i[, my_fit := ifelse(frame_size == c(bike_list[i, "my_fit"]), TRUE, FALSE)]
     geobike <- rbind(geobike, bike_i)
   }
+  
+ # add new specs
+  bike_spec_list <- c("material", "udh", "dropout", "x700c_width_max", "x650b_tire_max", "suspension_corrected", "fork_suspension", "stem_suspension", "rear_suspension", "rear_axle", "front_axle", "q_factor", "seatpost_diameter", "routing_shifter", "routing_dropper", "routing_dynamo", "front_derailleur", "chainring_1", "chainring_2", "bottom_bracket", "mounts_inner", "mounts_under", "mounts_top", "mounts_fork", "mounts_fender_rear", "mounts_fender_front", "mounts_rack", "iso_astm", "rotor_max_front", "rotor_max_rear", "frameset", "base_build", "currency", "internal_storage")
+  
+  bike_specs <- data.table(
+    bike_spec_list = bike_spec_list,
+    value = as.numeric(NA)
+  ) |>
+    transpose(make.names = 1)
+
+  geobike <- cbind(geobike, bike_specs)
+  
  return(geobike)
 }
 ```
@@ -820,14 +1071,22 @@ import_bikes_excel_single <- function(style = "gravel",
   for(i in 1:nrow(bike_list)){
     bike_file = bike_list[i]
     bike_path <- here(data_folder, style, bike_file)
-    bike_data <- read_excel(bike_path, range = "A1:B9", col_names = FALSE) |>
+    bike_data <- read_excel(bike_path, range = "A1:B5", col_names = FALSE) |>
       data.table()
+    # specs table
+    bike_specs <- read_excel(bike_path, range = "A6:AH7", col_names = TRUE) |>
+      clean_names() |>
+      data.table()
+    # geometry range
+    bike_range_i <- read_excel(bike_path, range = "B9:B9", col_names = FALSE) |> as.character()
+    
     bike_label_i <- paste(bike_data[1, 2], bike_data[2, 2], bike_data[3, 2])
-    bike_range_i <- bike_data[9, 2] |> as.character()
     bike_i <- read_bike(bike_label = bike_label_i,
                         bike_range = bike_range_i,
-                        data_file = paste0("gravel/", bike_file))
+                        data_file = paste0("gravel/", bike_file),
+                        sheet = bike_label_i)
     bike_i[, my_fit := NA]
+    bike_i <- cbind(bike_i, bike_specs )
     geobike <- rbind(geobike, bike_i)
   }
  return(geobike)
@@ -978,13 +1237,7 @@ gravel_classifier <- function(
   style_table <- geobike_subset[, .SD, .SDcols = c("model", "frame_size")]
   style_levels <- c("Racy", "Relaxed", "Rowdy")
   n_fits <- length(y_cols) + 1
-  for(j in 1:n_fits){
-    if(j == n_fits){
-      inc_cols <- y_cols
-    }else{
-      inc_cols <- y_cols[-j]
-    }
-    geobike_subset <- data[my_fit == TRUE, .SD, .SDcols = c("model", "frame_size", inc_cols)]
+
     tree_v2 <- get_tree(na.omit(geobike_subset),
                         inc_cols,
                         scale_it,
@@ -1014,7 +1267,7 @@ gravel_classifier <- function(
     style_table[, restyle := as.numeric(as.integer(restyle))]
     
     setnames(style_table, "restyle", paste0("restyle", j))
-  }
+  
   style_cols <- paste0("restyle", 1:n_fits)
   style_table[, robust_restyle := style_levels[round(apply(style_table[, .SD, .SDcols = style_cols],
                                                   1, mean, na.rm = TRUE), 0)]]
@@ -1070,16 +1323,16 @@ gravel_scores <- function(data, y_cols){
     t()
   # apply(scores_1, 1, sum) # check!
 
-  data[, racy := scores_1[, 1]]
-  data[, relaxed := scores_1[, 2]]
-  data[, rowdy := scores_1[, 3]]
+  data[, racy := scores_1[, 1] * 100]
+  data[, relaxed := scores_1[, 2] * 100]
+  data[, rowdy := scores_1[, 3] * 100]
   return(data)
 }
 
 ```
 
 ```{r import-gravel, eval=TRUE}
-import_it <- FALSE
+import_it <- TRUE
 classifier_cols <- c(
   "stack",
   "reach",

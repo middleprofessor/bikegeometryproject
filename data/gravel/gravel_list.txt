@@ -1,20 +1,17 @@
-Chumba Cenote Ti 2025.xlsx
-Cervelo Aspero 2025.xlsx
-Wilier Rave SLR ID2 2025.xlsx
-Sage Storm King GP 2025.xlsx
-Trek Checkpoint SL (gen 3) 2025.xlsx
-Propain Terrel CF 2024.xlsx
-Argon 18 Dark Matter 2025.xlsx
-Orbea Terra 2025.xlsx
-Canyon Grail 2025.xlsx
-Canyon Grizl 2025.xlsx
-Whyte Verro 2025.xlsx
-Mondraker Arid Carbon 2025.xlsx
-Pinarello Grevil F 2025.xlsx
-BMC URS 2024.xlsx
-Pivot Vault 2025.xlsx
-Factor Ostro Gravel 2025.xlsx
-Allied Able 2025.xlsx
-Specialized Diverge STR 2023.xlsx
-Specialized Crux 2025.xlsx
 Panorama Katahdin 2.1 2025.xlsx
+Specialized Crux 2025.xlsx
+Specialized S-Works Crux 2025.xlsx
+Orbea Terra 2025.xlsx
+Propain Terrel CF 2024.xlsx
+Chumba Cenote Ti 2025.xlsx
+BMC URS 01 2024.xlsx
+BMC URS 2024.xlsx
+Niner Ore 9 RDO 2025.xlsx
+Allied Able 2025.xlsx
+Sage Storm King GP 2025.xlsx
+Argon 18 Dark Matter 2025.xlsx
+Factor Ostro Gravel 2025.xlsx
+Rodeo Labs Flaanimal 6 Ti 2025.xlsx
+Mondraker Arid Carbon 2025.xlsx
+Wilier Rave SLR ID2 2025.xlsx
+Trek Checkpoint SL (gen 3) 2025.xlsx
