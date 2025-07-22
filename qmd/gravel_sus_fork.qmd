@@ -12,10 +12,11 @@ source(source_path)
 
 ```{r geom-table, echo=FALSE, eval=TRUE}
 library(DT)
+library(reactable)
 
 row_i <- 573 # sklar ML
 table_cols <- c("axle_crown", "stack", "reach", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "wheelbase", "front_center", "rear_center", "trail")
-
+clean_cols <- c("fork length", "stack", "reach", "head tube angle", "seat tube angle", "BB drop", "wheelbase", "frontcenter", "rearcenter", "trail")
 
 geom_table <- data.table(NULL)
 
@@ -26,28 +27,48 @@ for(row_i in 1:nrow(geobike)){
   rudy_30_51 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "30 51")] |> as.numeric()
   rudy_40_45 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "40 45")] |> as.numeric()
   rudy_40_51 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "40 51")] |> as.numeric()
-  
+  fox_50_45 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "50 45")] |> as.numeric()
+  fox_50_50 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "50 50")] |> as.numeric()
+  value_table <- data.table(
+      rudy_30_45,
+      rudy_40_45,
+      rudy_30_51,
+      rudy_40_51,
+      fox_50_45,
+      fox_50_50
+  ) |>
+    round(1)
+  value_table <- apply(value_table, 2, as.character)
+  for(i in c(1:3,6:10)){
+    x <- value_table[i, ]
+    x <- str_remove(x, "\\..*")
+    value_table[i, ] <- x
+  }
+  colnames(value_table) <- c(
+    "30 mm Travel, 45 mm Offset",
+    "40 mm Travel, 45 mm Offset",
+    "30 mm Travel, 51 mm Offset",
+    "40 mm Travel, 51 mm Offset",
+    "50 mm Travel, 45 mm Offset",
+    "50 mm Travel, 50 mm Offset"
+  )
+
   geom_table <- rbind(
     geom_table,
     data.table(
       Model = geobike[row_i, model_size],
-      Measure = table_cols,
+      Measure = clean_cols,
       Rigid = as.integer(rigid),
-      "Travel = 30, Offset = 45" = as.integer(rudy_30_45),
-      "Travel = 40, Offset = 45" = as.integer(rudy_40_45),
-      "Travel = 30, Offset = 51" = as.integer(rudy_30_51),
-      "Travel = 40, Offset = 51" = as.integer(rudy_40_51)
+      value_table
     ))
 }
-
-header_list <- names(geom_table)[-1]
-n_col <- ncol(geom_table)
-data_matrix <- t(as.matrix(unname(geom_table)))
 
 geom_table_shared <- SharedData$new(geom_table, group = "model_group")
 
 fig <- datatable(geom_table_shared,
-                 options = list(autoWidth = TRUE))
+                 options = list(autoWidth = TRUE,
+                                rownames = FALSE))
+
 
 filter_ui <- filter_select(id = "fsid", 
                          label = "Model", 
@@ -66,51 +87,16 @@ filter_ui <- filter_select(id = "fsid",
 ```
 
 
-```{r echo=FALSE, eval=FALSE}
-
-library(plotly)
-library(crosstalk)
-library(DT)
-library(htmltools)
-
-df <- data.frame(
-  Model = c("A", "B", "A", "C", "B", "C"),
-  Value = c(10, 20, 15, 30, 25, 35)
-)
-
-# Create shared data
-geom_table_shared <- SharedData$new(df, group = "model_group")
-
-# Dropdown filter
-filter_ui <- filter_select(
-  id = "fsid", 
-  label = "Model", 
-  sharedData = geom_table_shared, 
-#  group = "model_group",
-  group = ~Model,
-  multiple = FALSE
-)
-
-# Crosstalk-friendly table
-fig <- datatable(geom_table_shared)
-
-# Layout
-bscols(widths = c(3, 9), filter_ui, fig)
-```
 
 
 
-::: {.callout-tip title="Which bikes are racy? rowdy? relaxed?"}
-1. Hover over data for model and frame size identification.
-2. Scroll legend and click on items to identify specific model in the plot.
-3. Click on popup icon-bar over legend to zoom in/out and pan.
+::: {.callout-tip title="How does a suspension change bike geometry?"}
+1. Cane Creek Invert has two models: 30 mm (425 mm axle-crown) and 40 (435 mm axle-crown) mm travel. Both models have 45 mm offset
+2. Rockshox Rudy has four models: 30 mm (425 mm axle-crown) and 40 (435 mm axle-crown) mm travel, each with either 45 mm or 51 mm offset.
+3. Fox 32 TC Factory has four models: 40 (435.5 mm axle-crown) mm and 50 (445.5 mm axle-crown) mm travel, each with either 45 mm or 50 mm offset.
 :::
 
 ::: {.callout-note}
-1. The ternary scores are the projections of the centered, scaled data onto the style (Racy, Relaxed, Rowdy) axes.
-2. There are several ways to construct a style axis. The ternary plot uses the 2nd of these two ways:
-    i. the vector of differences from the centroid to the style mean of the centered, scaled data.
-    ii. the vector of correlation coefficients between the style classification (1 is "in style" and 0 is "out of style") and each measure.
-3. The input data is the ML subset of bikes that fit a 176 cm rider
+1. The suspension fork length is based on 10% sag: fork_length - 0.1*travel
 :::
 

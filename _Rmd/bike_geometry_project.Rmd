@@ -923,6 +923,59 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
            sus_measures["fc"]]
     bike[row_i, (paste("trail", sus_travel, sus_rake)) :=
            sus_measures["trail"]]
+
+    sus_length = 445
+    sus_travel = 50
+    sus_rake = 45
+    sus_measures <- geometry_with_sus_fork(
+      bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
+    bike[row_i, (paste("axle_crown", sus_travel, sus_rake)) :=
+           sus_measures["axle_crown_sag"]]
+    bike[row_i, (paste("wheelbase", sus_travel, sus_rake)) :=
+           sus_measures["wheelbase"]]
+    bike[row_i, (paste("stack", sus_travel, sus_rake)) :=
+           sus_measures["stack"]]
+    bike[row_i, (paste("reach", sus_travel, sus_rake)) :=
+           sus_measures["reach"]]
+    bike[row_i, (paste("head_tube_angle", sus_travel, sus_rake)) :=
+           sus_measures["hta"]]
+    bike[row_i, (paste("seat_tube_angle", sus_travel, sus_rake)) :=
+           sus_measures["sta"]]
+    bike[row_i, (paste("bottom_bracket_drop", sus_travel, sus_rake)) :=
+           sus_measures["bb_drop"]]
+    bike[row_i, (paste("rear_center", sus_travel, sus_rake)) :=
+           sus_measures["rc"]]
+    bike[row_i, (paste("front_center", sus_travel, sus_rake)) :=
+           sus_measures["fc"]]
+    bike[row_i, (paste("trail", sus_travel, sus_rake)) :=
+           sus_measures["trail"]]
+    
+    sus_length = 445
+    sus_travel = 50
+    sus_rake = 50
+    sus_measures <- geometry_with_sus_fork(
+      bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
+    bike[row_i, (paste("axle_crown", sus_travel, sus_rake)) :=
+           sus_measures["axle_crown_sag"]]
+    bike[row_i, (paste("wheelbase", sus_travel, sus_rake)) :=
+           sus_measures["wheelbase"]]
+    bike[row_i, (paste("stack", sus_travel, sus_rake)) :=
+           sus_measures["stack"]]
+    bike[row_i, (paste("reach", sus_travel, sus_rake)) :=
+           sus_measures["reach"]]
+    bike[row_i, (paste("head_tube_angle", sus_travel, sus_rake)) :=
+           sus_measures["hta"]]
+    bike[row_i, (paste("seat_tube_angle", sus_travel, sus_rake)) :=
+           sus_measures["sta"]]
+    bike[row_i, (paste("bottom_bracket_drop", sus_travel, sus_rake)) :=
+           sus_measures["bb_drop"]]
+    bike[row_i, (paste("rear_center", sus_travel, sus_rake)) :=
+           sus_measures["rc"]]
+    bike[row_i, (paste("front_center", sus_travel, sus_rake)) :=
+           sus_measures["fc"]]
+    bike[row_i, (paste("trail", sus_travel, sus_rake)) :=
+           sus_measures["trail"]]
+
     
   }
   
@@ -1410,13 +1463,13 @@ if(import_it != TRUE){
 ```
 
 # check colors
-```{r}
+```{r eval=FALSE}
 "#56B4E9" "#E69F00" "#009E73"
 ```
 
 # check correlations
 
-```{r}
+```{r eval=FALSE}
 
 frontcenter_cols <- c("reach", "head_tube_angle", "fork_offset_rake") #
 frontcenter_y <- my_fit[, .SD, .SDcols = frontcenter_cols] |>
