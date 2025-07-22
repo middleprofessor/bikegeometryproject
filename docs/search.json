@@ -16,7 +16,7 @@
   {
     "objectID": "qmd/gravel_sus_fork.html",
     "href": "qmd/gravel_sus_fork.html",
-    "title": "Which bikes are racy/rowdy/relaxed?",
+    "title": "How does a suspension fork change bike geometry?",
     "section": "",
     "text": "Model\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWhich bikes are racy? rowdy? relaxed?\n\n\n\n\nHover over data for model and frame size identification.\nScroll legend and click on items to identify specific model in the plot.\nClick on popup icon-bar over legend to zoom in/out and pan.\n\n\n\n\n\n\n\n\n\nNote\n\n\n\n\nThe ternary scores are the projections of the centered, scaled data onto the style (Racy, Relaxed, Rowdy) axes.\nThere are several ways to construct a style axis. The ternary plot uses the 2nd of these two ways:\n\nthe vector of differences from the centroid to the style mean of the centered, scaled data.\nthe vector of correlation coefficients between the style classification (1 is “in style” and 0 is “out of style”) and each measure.\n\nThe input data is the ML subset of bikes that fit a 176 cm rider"
   },

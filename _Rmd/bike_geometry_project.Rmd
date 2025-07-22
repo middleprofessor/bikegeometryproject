@@ -424,13 +424,16 @@ geom_checker <- function(chainstay_length, # chainstay length
 
 ```{r}
 geometry_with_sus_fork <- function(frame,
-                                   sus_length = 425,
-                                   sus_travel = 30,
+                                   sus_length = 435,
+                                   sus_travel = 40,
                                    sus_rake = 45,
-                                   sus_sag = 0.2,
+                                   sus_sag = 0.1,
                                    headset_stack = 12){
+  
+  # note headset stack doesn't matter for this
   # frame <- geobike[model == "BMC URS AL 2022" & frame_size == "M", ]
   # frame <- geobike[model == "Sklar SS Ti 2025" & frame_size == "ML", ]
+  # frame <- geobike[model == "Santa Cruz Stigmata CC 2023" & frame_size == "M", ]
   # check geom
   # stack = bbdrop + fork.v + headtube.v
   
@@ -453,7 +456,6 @@ geometry_with_sus_fork <- function(frame,
   
   headtube.h <- headtube_length * cos(hta_r)
   headtube.v <- headtube_length * sin(hta_r)
-  headset_stack <- 12
   headset_h <- headset_stack * cos(hta_r)
   headset_v <- headset_stack * sin(hta_r)
   fork.h <- fork_length * cos(fork_angle_r)
@@ -464,11 +466,6 @@ geometry_with_sus_fork <- function(frame,
   # rear_center + reach + headtube.h + headset_h + fork.h
   # wheelbase
   
-  # sqrt(fork.x.old^2 + fork.y.old^2)
-  # check with coords
-  dy.old <- frame[1, crown_y] - frame[1, front_y]
-  dx.old <- frame[1, crown_x] - frame[1, front_x]
-  sqrt(dy.old^2 + dx.old^2) # this isn't fork length
   # check geom
   # stack = bbdrop + fork.v + headtube.v
   
@@ -477,19 +474,18 @@ geometry_with_sus_fork <- function(frame,
   sag_length <- sus_length - sus_sag * sus_travel
   sus_fork_angle_r <- hta_r - asin(sus_rake/sag_length)
   sus_fork_angle <- sus_fork_angle_r * 180/pi # axle is now below horizon
-  fork.x.new <- sag_length * cos(sus_fork_angle_r)
-  fork.y.new<- sag_length * sin(sus_fork_angle_r)
+  fork.h.new <- sag_length * cos(sus_fork_angle_r)
+  fork.v.new<- sag_length * sin(sus_fork_angle_r)
   # sqrt(fork.x.new^2 + fork.y.new^2)
 
-  dy = fork.y.new - fork.y.old
-  dx = fork.x.new - fork.x.old
-  # sqrt(dx^2 + dy^2)
-  
-  alpha_r <- atan(dy/(wheelbase + dx)) # angle of rotation about rear axle
+  dv = fork.v.new - fork.v
+  dh = fork.h.new - fork.h
+
+  alpha_r <- atan(dv/(wheelbase + dh)) # angle of rotation about rear axle
   alpha <- alpha_r * 180/pi
-  wheelbase.new <- sqrt(dy^2 + (wheelbase + dx)^2)
-  d_bb_drop <- rear_center/wheelbase * dy
-  d_stack <- (rear_center+reach)/wheelbase * dy
+  wheelbase.new <- sqrt(dv^2 + (wheelbase + dh)^2)
+  d_bb_drop <- rear_center/wheelbase * dv
+  d_stack <- (rear_center+reach)/wheelbase * dv
   
   # rotate frame coordinates by alpha_r
   x_coords <- frame[1, .SD, .SDcols = paste0("x", 1:7)] |>
@@ -520,17 +516,19 @@ geometry_with_sus_fork <- function(frame,
   # rear_axle = 1, top_seat = 2, top_head_tube = 3, top_crown = 4,
   # front_axle = 5, bottom_bracket = 6, top_seat_tube = 7
   
-  measure_set <- c(wheelbase = wheelbase.new,
-          stack = stack.new,
-          reach = reach.new,
-          hta = hta.new,
-          sta = sta.new,
-          bb_drop = bb_drop.new,
-          rc = rear_center.new,
-          fc = front_center.new,
-          trail = trail.new
-          )
-  names(measure_set) <- c("wheelbase", "stack", "reach", "hta", "sta", "bb_drop", "rc", "fc", "trail")
+  measure_set <- c(
+    sag_length = sag_length,
+    wheelbase = wheelbase.new,
+    stack = stack.new,
+    reach = reach.new,
+    hta = hta.new,
+    sta = sta.new,
+    bb_drop = bb_drop.new,
+    rc = rear_center.new,
+    fc = front_center.new,
+    trail = trail.new
+  )
+  names(measure_set) <- c("axle_crown_sag", "wheelbase", "stack", "reach", "hta", "sta", "bb_drop", "rc", "fc", "trail")
 
   return(measure_set)
 
@@ -540,14 +538,23 @@ geometry_with_sus_fork <- function(frame,
   
 ```
 
-```{r eval=FALSE}
-    sus_measures <- geometry_with_sus_fork(bike[row_i],
-                                           sus_length = 425,
-                                           sus_travel = 30,
+```{r sus-checker, eval=FALSE}
+    sus_measures <- geometry_with_sus_fork(frame,
+                                           sus_length = 435,
+                                           sus_travel = 40,
                                            sus_rake = 45,
-                                           sus_sag = .2,
-                                           headset_stack = 12)
-
+                                           sus_sag = .1,
+                                           headset_stack = 0)
+  
+  measure_list <- c("axle_crown", "wheelbase", "stack", "reach", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "rear_center", "front_center", "trail")
+  
+  rigid_measures <- frame[, .SD, .SDcols = measure_list]
+  
+  data.table(
+    measure = measure_list,
+    rigid = rigid_measures |> as.numeric(),
+    sus = sus_measures |> as.numeric()
+  )
 ```
 
 # Read bike data
@@ -814,10 +821,12 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
     sus_length = 425
     sus_travel = 30
     sus_rake = 45
-    sus_sag = 0.2
-    headset_stack = 12
+    sus_sag = 0.1
+    headset_stack = 0
     sus_measures <- geometry_with_sus_fork(
       bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
+    bike[row_i, (paste("axle_crown", sus_travel, sus_rake)) :=
+           sus_measures["axle_crown_sag"]]
     bike[row_i, (paste("wheelbase", sus_travel, sus_rake)) :=
            sus_measures["wheelbase"]]
     bike[row_i, (paste("stack", sus_travel, sus_rake)) :=
@@ -842,6 +851,8 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
     sus_rake = 45
     sus_measures <- geometry_with_sus_fork(
       bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
+    bike[row_i, (paste("axle_crown", sus_travel, sus_rake)) :=
+           sus_measures["axle_crown_sag"]]
     bike[row_i, (paste("wheelbase", sus_travel, sus_rake)) :=
            sus_measures["wheelbase"]]
     bike[row_i, (paste("stack", sus_travel, sus_rake)) :=
@@ -866,6 +877,8 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
     sus_rake = 51
     sus_measures <- geometry_with_sus_fork(
       bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
+    bike[row_i, (paste("axle_crown", sus_travel, sus_rake)) :=
+           sus_measures["axle_crown_sag"]]
     bike[row_i, (paste("wheelbase", sus_travel, sus_rake)) :=
            sus_measures["wheelbase"]]
     bike[row_i, (paste("stack", sus_travel, sus_rake)) :=
@@ -890,6 +903,8 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
     sus_rake = 51
     sus_measures <- geometry_with_sus_fork(
       bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
+    bike[row_i, (paste("axle_crown", sus_travel, sus_rake)) :=
+           sus_measures["axle_crown_sag"]]
     bike[row_i, (paste("wheelbase", sus_travel, sus_rake)) :=
            sus_measures["wheelbase"]]
     bike[row_i, (paste("stack", sus_travel, sus_rake)) :=

@@ -1,9 +1,9 @@
 ---
-title: "Which bikes are racy/rowdy/relaxed?"
+title: "How does a suspension fork change bike geometry?"
 subtitle: "And how race/rowdy/relaxed are they?"
 ---
 
-```{r gravel-ternary-setup, echo=FALSE, warning=FALSE, message=FALSE}
+```{r gravel-sus-setup, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 
@@ -14,7 +14,7 @@ source(source_path)
 library(DT)
 
 row_i <- 573 # sklar ML
-table_cols <- c("stack", "reach", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "wheelbase", "front_center", "rear_center", "trail")
+table_cols <- c("axle_crown", "stack", "reach", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "wheelbase", "front_center", "rear_center", "trail")
 
 
 geom_table <- data.table(NULL)
