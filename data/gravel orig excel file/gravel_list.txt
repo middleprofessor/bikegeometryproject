@@ -64,7 +64,6 @@ Cotic Cascade 2022	steel	a1:f22	Medium
 Chumba Yaupon 2022	steel	a1:f22	MD
 Otso Warakin Stainless 2022	steel	a1:h24	56cm
 BMC URS AL 2022	aluminum	a1:g31	M
-BMC URS AL SUS 2022	aluminum	a1:c29	M
 Blackheart All Road TI 2022	titanium	a1:j24	54
 Nordest Kutxo 2022	steel	b1:f21	M
 Open WI.DE 2022	carbon	b1:h25	M
@@ -98,7 +97,7 @@ Giant Revolt pro long 2023	carbon	a1:h23	M
 Giant Revolt pro short 2023	carbon	a1:h23	M
 Cannondale Topstone Lefty 2023	carbon	a1:g26	MD
 Enve Mog 2023	carbon	a1:h27	54
-All-City Space Horse 2023	steel	a5:i26	52cm
+All-City Space Horse 2023	steel	a6:i27	52cm
 Wilde Earth Ship Steel 2023	steel	a6:h29	M
 Chumba Terlingua SL Tit 2023	titanium	a6:h27	56
 Chumba Yaupon Steel Sus 2023	steel	a6:f27	MD
@@ -110,9 +109,7 @@ Rodeo TrailDonkey 4.0 2023	carbon	a6:g29	56 cm
 Panorama Taiga EXP 2023	steel	a6:e28	MEDIUM
 Panorama Katahdin 2023	carbon	a6:e28	MEDIUM
 Nukeproof Digger 2022	aluminum	a6:f34	MEDIUM
-Santa Cruz Stigmata CC 2023	carbon	a6:g33	L
 Salsa Journeyer 700c 2023	aluminum	a6:h29	55cm
 Blackheart Gravel AL 2024	aluminum	a6:j29	56
 Rodeo Flaanimal 5.0 2024	titanium	a6:h30	56 cm
 Sklar SS Ti 2025	titanium	a6:g31	M-L
-Sklar SS Ti Sus 2025	titanium	a6:c31	M-L

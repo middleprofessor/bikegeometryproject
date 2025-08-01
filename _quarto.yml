@@ -19,17 +19,12 @@ website:
           - qmd/gravel_ternary.qmd
           - qmd/what_makes_a_rowdy_bike_rowdy.qmd
           - qmd/what_makes_a_relaxed_bike_relaxed.qmd
-          - qmd/what_is_a_gravel_bike.qmd
           - qmd/gravel_tree.qmd
           - qmd/gravel_class.qmd
       - text: "Gravel Plots"
         menu:
           - qmd/gravel_histo.qmd
           - qmd/gravel_scatter.qmd
-      - text: "Gravel Stories"
-        menu:
-          - qmd/which_gravel_bikes_are_mtb_inspired.qmd
-          - qmd/mtb_90s.qmd
       - text: "Gravel Explore"
         menu:
           - qmd/gravel_sus_fork.qmd

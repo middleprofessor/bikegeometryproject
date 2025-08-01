@@ -64,64 +64,82 @@ plot_grid(gg_legend)
 geobike_shared <- SharedData$new(my_fit)
 add_regression <- TRUE
 
+# which classifier
+tree_class <- 1
+functional_class <- 2
+kmeans_class <- 3
+mclust_class <- 4
+rowdy_col <- c("rowdy", "rowdy_ternary", "kmeans_rowdy_score", "mclust_rowdy")[mclust_class]
+color_col <- c("restyle", "functional_style", "kmeans_style", "mclust_style")[mclust_class]
+
 p1 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "rowdy", x_col = "stack",
+                  y_col = rowdy_col, x_col = "stack",
                   y_label = "Rowdy Index", x_label = "Stack (mm)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p2 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "rowdy", x_col = "reach",
+                  y_col = rowdy_col, x_col = "reach",
                   y_label = "Rowdy Index", x_label = "Reach (mm)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p3 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "rowdy", x_col = "head_tube_angle",
+                  y_col = rowdy_col, x_col = "head_tube_angle",
                   y_label = "Rowdy Index", x_label = "Head Tube Angle (°)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p4 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "rowdy", x_col = "seat_tube_angle",
+                  y_col = rowdy_col, x_col = "seat_tube_angle",
                   y_label = "Rowdy Index", x_label = "Seat Tube Angle (°)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p5 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "rowdy", x_col = "fork_offset_rake",
+                  y_col = rowdy_col, x_col = "fork_offset_rake",
                   y_label = "Rowdy Index", x_label = "Fork Offset (mm)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p6 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "rowdy", x_col = "chainstay_length",
+                  y_col = rowdy_col, x_col = "chainstay_length",
                   y_label = "Rowdy Index", x_label = "Chainstay Length (mm)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p7 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "rowdy", x_col = "front_center",
+                  y_col = rowdy_col, x_col = "front_center",
                   y_label = "Rowdy Index", x_label = "Front Center (mm)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p8 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "rowdy", x_col = "stack_reach",
+                  y_col = rowdy_col, x_col = "stack_reach",
                   y_label = "Rowdy Index", x_label = "Stack:Reach",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p9 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "rowdy", x_col = "front_rear",
+                  y_col = rowdy_col, x_col = "front_rear",
                   y_label = "Rowdy Index", x_label = "Front Center:Rear Center",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p10 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "rowdy", x_col = "trail",
-                  y_label = "Rowdy Index", x_label = "Trail (mm)",
+                  y_col = rowdy_col, x_col = "trail_45",
+                  y_label = "Rowdy Index", x_label = "Trail (mm) (with 45mm tire)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 

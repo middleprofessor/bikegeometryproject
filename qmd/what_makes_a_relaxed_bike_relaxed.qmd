@@ -71,64 +71,82 @@ add_regression <- TRUE
 #                    g_col = "restyle"
 #                    )
 
+# which classifier
+tree_class <- 1
+functional_class <- 2
+kmeans_class <- 3
+mclust_class <- 4
+relaxed_col <- c("relaxed", "relaxed_ternary", "kmeans_relaxed_score", "mclust_relaxed")[mclust_class]
+color_col <- c("restyle", "functional_style", "kmeans_style", "mclust_style")[mclust_class]
+
 p1 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "relaxed", x_col = "stack",
+                  y_col = relaxed_col, x_col = "stack",
                   y_label = "Relaxed Index", x_label = "Stack (mm)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p2 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "relaxed", x_col = "reach",
+                  y_col = relaxed_col, x_col = "reach",
                   y_label = "Relaxed Index", x_label = "Reach (mm)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p3 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "relaxed", x_col = "head_tube_angle",
+                  y_col = relaxed_col, x_col = "head_tube_angle",
                   y_label = "Relaxed Index", x_label = "Head Tube Angle (°)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p4 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "relaxed", x_col = "seat_tube_angle",
+                  y_col = relaxed_col, x_col = "seat_tube_angle",
                   y_label = "Relaxed Index", x_label = "Seat Tube Angle (°)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p5 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "relaxed", x_col = "fork_offset_rake",
+                  y_col = relaxed_col, x_col = "fork_offset_rake",
                   y_label = "Relaxed Index", x_label = "Fork Offset (mm)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p6 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "relaxed", x_col = "chainstay_length",
+                  y_col = relaxed_col, x_col = "chainstay_length",
                   y_label = "Relaxed Index", x_label = "Chainstay Length (mm)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p7 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "relaxed", x_col = "front_center",
+                  y_col = relaxed_col, x_col = "front_center",
                   y_label = "Relaxed Index", x_label = "Front Center (mm)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p8 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "relaxed", x_col = "stack_reach",
+                  y_col = relaxed_col, x_col = "stack_reach",
                   y_label = "Relaxed Index", x_label = "Stack:Reach",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p9 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "relaxed", x_col = "front_rear",
+                  y_col = relaxed_col, x_col = "front_rear",
                   y_label = "Relaxed Index", x_label = "Front Center:Rear Center",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p10 <- scatter_fig_global(data = geobike_shared,
-                  y_col = "relaxed", x_col = "trail",
+                  y_col = relaxed_col, x_col = "trail",
                   y_label = "Relaxed Index", x_label = "Trail (mm)",
                   g_col = "model_size",
+                  color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 
@@ -185,7 +203,7 @@ p1
 p2
 ```
 
-### Headtube, seattube angle, fork offset, and trail aren't really related to relaxedness
+### Headtube angle, seattube angle, fork offset, and trail aren't really related to relaxedness
 
 ```{r relaxed-low, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
 p3

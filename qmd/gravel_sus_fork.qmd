@@ -66,15 +66,15 @@ for(row_i in 1:nrow(geobike)){
 geom_table_shared <- SharedData$new(geom_table, group = "model_group")
 
 fig <- datatable(geom_table_shared,
-                 options = list(autoWidth = TRUE,
-                                rownames = FALSE))
+                 rownames = FALSE,
+                 options = list(autoWidth = TRUE))
 
 
 filter_ui <- filter_select(id = "fsid", 
-                         label = "Model", 
-                         sharedData = geom_table_shared, 
-                         group = ~Model,
-                         multiple = FALSE)
+                           label = "Model", 
+                           sharedData = geom_table_shared, 
+                           group = ~Model,
+                           multiple = FALSE)
 
 
  p <- bscols(widths = c(2, 10), filter_ui, fig
@@ -85,8 +85,6 @@ filter_ui <- filter_select(id = "fsid",
 
 
 ```
-
-
 
 
 
