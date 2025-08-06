@@ -621,17 +621,13 @@ stack_sus_columns <- function(dt){
   sus_dt[fork == "rigid", fork := paste("0", round(fork_offset_rake,0))]
   
   # test columns
-  sus_dt[, travel := substr(fork,1,2)]
-  sus_dt[travel == "0 ", travel := "rigid"]
-  sus_dt[substr(fork,1,2) == "0 ", travel2 := "rigid"]
-  sus_dt[substr(fork,1,2) == "30", travel2 := "30 mm"]
-  sus_dt[substr(fork,1,2) == "40", travel2 := "40 mm"]
-  sus_dt[substr(fork,1,2) == "50", travel2 := "50 mm"]
-  sus_dt[substr(fork,1,2) == "0 ", travel3 := "rigid"]
-  sus_dt[substr(fork,1,2) == "30", travel3 := "thirty"]
-  sus_dt[substr(fork,1,2) == "40", travel3 := "forty"]
-  sus_dt[substr(fork,1,2) == "50", travel3 := "fifty"]
-  sus_dt[, travel4 := factor(travel3)]
+  sus_dt[substr(fork,1,2) == "0 ", travel := "rigid"]
+  sus_dt[substr(fork,1,2) == "30", travel := "30 mm"]
+  sus_dt[substr(fork,1,2) == "40", travel := "40 mm"]
+  sus_dt[substr(fork,1,2) == "50", travel := "50 mm"]
+  # sus_dt[, travel := factor(travel, levels = c("rigid", "30 mm", "40 mm", "50 mm"))]
+  
+  sus_dt[, sus_key := paste(model_size, fork)]
   # make highlight column
   # highlight info text
   sus_dt[, highlight_text := paste(substr(fork, 1, 2), "travel;",
@@ -2219,6 +2215,7 @@ if(import_it != TRUE){
   geobike <- import_bike_list(style = "gravel")
   geobike_import <- copy(geobike)
   # geobike <- geobike_import
+  
   # classify bikes by kmeans
   # kmeans first splits into k = 2 groups because there is only good support for 2. Then splits
   # group 2 into two groups because there is good support for this.

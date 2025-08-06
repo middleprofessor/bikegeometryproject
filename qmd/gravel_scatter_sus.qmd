@@ -40,15 +40,15 @@ source(source_path)
 
 ```{r make-plots, echo=FALSE}
 #geobike_sus_shared <- SharedData$new(geobike_sus[my_fit == TRUE,], key = ~model_size, group = "2dsus")
-geobike_sus_shared <- SharedData$new(geobike_sus[my_fit == TRUE,], key = ~model_size, group = "2dsus")
+geobike_sus_shared <- SharedData$new(geobike_sus[my_fit == TRUE,], key = ~sus_key, group = "2dsus")
 
 p1 <- scatter_fig(shared_data = geobike_sus_shared,
                   link_group = "2dsus",
                   x_col = "reach", y_col = "stack",
                   x_label = "Reach (mm)", y_label = "Stack (mm)",
                   g_col = "model_size",
-                  # filter_col = "fork_key",
-                  # filter_keep = "rigid",
+                  filter_col = "fork_key",
+                  filter_keep = "rigid",
                   xtra_info = "fork",
                   same_xy_scale = FALSE)
 p2 <- scatter_fig(shared_data = geobike_sus_shared,
@@ -57,8 +57,8 @@ p2 <- scatter_fig(shared_data = geobike_sus_shared,
                   x_label = "Seat Tube Angle (°)", y_label = "Head Tube Angle (°)",
                   x_info = "STA", y_info = "HTA", digits = 1,
                   g_col = "model_size",
-                  # filter_col = "fork_key",
-                  # filter_keep = "rigid",
+                  filter_col = "fork_key",
+                  filter_keep = "rigid",
                   xtra_info = "fork",
                   same_xy_scale = FALSE)
 
@@ -125,20 +125,7 @@ p2 <- scatter_fig(shared_data = geobike_sus_shared,
   boxes <- filter_checkbox("fork", "Fork", geobike_sus_shared, ~travel, inline = FALSE)
   bscols(widths = c(8,3), p1, boxes)
   bscols( widths = c(8,3), p2)
- 
-  boxes <- filter_checkbox("fork", "Fork", geobike_sus_shared, ~travel2, inline = FALSE)
-  bscols(widths = c(8,3), p1, boxes)
-  bscols( widths = c(8,3), p2)
- 
-  boxes <- filter_checkbox("fork", "Fork", geobike_sus_shared, ~travel3, inline = FALSE)
-  bscols(widths = c(8,3), p1, boxes)
-  bscols( widths = c(8,3), p2)
- 
-  boxes <- filter_checkbox("fork", "Fork", geobike_sus_shared, ~travel4, inline = FALSE)
-  bscols(widths = c(8,3), p1, boxes)
-  bscols( widths = c(8,3), p2)
- 
-  
+
   # p3
   # p4
   # p5
