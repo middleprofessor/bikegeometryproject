@@ -1,0 +1,86 @@
+---
+title: "Which bikes are racy/rowdy/relaxed?"
+subtitle: "And how race/rowdy/relaxed are they?"
+---
+
+```{r gravel-ternary-setup, echo=FALSE, warning=FALSE, message=FALSE}
+source_path <- here::here("bike_geometry_project.R")
+source(source_path)
+
+```
+
+
+```{r legend, echo=FALSE, eval=FALSE, fig.width= 8, fig.height=0.5}
+#| fig-height: 1
+gg <- ggplot(data = geobike,
+       aes(x = reach,
+           y = stack,
+           color = restyle)) +
+  geom_point() +
+  scale_color_manual(name = "Classification",
+                     values = pal_okabe_ito_3) +
+  theme_pubr() +
+  theme(legend.position="top") +
+  NULL
+  
+gg_legend <- get_legend(gg)
+plot_grid(gg_legend)
+
+```
+
+
+```{r ternary-plot, echo=FALSE, out.width = "100%", out.height = "100%"}
+my_fit_shared <- SharedData$new(my_fit)
+
+p1 <- base_ternary(my_fit_shared,
+                   axis_cols = c("sta_hta",
+                                 "stack_reach",
+                                 "front_wheelbase"),
+                   axis_labels = c("STA-HTA","Stack-Reach","Front-Wheelbase"),
+                   g_col = "mclust_style",
+                   legend_color_col = "color", # column with color of legend
+                   rescale = TRUE
+) |>
+  layout(height = 400)
+p2 <- base_ternary(my_fit_shared,
+                   axis_cols = c("stack",
+                                 "front_center",
+                                 "rear_center"),
+                   axis_labels = c("Stack","Front Center H","Rear Center H"),
+                   g_col = "mclust_style",
+                   legend_color_col = "color", # column with color of legend
+                   rescale = TRUE
+) |>
+  layout(height = 400)
+
+
+  filters <- list(
+    filter_slider("tire", "Max Tire Width (mm)", my_fit_shared, ~tire_width_max),
+    filter_slider("axle_crown", "Axle-Crown (mm)", my_fit_shared, ~axle_crown)
+  )
+
+  p <- bscols(
+    widths = c(3, 9),
+    filters,
+    p1
+  )
+  
+  p1
+  p2
+```
+
+
+::: {.callout-tip title="Which bikes are racy? rowdy? relaxed?"}
+1. Hover over data for model and frame size identification.
+2. Scroll legend and click on items to identify specific model in the plot.
+3. Click on popup icon-bar over legend to zoom in/out and pan.
+:::
+
+::: {.callout-note}
+1. The ternary scores are the projections of the centered, scaled data onto the style (Racy, Relaxed, Rowdy) axes.
+2. There are several ways to construct a style axis. The ternary plot uses the 2nd of these two ways:
+    i. the vector of differences from the centroid to the style mean of the centered, scaled data.
+    ii. the vector of correlation coefficients between the style classification (1 is "in style" and 0 is "out of style") and each measure.
+3. The input data is the ML subset of bikes that fit a 176 cm rider
+:::
+

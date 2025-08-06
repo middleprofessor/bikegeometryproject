@@ -16,18 +16,19 @@ website:
     left:
       - text: "Gravel Style"
         menu:
-          - qmd/gravel_ternary.qmd
-          - qmd/what_makes_a_rowdy_bike_rowdy.qmd
+          - qmd/gravel_style_plot.qmd
+          - qmd/what_makes_a_racy_bike_racy.qmd
           - qmd/what_makes_a_relaxed_bike_relaxed.qmd
+          - qmd/what_makes_a_rowdy_bike_rowdy.qmd
           - qmd/gravel_tree.qmd
           - qmd/gravel_class.qmd
       - text: "Gravel Plots"
         menu:
-          - qmd/gravel_histo.qmd
           - qmd/gravel_scatter.qmd
       - text: "Gravel Explore"
         menu:
           - qmd/gravel_sus_fork.qmd
+          - qmd/gravel_scatter_sus.qmd
 
 format:
   html:

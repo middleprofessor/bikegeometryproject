@@ -21,44 +21,7 @@ source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 ```
 
-```{r legend, echo=FALSE, fig.width= 8, fig.height=0.5}
-# plot_ly(data = geobike, type = "scatter", mode = "markers",
-#         x = ~ reach,
-#         y = ~ stack,
-#         color = ~restyle,
-#         colors = my_palette,
-#         size = 10,
-#         visible = "legendonly"
-# )
-#| fig-height: 1
-gg <- ggplot(data = geobike,
-       aes(x = reach,
-           y = stack,
-           color = restyle)) +
-  geom_point() +
-  scale_color_manual(name = "Classification",
-                     values = pal_okabe_ito_3) +
-  theme_pubr() +
-  theme(legend.position="top") +
-  NULL
-  
-gg_legend <- get_legend(gg)
-plot_grid(gg_legend)
 
-```
-
-```{r plot-headers, warning=FALSE, message=FALSE, eval=FALSE, echo=FALSE, out.width = "90%", out.height = "90%"}
-
-### Stack vs. Reach
-### Chainstay Length vs. Effective top tube length
-### Rear Center vs. Front Center
-### Head Tube Angle vs. Seat Tube Angle
-### Top Tube Angle vs. Seat Tube Angle
-### Trail vs. Head Tube Angle
-### Stack/Reach vs. Front Center/Wheelbase
-### Seat Tube Angle/Head Tube Angle vs. Front Center/Wheelbase
-
-```
 
 ```{r make-plots, echo=FALSE}
 
@@ -76,8 +39,8 @@ tree_class <- 1
 functional_class <- 2
 kmeans_class <- 3
 mclust_class <- 4
-relaxed_col <- c("relaxed", "relaxed_ternary", "kmeans_relaxed_score", "mclust_relaxed")[mclust_class]
-color_col <- c("restyle", "functional_style", "kmeans_style", "mclust_style")[mclust_class]
+relaxed_col <- c("tree_relaxed", "functional_relaxed", "kmeans_relaxed", "mclust_relaxed")[kmeans_class]
+color_col <- c("tree_style", "functional_style", "kmeans_style", "mclust_style")[kmeans_class]
 
 p1 <- scatter_fig_global(data = geobike_shared,
                   y_col = relaxed_col, x_col = "stack",
@@ -108,8 +71,8 @@ p4 <- scatter_fig_global(data = geobike_shared,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
 p5 <- scatter_fig_global(data = geobike_shared,
-                  y_col = relaxed_col, x_col = "fork_offset_rake",
-                  y_label = "Relaxed Index", x_label = "Fork Offset (mm)",
+                  y_col = relaxed_col, x_col = "bottom_bracket_drop",
+                  y_label = "Relaxed Index", x_label = "Bottom Bracket Drop (mm)",
                   g_col = "model_size",
                   color_col = color_col,
                   same_xy_scale = FALSE,
@@ -161,32 +124,7 @@ p10 <- scatter_fig_global(data = geobike_shared,
  #p
 ```
 
-```{r echo=FALSE}
-# make a blank plot
-gg <- ggplot(geobike,                               # theme_void scatterplot
-       aes(x = reach,
-           y = stack)) +
-  geom_point(color = "white") +
-  theme_dendro()
-pp <- ggplotly(gg, width = 6.5*96, height = 1*96)
 
-```
-
-```{r, echo = FALSE, out.height="100%", out.width="100%", eval=FALSE}
-# set up check boxes
-
-  # gg_legend_ly <- ggplotly(gg_legend, width = 6.5*96, height = 1*96)
-
-  boxes <- filter_checkbox("size", "Size", geobike_shared, ~Size, inline = FALSE)
-  # boxes$attribs$style <- css(font.size = "90%") # <-change the font size
-
-  p <- bscols(
-    widths = c(7,3,2), p1, boxes
-  )
-  
-  p
-# cowplot::plot_grid(gg_legend, boxes)
-```
 
 ### Relaxed bike frames have a combination of high stack, short reach, and long chain stays
 
@@ -203,7 +141,7 @@ p1
 p2
 ```
 
-### Headtube angle, seattube angle, fork offset, and trail aren't really related to relaxedness
+### Headtube angle, seattube angle, bottom bracket drop, and trail aren't really related to relaxedness
 
 ```{r relaxed-low, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
 p3

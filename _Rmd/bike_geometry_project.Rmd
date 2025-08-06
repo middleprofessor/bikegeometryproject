@@ -35,6 +35,15 @@ library(car) # model checking and ANOVA
 library(DHARMa) # model checking
 library(mvtnorm)
 
+# cluster packages
+library(ggdendro) # dendrogram
+library(dendextend) # better dendrogram
+library(bootcluster) # bootstrap dendrogram
+library(fpc) # cluster stability
+library(mclust) # clustering
+library(COveR) # overlapping kmeans
+library(ksharp) # sharpen kmeans
+
 # graphing packages
 library(ggsci) # color palettes
 library(ggpubr) # publication quality plots
@@ -42,13 +51,7 @@ library(ggforce) # better jitter
 library(cowplot) # combine plots
 library(knitr) # kable tables
 library(kableExtra) # kable_styling tables
-library(ggdendro) # dendrogram
-library(dendextend) # better dendrogram
-library(bootcluster) # bootstrap dendrogram
-library(fpc) # cluster stability
-library(mclust) # clustering
 
-#library(pvc) # dendorogram stability
 library(ggiraph)
 library(GGally)
 
@@ -253,8 +256,8 @@ get_tree <- function(geobike_subset,
   #                      geobike_subset[, frame_size],
   #                      sep = ", "))
   
-  cluster_data <- geobike_subset[, .SD, .SDcols = y_cols] %>%
-    data.frame
+  cluster_data <- geobike_subset[, .SD, .SDcols = y_cols] |>
+    data.frame()
   row.names(cluster_data) <- paste(geobike_subset[, model],
                                    geobike_subset[, frame_size],
                                    sep = ", ")
@@ -582,6 +585,63 @@ geometry_with_sus_fork <- function(frame,
     sus = sus_measures |> as.numeric()
   )
 ```
+
+## stack sus columns to plot
+```{r eval = FALSE}
+stack_sus_columns <- function(dt){
+  frame_cols <- c("model", "frame_size", "model_size", "my_fit",
+                  "frame_size_std", "kmeans_style", "color", "fork_offset_rake")
+  geom_rigid <- c("stack", "reach", "head_tube_angle", "seat_tube_angle", "front_center", "rear_center", "bottom_bracket_drop")
+  geom_30_45 <- paste(geom_rigid, "30 45")
+  geom_30_51 <- paste(geom_rigid, "30 51")
+  geom_40_45 <- paste(geom_rigid, "40 45")
+  geom_40_51 <- paste(geom_rigid, "40 51")
+  geom_50_45 <- paste(geom_rigid, "50 45")
+  geom_50_50 <- paste(geom_rigid, "50 50")
+  
+  forks <- c("30 45", "30 51", "40 45", "40 51", "50 45", "50 50")
+  stack_cols <- c("stack", paste("stack", forks))
+  reach_cols <- c("reach", paste("reach", forks))
+  sta_cols <- c("seat_tube_angle", paste("seat_tube_angle", forks))
+  hta_cols <- c("head_tube_angle", paste("head_tube_angle", forks))
+  
+  sus_dt_wide <- dt[, .SD, .SDcols = c(frame_cols, geom_rigid,
+                                       stack_cols, reach_cols, 
+                                       sta_cols, hta_cols)]
+  
+  sus_dt <- melt(sus_dt_wide,
+                 id.vars = frame_cols,
+                 measure.vars = list(stack_cols, reach_cols, sta_cols, hta_cols),
+                 variable.name = "fork",
+                 value.name = c("stack", "reach", "seat_tube_angle", "head_tube_angle"))
+  # map fork id to fork label
+  sus_dt[, fork := c("rigid", forks)[fork]] # this is used for popup and hover
+  sus_dt[, fork_key := factor(fork, levels = c("rigid", forks))] # this is used for checkbox filter
+  # replace rigid with fork specs
+  sus_dt[fork == "rigid", fork := paste("0", round(fork_offset_rake,0))]
+  
+  # test columns
+  sus_dt[, travel := substr(fork,1,2)]
+  sus_dt[travel == "0 ", travel := "rigid"]
+  sus_dt[substr(fork,1,2) == "0 ", travel2 := "rigid"]
+  sus_dt[substr(fork,1,2) == "30", travel2 := "30 mm"]
+  sus_dt[substr(fork,1,2) == "40", travel2 := "40 mm"]
+  sus_dt[substr(fork,1,2) == "50", travel2 := "50 mm"]
+  sus_dt[substr(fork,1,2) == "0 ", travel3 := "rigid"]
+  sus_dt[substr(fork,1,2) == "30", travel3 := "thirty"]
+  sus_dt[substr(fork,1,2) == "40", travel3 := "forty"]
+  sus_dt[substr(fork,1,2) == "50", travel3 := "fifty"]
+  sus_dt[, travel4 := factor(travel3)]
+  # make highlight column
+  # highlight info text
+  sus_dt[, highlight_text := paste(substr(fork, 1, 2), "travel;",
+                                        substr(fork, 3, 5), "offset")]
+  
+  return(sus_dt)
+}
+
+```
+
 
 # Read bike data
 
@@ -1374,47 +1434,113 @@ classifier_scores <- function(dt, means){
 }
 ```
 
-```{r}
+```{r get_centroids}
 get_centroids <- function(Y, cluster){
   centroids <- rowsum(Y, group = cluster) / as.vector(table(cluster))
   return(centroids)
 }
 ```
 
-```{r}
-r_scores <- function(Y, class_dt, class_col = "mclust_style"){
-  gravel_style <- class_dt[, get(class_col)]
-  gravel_style_matrix <- data.table(
-    racy = ifelse(gravel_style == "racy", 1, 0),
-    relaxed = ifelse(gravel_style == "relaxed", 1, 0),
-    rowdy = ifelse(gravel_style == "rowdy", 1, 0)
+
+```{r d_scores}
+d_scores <- function(Y, class_dt, cluster_col = "init_cluster", prefix = "kmeans"){
+  # projections onto axis through cluster centroid. Y is the matrix of data
+  # and must be centered at the origin. The results are exactly the same as
+  # r_scores, which computes the axes from the correlations between cluster and variable.
+  
+  centroids <- get_centroids(Y, class_dt[, get(cluster_col)])
+  E <- matrix(
+    c(centroids[1,]/sqrt(sum(centroids[1,]^2)),
+      centroids[2,]/sqrt(sum(centroids[2,]^2)),
+      centroids[3,]/sqrt(sum(centroids[3,]^2))),
+    ncol = 3
+  )
+  # apply(E, 2, function(x) sum(x^2)) check!
+  # sum(axis1^2) # check!
+  # t(E) %*% E # check!
+  scores <- Y %*% E # projections
+  loadings <- cor(Y, scores) # this is precisely the loadings using r_scores
+
+  scores_scaled <- apply(scores, 2, function(x) (x - min(x))/(max(x) - min(x))) * 100
+  colnames(scores_scaled) <- paste("clust", 1:3)
+  # apply(scores_scaled, 2, min) # check!
+  # apply(scores_scaled, 2, max) # check!
+
+  # assign style to axes
+  style_levels <- c("racy", "relaxed", "rowdy")
+  relaxed <- which.max(loadings[rownames(loadings) == "rear_center"])
+  colnames(scores_scaled)[relaxed] <- "relaxed"
+  rowdy <- which.max(loadings[rownames(loadings) == "reach"])
+  colnames(scores_scaled)[rowdy] <- "rowdy"
+  racy <- which.max(loadings[rownames(loadings) == "head_tube_angle"])
+  colnames(scores_scaled)[racy] <- "racy"
+  scores_scaled <- data.table(scores_scaled)
+
+  class_dt[get(cluster_col) == racy, style := "racy"]
+  class_dt[get(cluster_col) == relaxed, style := "relaxed"]
+  class_dt[get(cluster_col) == rowdy, style := "rowdy"]
+
+  scores_out <- data.table(
+    class_dt[, .SD, .SDcols = c("model", "frame_size", "style")],
+    scores_scaled[, .SD, .SDcols = style_levels]
+  )
+  scores_out[, style := factor(style, style_levels)]
+  
+  old_labels <- c("style", "racy", "relaxed", "rowdy")
+  setnames(scores_out,
+          old = old_labels,
+          new = paste0(prefix, "_", old_labels))
+  
+  
+  return(scores_out)
+}
+```
+
+```{r r_scores}
+r_scores <- function(Y, class_dt, cluster_col = "cluster"){
+  dummy <- data.table(
+    clust1 = ifelse(class_dt[, get(cluster_col)] == 1, 1, 0),
+    clust2 = ifelse(class_dt[, get(cluster_col)] == 2, 1, 0),
+    clust3 = ifelse(class_dt[, get(cluster_col)] == 3, 1, 0)
   ) |>
     as.matrix()
     
   # style vector
-  E_raw <- cor(gravel_style_matrix, Y) |>
+  E_raw <- cor(dummy, Y) |>
     t()
   EtE <- diag(3)
   diag(EtE) <- 1/sqrt(diag(t(E_raw) %*% E_raw))
   E <- E_raw %*% EtE
   # t(E) %*% E # check!
-  scores <- Y %*% E
-  # cor(gravel_style_matrix, scores) # better
-
+  scores <- Y %*% E # projections
+  loadings <- cor(Y, scores)
+  # cor(dummy, scores) # better
   
-  scores_0 <- apply(scores, 2, function(x) x - min(x))
-  scores_1 <- apply(scores_0, 1, function(x) x/sum(x)) |>
-    t()
-  # apply(scores_1, 1, sum) # check!
+  # assign style to axes
+  style_levels <- c("racy", "relaxed", "rowdy")
+  relaxed <- which.max(loadings[rownames(loadings) == "rear_center"])
+  colnames(scores)[relaxed] <- "relaxed"
+  rowdy <- which.max(loadings[rownames(loadings) == "reach"])
+  colnames(scores)[rowdy] <- "rowdy"
+  racy <- which.max(loadings[rownames(loadings) == "head_tube_angle"])
+  colnames(scores)[racy] <- "racy"
 
-  data[, racy := scores_1[, 1] * 100]
-  data[, relaxed := scores_1[, 2] * 100]
-  data[, rowdy := scores_1[, 3] * 100]
-  return(data)
+  scores_scaled <- apply(scores, 2, function(x) (x - min(x))/(max(x) - min(x))) * 100
+  # apply(scores_scaled, 2, min) # check!
+  # apply(scores_scaled, 2, max) # check!
+  colnames(scores_scaled) <- colnames(scores)
+  scores_scaled <- data.table(scores_scaled)
+
+  scores_out <- data.table(
+    class_dt[, .SD, .SDcols = c("model", "frame_size")],
+    scores_scaled[, .SD, .SDcols = style_levels]
+  )
+  
+  return(scores_scaled)
 }
 ```
 
-```{r}
+```{r mclust_classifier}
 mclust_classifier <- function(dt,
                               k = 3,
                               classifier_cols = c(
@@ -1442,49 +1568,15 @@ mclust_classifier <- function(dt,
     data_info,
     init_cluster = mclust_result$classification
   )
-  # check class so order is racy, relaxed, rowdy
-  racy_class <- mclust_class[model == "Specialized Crux 2025", init_cluster]
-  relaxed_class <- mclust_class[model == "Tumbleweed Stargazer 2022", init_cluster]
-  rowdy_class <- mclust_class[model == "Santa Cruz Stigmata CC 2023", init_cluster]
-  mclust_class[init_cluster == racy_class, cluster := 1]
-  mclust_class[init_cluster == relaxed_class, cluster := 2]
-  mclust_class[init_cluster == rowdy_class, cluster := 3]
-
-  styles <- c("racy", "relaxed", "rowdy")
-  mclust_class[, init_style := styles[cluster]]
-
-  # get cluster means and reorder
-  init_means <- mclust_result$parameters$mean
-  centroids <- init_means[, c(racy_class, relaxed_class, rowdy_class)]
-  colnames(centroids) <- styles
-  centroids_t <- t(centroids)
-  distances <- as.matrix(dist(rbind(centroids_t, Y)))
-  distances <- distances[(k+1):nrow(distances), 1:3]
-  scores <- 1/(distances + 1e-06)
-  totals <- apply(scores, 1, sum)
-  scores <- scores/totals
-  colnames(scores) <- paste("init_", styles)
-  # totals <- apply(similarities, 1, sum) #check!
-  mclust_class <- cbind(mclust_class, scores)
   
-  # recluster
-  recluster <- apply(mclust_class[, .SD, .SDcols = paste("init_", styles)], 1, which.max)
-  mclust_class[, mclust_style := factor(styles[recluster], levels = styles)]
-  centroids_t <- get_centroids(Y, recluster)
-  rownames(centroids_t) <- paste0("mclust_", styles)
-  distances <- as.matrix(dist(rbind(centroids_t, Y)))
-  distances <- distances[(k+1):nrow(distances), 1:3]
-  scores <- 1/(distances + 1e-06)
-  totals <- apply(scores, 1, sum)
-  scores <- scores/totals * 100
-  # totals <- apply(similarities, 1, sum) #check!
-  mclust_class <- cbind(mclust_class, scores)
-  return(mclust_class[, .SD, .SDcols = c("model", "frame_size", "mclust_style",
-                                         "mclust_racy", "mclust_relaxed", "mclust_rowdy")])
+  mclust_scores <- d_scores(Y, mclust_class,
+                            cluster_col = "init_cluster",
+                            prefix = "mclust")
+  return(mclust_scores)
 }
 ```
 
-```{r}
+```{r kmeans-classifier}
 kmeans_classifier <- function(dt,
                               k = 3,
                               classifier_cols = c(
@@ -1505,37 +1597,89 @@ kmeans_classifier <- function(dt,
   row.names(Y) <- model
 
   kmeans_result <- kmeans(Y, centers = k)
+  okm_result <- okm(Y, centers = k)
 
   kmeans_class <- data.table(
     dt_info,
     init_cluster = kmeans_result$cluster
   )
-  # check class so order is racy, relaxed, rowdy
-  racy_class <- kmeans_class[model == "Specialized Crux 2025", init_cluster]
-  relaxed_class <- kmeans_class[model == "Tumbleweed Stargazer 2022", init_cluster]
-  rowdy_class <- kmeans_class[model == "Santa Cruz Stigmata CC 2023", init_cluster]
-  kmeans_class[init_cluster == racy_class, cluster := 1]
-  kmeans_class[init_cluster == relaxed_class, cluster := 2]
-  kmeans_class[init_cluster == rowdy_class, cluster := 3]
+ 
+  kmeans_scores <- d_scores(Y, kmeans_class,
+                            cluster_col = "init_cluster",
+                            prefix = "kmeans")
+  return(kmeans_scores)
 
-  styles <- c("racy", "relaxed", "rowdy")
-  kmeans_class[, kmeans_style := styles[cluster]]
-  
-  centroids_t <- get_centroids(Y, kmeans_class$cluster)
-  rownames(centroids_t) <- paste0("kmeans_", styles)
-  distances <- as.matrix(dist(rbind(centroids_t, Y)))
-  distances <- distances[(k+1):nrow(distances), 1:3]
-  scores <- 1/(distances + 1e-06)
-  totals <- apply(scores, 1, sum)
-  scores <- scores/totals * 100
-  # totals <- apply(similarities, 1, sum) #check!
-  kmeans_class <- cbind(kmeans_class, scores)
-  return(kmeans_class[, .SD, .SDcols = c("model", "frame_size", "kmeans_style",
-                                         "kmeans_racy", "kmeans_relaxed", "kmeans_rowdy")])
 }
 ```
 
-```{r}
+```{r nested-kmeans-classifier}
+nested_km_classifier <- function(dt){
+  
+  A_cols = c(
+    "stack",
+    "reach",
+    "front_center",
+    "rear_center",
+    "head_tube_angle",
+    "seat_tube_angle",
+    "trail_45"
+  )
+  B_cols = c("stack_reach", "seat_tube_angle")
+  
+  # First find A and B groups
+  # dt should be my_fit
+  dt_info <- dt[, .SD,
+                         .SDcols = c("model", "frame_size")]
+  model <- dt_info[, model]
+  Y <- dt[my_fit == TRUE, .SD, .SDcols = A_cols] |>
+    scale()
+  row.names(Y) <- model
+
+  kmeans_result <- kmeans(Y, centers = 2)
+
+  kmeans_class <- data.table(
+    dt_info,
+    cut1 = kmeans_result$cluster
+  )
+  # which class is santa cruz stigmata?
+  rowdy_class <- kmeans_class[model == "Santa Cruz Stigmata CC 2023", cut1]
+  if(rowdy_class == 1){
+    # switch cluster id
+    kmeans_class[, cut1 := ifelse(cut1 == 1, 2, 1)]
+    rowdy_class <- 2
+  }
+  
+  dt_info <- dt[kmeans_class[, cut1] == rowdy_class, .SD, .SDcols = c("model", "frame_size")]
+  model <- dt_info[, model]
+  
+  Y2 <- dt[kmeans_class[, cut1] == rowdy_class, .SD, .SDcols = B_cols] |>
+    scale()
+  row.names(Y2) <- model
+
+  kmeans_result <- kmeans(Y2, centers = 2)
+  kmeans_class_B <- data.table(
+    dt_info,
+    cut2 = kmeans_result$cluster
+  )
+  rowdy_class <- kmeans_class_B[model == "Santa Cruz Stigmata CC 2023", cut2]
+  if(rowdy_class == 1){
+    # switch cluster id
+    kmeans_class_B[, cut2 := ifelse(cut2 == 1, 2, 1)]
+    rowdy_class <- 2
+  }
+  kmeans_class_B[, cut2 := cut2+1]
+  kmeans_class <- merge(kmeans_class, kmeans_class_B, by = c("model", "frame_size"), all.x = TRUE)
+  kmeans_class[, init_cluster := ifelse(cut1 == 1, 1, cut2)]
+
+  kmeans_scores <- d_scores(Y, kmeans_class,
+                            cluster_col = "init_cluster",
+                            prefix = "nkmeans")
+  return(kmeans_scores)
+
+}
+```
+
+```{r kmeans-explore}
 kmeans_classifier_explore <- function(dt){
 
   A_classifier_cols <- c(
@@ -1815,52 +1959,81 @@ jack_clust <- function(data, classifier_cols, two_deep = FALSE){
 ```
 
 
-```{r gravel-classifier, echo=FALSE}
+```{r tree-classifier, echo=FALSE}
 tree_classifier <- function(
-    data,
-    y_cols,
-    pca = FALSE,
-    method = "ward.D2"
-){
-  
-   classifier_cols <- c(
+    dt,
+    k = 3,
+    classifier_cols = c(
       "stack",
       "reach",
       "front_center",
       "rear_center",
       "head_tube_angle",
       "seat_tube_angle",
-      "trail_45"
+      "trail_45"),
+    method = "ward.D2"
+){
+  
+  # dt should be my_fit
+  dt_info <- dt[, .SD,
+                         .SDcols = c("model", "frame_size")]
+  model <- dt_info[, model]
+  Y <- dt[my_fit == TRUE, .SD, .SDcols = classifier_cols] |>
+    scale()
+  row.names(Y) <- model
+  
+  d_matrix <- dist(Y, method = "euclidean")
+  tree_result <- hclust(d_matrix, method = method)
+  labclust  <-  cutree(tree_result, k)
+
+  tree_class <- data.table(
+    dt_info,
+    init_cluster = labclust
   )
   
-  geobike_subset <- data[, .SD, .SDcols = c("model", "frame_size", classifier_cols)]
-
-  Y <- geobike_subset[, .SD, .SDcols = classifier_cols] |>
-    scale()
-
-  if(pca == TRUE){
-    eigen_decomp <- eigen(cov(Y, use = "pairwise.complete.obs"))
-    E <- eigen_decomp$vectors
-    L <- eigen_decomp$values
-    rel_L <- L/sum(L)
-    scores <- Y %*% E
-    colnames(scores) <- paste0("pc", 1:ncol(Y))
-    geobike_subset <- cbind(geobike_subset, scores)
-    y_cols <- colnames(scores)
-    scale_it <- FALSE
-    center_it <- FALSE
-  }
+  tree_scores <- d_scores(Y, tree_class,
+                            cluster_col = "init_cluster",
+                            prefix = "tree")
   
-  style_levels <- c("Racy", "Relaxed", "Rowdy")
+  # save colored tree
+  tree_v2_color <- dendro_data_k(tree_result, k = 3)
+  # use and save tree from all variables
+  tree_path <- here("rds", "tree.Rds")
+  saveRDS(tree_v2_color, tree_path)
 
-  # hierarchical cluster
-  style_table <- geobike_subset[, .SD, .SDcols = c("model", "frame_size")]
+  return(tree_scores)
 
-  tree_v2 <- get_tree(geobike_subset,
-                      classifier_cols,
-                      scale_it = TRUE,
-                      center_it = TRUE,
-                      hclust_method = method) #"ward.D2"
+}
+
+
+```
+
+
+```{r tree-classifier-old, echo=FALSE, eval=FALSe}
+tree_classifier_old <- function(
+    dt,
+    k = 3,
+    classifier_cols = c(
+      "stack",
+      "reach",
+      "front_center",
+      "rear_center",
+      "head_tube_angle",
+      "seat_tube_angle",
+      "trail_45"),
+    method = "ward.D2"
+){
+  
+  # dt should be my_fit
+  dt_info <- dt[, .SD,
+                         .SDcols = c("model", "frame_size")]
+  model <- dt_info[, model]
+  Y <- dt[my_fit == TRUE, .SD, .SDcols = classifier_cols] |>
+    scale()
+  row.names(Y) <- model
+  
+  d_matrix <- dist(Y, method = "euclidean")
+  tree_v2 <- hclust(d_matrix, method = method)
   tree_v2_color <- dendro_data_k(tree_v2, k = 3)
   
 
@@ -1895,72 +2068,83 @@ tree_classifier <- function(
 ```
 
 ```{r}
-functional_classifier <- function(data){
+functional_classifier <- function(dt){
+  # dt should be my_fit
+  functional_class <- dt[my_fit == TRUE, .SD, .SDcols = c("model", "frame_size")]
+  style_levels <- c("racy", "relaxed", "rowdy")
+  
+  # racy
+  racy_cols <- c("stack_reach", "rear_center", "head_tube_angle", "trail_45")
+  Y <- dt[my_fit == TRUE, .SD, .SDcols = racy_cols] |>
+    as.matrix()
+  # make more positive more racy
+  Y[, "stack_reach"] <- -Y[, "stack_reach"] # low stack_reach = more racy
+  Y[, "rear_center"] <- -Y[, "rear_center"] # short rear_center = more racy
+  Y[, "trail_45"] <- -Y[, "trail_45"] # short trail = more racy
+  Y <- scale(Y)
+  row_sum <- apply(Y, 1, sum)
+  # scale to 0-1 range
+  # range set by actual score
+  functional_class[, racy := 100 * (row_sum - min(row_sum))/diff(range(row_sum))]
+  # range set by maximum possible score
+  row_min <- min(Y[, 1]) + min(Y[, 2]) + min(Y[, 3]) + min(Y[, 4])
+  row_max <- max(Y[, 1]) + max(Y[, 2]) + max(Y[, 3]) + max(Y[, 4])
+  functional_class[, racy_xtrm := 100 * (row_sum - row_min)/(row_max - row_min)]
+  
+  # relaxed
+  relaxed_cols <- c("stack_reach", "rear_center")
+  Y <- dt[my_fit == TRUE, .SD, .SDcols = relaxed_cols] |>
+    as.matrix()
+  Y <- scale(Y)
+  row_sum <- apply(Y, 1, sum)
+  # scale to 0-1 range
+  # range set by actual score
+  functional_class[, relaxed := 100 * (row_sum - min(row_sum))/diff(range(row_sum))]
+  # range set by maximum possible score
+  row_min <- min(Y[, 1]) + min(Y[, 2]) 
+  row_max <- max(Y[, 1]) + max(Y[, 2]) 
+  functional_class[, relaxed_xtrm := (row_sum - row_min)/(row_max - row_min)]
+
   # rowdy
-  rowdy_cols <- c("reach", "front_center", "head_tube_angle", "trail")
-  Y <- data[, .SD, .SDcols = rowdy_cols] |>
+  rowdy_cols <- c("reach", "front_center", "head_tube_angle", "seat_tube_angle", "trail_45")
+  Y <- dt[my_fit == TRUE, .SD, .SDcols = rowdy_cols] |>
     as.matrix()
   # make more positive more rowdy
   Y[, "head_tube_angle"] <- -Y[, "head_tube_angle"]
   Y <- scale(Y)
   row_sum <- apply(Y, 1, sum)
-  # find max and min sum if there were a bike that was at max/min for all traits
+  # scale to 0-1 range
+  # range set by actual score
+  functional_class[, rowdy := 100* (row_sum - min(row_sum))/diff(range(row_sum))]
+  # range set by maximum possible score
   row_min <- min(Y[, 1]) + min(Y[, 2]) + min(Y[, 3]) + min(Y[, 4])
   row_max <- max(Y[, 1]) + max(Y[, 2]) + max(Y[, 3]) + max(Y[, 4])
-  data[, rowdy_score := (row_sum - row_min)/(row_max - row_min)]
-  data[, rowdy_sum := (row_sum - min(row_sum))/diff(range(row_sum))]
-
-  # relaxed
-  relaxed_cols <- c("stack_reach", "rear_center", "tire_width_max")
-  Y <- data[, .SD, .SDcols = relaxed_cols] |>
-    as.matrix()
-  Y <- scale(Y)
-  row_sum <- apply(Y, 1, sum)
-  # find max and min sum if there were a bike that was at max/min for all traits
-  row_min <- min(Y[, 1]) + min(Y[, 2]) + min(Y[, 3])
-  row_max <- max(Y[, 1]) + max(Y[, 2]) + max(Y[, 3])
-  data[, relaxed_score := (row_sum - row_min)/(row_max - row_min)]
-  data[, relaxed_sum := (row_sum - min(row_sum))/diff(range(row_sum))]
-
-  # racy
-  racy_cols <- c("stack_reach", "rear_center", "head_tube_angle", "trail")
-  Y <- data[, .SD, .SDcols = racy_cols] |>
-    as.matrix()
-  # make more positive more racy
-  Y[, "stack_reach"] <- -Y[, "stack_reach"] # low stack_reach = more racy
-  Y[, "rear_center"] <- -Y[, "rear_center"] # short rear_center = more racy
-  Y[, "trail"] <- -Y[, "trail"] # short trail = more racy
-  Y <- scale(Y)
-  row_sum <- apply(Y, 1, sum)
-  # find max and min sum if there were a bike that was at max/min for all traits
-  row_min <- min(Y[, 1]) + min(Y[, 2]) + min(Y[, 3]) + min(Y[, 4])
-  row_max <- max(Y[, 1]) + max(Y[, 2]) + max(Y[, 3]) + max(Y[, 4])
-  data[, racy_score := (row_sum - row_min)/(row_max - row_min)]
-  data[, racy_sum := (row_sum - min(row_sum))/diff(range(row_sum))]
+  functional_class[, rowdy_xtrm := (row_sum - row_min)/(row_max - row_min)]
   
-  data[, rowdy_ternary := rowdy_sum/(rowdy_sum + relaxed_sum + racy_sum)]
-  data[, relaxed_ternary := relaxed_sum/(rowdy_sum + relaxed_sum + racy_sum)]
-  data[, racy_ternary := racy_sum/(rowdy_sum + relaxed_sum + racy_sum)]
+  # cluster is max score
+  score_matrix <- functional_class[, .SD,
+                                    .SDcols =  style_levels]
+  cluster <- apply(score_matrix, 1, which.max)
+  functional_class[, style := style_levels[cluster]]
   
-  data[rowdy_ternary > relaxed_ternary & rowdy_ternary > racy_ternary,
-       functional_style := "Rowdy"]
-  data[relaxed_ternary > rowdy_ternary & relaxed_ternary > racy_ternary,
-       functional_style := "Relaxed"]
-  data[racy_ternary > rowdy_ternary & racy_ternary > relaxed_ternary,
-       functional_style := "Racy"]
-  data[, functional_style_xtra := functional_style]
-  data[rowdy_ternary > 0.5,
-       functional_style_xtra := "Xtra_Rowdy"]
-  data[relaxed_ternary > 0.5,
-       functional_style_xtra := "Xtra_Relaxed"]
-  data[racy_ternary > 0.5,
-       functional_style_xtra := "Xtra_Racy"]
+  # override max
+#  functional_class[, style := NA]
+  functional_class[rowdy > 50 & relaxed < 50, style := "rowdy"]
+  functional_class[relaxed > 50 & rowdy < 50, style := "relaxed"]
+#  functional_class[is.na(style), style := "racy"]
+  
+  functional_class[, style := factor(style, style_levels)]
 
-  style_levels <- c("Racy", "Relaxed", "Rowdy")
-  data[, functional_style := factor(functional_style, levels = style_levels)]
+  old_labels <- c("style", style_levels)
+  new_labels <- paste0("functional_", old_labels)
+  setnames(functional_class, old_labels, new_labels)
+  
+  functional_class <- functional_class[, .SD,
+                                       .SDcols = c(
+    "model", "frame_size", new_labels)]
 
-  # View(data[, .SD, .SDcols = c("model", "rowdy_ternary", "relaxed_ternary", "racy_ternary", "functional_style", "functional_style_xtra")])
-  return(data[, .SD, .SDcols = c("model", "rowdy_ternary", "relaxed_ternary", "racy_ternary", "functional_style", "functional_style_xtra")])
+
+  return(functional_class)
 }
 ```
 
@@ -2023,65 +2207,96 @@ import_it <- FALSE
   )   
   
 equalize_tire_width = TRUE
-geo_bike_path <- here("rds", "geobike.Rds")
+geobike_path <- here("rds", "geobike.Rds")
+geobike_sus_path <- here("rds", "geobike_sus.Rds")
 my_fit_path <- here("rds", "my_fit.Rds")
 if(import_it != TRUE){
-  geobike <- readRDS(geo_bike_path)
+  geobike <- readRDS(geobike_path)
+  geobike_sus <- readRDS(geobike_sus_path)
   my_fit <- readRDS(my_fit_path)
 }else{
   # import from xlsx
   geobike <- import_bike_list(style = "gravel")
   geobike_import <- copy(geobike)
+  # geobike <- geobike_import
   # classify bikes by kmeans
   # kmeans first splits into k = 2 groups because there is only good support for 2. Then splits
   # group 2 into two groups because there is good support for this.
   # then combines into 3 clusters
   # classify bikes
+  style_levels <- c("racy", "relaxed", "rowdy")
+  
+  # kmeans
   kmeans_classes <- kmeans_classifier(
     geobike[my_fit == TRUE]
   )
-  geobike <- merge(geobike, kmeans_classes, by = c("model", "frame_size"))
+  geobike <- merge(geobike,
+                   kmeans_classes[, .SD, .SDcols = c("model", "kmeans_style")],
+                   by = c("model"), all.x = TRUE)
+  geobike <- merge(geobike,
+                   kmeans_classes[, .SD, .SDcols = c("model", "frame_size", paste0("kmeans_", style_levels))],
+                   by = c("model", "frame_size"), all.x = TRUE)
 
-  mclust_classes <- mclust_classifier(geobike[my_fit == TRUE,])
-  geobike <- merge(geobike, mclust_classes, by = c("model", "frame_size"))
-  
-  geobike <- merge(geobike, kmeans_classes, by = c("model", "frame_size"))
-
-  geobike_classes <- tree_classifier(
-    geobike[my_fit == TRUE],
-    y_cols = classifier_cols,
-    pca = FALSE,
-    method = "ward.D2"
-  )
-  geobike <- merge(geobike, geobike_classes, by = "model")
-#  geobike <- plyr::join(geobike, geobike_classes, by = "model")
-
-  check_it <- FALSE
-  if(check_it){
-    geobike[my_fit == TRUE, .(N = .N), by = .(restyle)]
-  }
-  
-  # functional class
-  geobike_classes <- functional_classifier(
+  # nested kmeans
+  nkmeans_classes <- nested_km_classifier(
     geobike[my_fit == TRUE]
   )
-  geobike <- merge(geobike, geobike_classes, by = "model")
+  geobike <- merge(geobike,
+                   nkmeans_classes[, .SD, .SDcols = c("model", "nkmeans_style")],
+                   by = c("model"), all.x = TRUE)
+  geobike <- merge(geobike,
+                   nkmeans_classes[, .SD, .SDcols = c("model", "frame_size", paste0("nkmeans_", style_levels))],
+                   by = c("model", "frame_size"), all.x = TRUE)
+
+  # mclust
+  mclust_classes <- mclust_classifier(geobike[my_fit == TRUE,])
+  geobike <- merge(geobike,
+                   mclust_classes[, .SD, .SDcols = c("model", "mclust_style")],
+                   by = c("model"), all.x = TRUE)
+  geobike <- merge(geobike,
+                   mclust_classes[, .SD, .SDcols = c("model", "frame_size", paste0("mclust_", style_levels))],
+                   by = c("model", "frame_size"), all.x = TRUE)
+
+
+  # tree classifier
+  tree_classes <- tree_classifier(
+    geobike[my_fit == TRUE],
+    method = "ward.D2"
+  )
+  geobike <- merge(geobike,
+                   tree_classes[, .SD, .SDcols = c("model", "tree_style")],
+                   by = c("model"), all.x = TRUE)
+  geobike <- merge(geobike,
+                   tree_classes[, .SD, .SDcols = c("model", "frame_size", paste0("tree_", style_levels))],
+                   by = c("model", "frame_size"), all.x = TRUE)
+
+  # functional class
+  functional_classes <- functional_classifier(
+    geobike[my_fit == TRUE]
+  )
+  geobike <- merge(geobike,
+                   functional_classes[, .SD, .SDcols = c("model", "functional_style")],
+                   by = c("model"), all.x = TRUE)
+  geobike <- merge(geobike,
+                   functional_classes[, .SD, .SDcols = c("model", "frame_size", paste0("functional_", style_levels))],
+                   by = c("model", "frame_size"), all.x = TRUE)
   
-  geobike[, color := pal_okabe_ito_3[as.integer(mclust_style)]]
-  geobike[, color_tree := pal_okabe_ito_3[as.integer(restyle)]]
+
+  geobike[, color := pal_okabe_ito_3[as.integer(kmeans_style)]]
+  geobike[, color_kmeans := pal_okabe_ito_3[as.integer(kmeans_style)]]
+  geobike[, color_tree := pal_okabe_ito_3[as.integer(tree_style)]]
   geobike[, color_function := pal_okabe_ito_3[as.integer(functional_style)]]
-  
+  geobike[, highlight_text := model_size]
+
   # my_fit
   my_fit <- geobike[my_fit == TRUE]
-  my_fit <- my_fit[!is.na(restyle), ]
-  
-  # gravel scores
-  my_fit <- gravel_scores(my_fit,
-                          classifier_cols)
-  
+
   # save
-  saveRDS(geobike, geo_bike_path)
+  saveRDS(geobike, geobike_path)
   saveRDS(my_fit, my_fit_path)
+  
+  geobike_sus <- stack_sus_columns(geobike)
+  saveRDS(geobike_sus, geobike_sus_path)
   
   # make images for index page
   
@@ -2584,12 +2799,35 @@ annotate_model <- function(p,
 
 ```{r base-ternary-plot, echo=FALSE}
 base_ternary <- function(
-    data,
+    dt,
     axis_cols = c("racy","relaxed","rowdy"),
     axis_labels = c("Racy","Relaxed","Rowdy"),
     g_col = "restyle", # factor to determine color of plot points
-    legend_color_col = "color" # column with color of legend
+    legend_color_col = "color", # column with color of legend
+    round_to_place = 1,
+    rescale = FALSE
 ){
+  
+  # a_dat <- dt[, get(axis_cols[1])]
+  # b_dat <- dt[, get(axis_cols[2])]
+  # c_dat <- dt[, get(axis_cols[3])]
+
+  a_dat <- dt$origData()[, get(axis_cols[1])]
+  b_dat <- dt$origData()[, get(axis_cols[2])]
+  c_dat <- dt$origData()[, get(axis_cols[3])]
+  if(rescale == TRUE){
+    m <- matrix(c(a_dat, b_dat, c_dat), nrow = length(a_dat), ncol = 3) |>
+      scale()
+    mins <- apply(m, 2, min)
+    m <- sweep(m, 2, mins, FUN = "-")
+    maxs <- apply(m, 2, max)
+    m <- sweep(m, 2, maxs, FUN = "/")
+    # m[1:5,]
+    a_dat <- m[, 1] * 100
+    b_dat <- m[, 2] * 100
+    c_dat <- m[, 3] * 100
+  }
+
   axis_info <- function(title) {
     list(
       title = title,
@@ -2614,14 +2852,14 @@ base_ternary <- function(
     b_col = axis_cols[2]
     c_col = axis_cols[3]
 
-  fig <- data %>% plot_ly()
+  fig <- dt %>% plot_ly()
   fig <- fig %>%
     add_trace(
       type = 'scatterternary',
       mode = 'markers',
-      a = ~get(a_col),
-      b = ~get(b_col),
-      c = ~get(c_col),
+      a = a_dat,
+      b = b_dat,
+      c = c_dat,
       color = ~get(g_col),
       colors = pal_okabe_ito_3,
       showlegend = FALSE,
@@ -2633,9 +2871,9 @@ base_ternary <- function(
       hoverinfo = "text",
       text = ~paste(model, frame_size,
                     "<br>Cat:", restyle,
-                    paste("<br> ", axis_labels[1], ":", round(get(a_col), 1)),
-                    paste("<br> ", axis_labels[2], ":", round(get(b_col), 1)),
-                    paste("<br> ", axis_labels[3], ":", round(get(c_col), 1))
+                    paste("<br> ", axis_labels[1], ":", round(get(a_col), round_to_place)),
+                    paste("<br> ", axis_labels[2], ":", round(get(b_col), round_to_place)),
+                    paste("<br> ", axis_labels[3], ":", round(get(c_col), round_to_place))
       )
     )
   
@@ -2643,9 +2881,9 @@ base_ternary <- function(
     add_trace(
       type = 'scatterternary',
       mode = 'markers',
-      a = ~get(a_col),
-      b = ~get(b_col),
-      c = ~get(c_col),
+      a = a_dat,
+      b = b_dat,
+      c = c_dat,
       marker = list( 
         size = 14,
         opacity = 1,
@@ -2678,272 +2916,56 @@ base_ternary <- function(
 ```
 
 
-
-```{r scatter-fig}
-scatter_fig <- function(data = my_fit,
-                        x_col = "reach", y_col = "stack", g_col = "model_size",
-                        x_label = "Reach", y_label = "Stack",
-                        x_info = NULL, y_info = NULL,
-                        digits = 0,
-                        jitter_x = 0, jitter_y = 0,
-                        annotate_model = NULL,
-                        dot_palette = pal_okabe_ito_7,
-                        dot_opacity = 0.3,
-                        same_xy_scale = TRUE){ # if units are same on x and y then scales should be preserved
-  #shared_data <- highlight_key(data, ~model)
-  if(is.null(x_info)){x_info <- x_label}
-  if(is.null(y_info)){y_info <- y_label}
-  restyle_legend <- ifelse(g_col == "restyle",
-                           TRUE,
-                           FALSE)
-  n_colors <- length(levels(data[, restyle]))
-  
-  # set range of axes
-  min_data_x <- min(data[, get(x_col)], na.rm = TRUE)
-  min_data_y <- min(data[, get(y_col)], na.rm = TRUE)
-  max_data_x <- max(data[, get(x_col)], na.rm = TRUE)
-  max_data_y <- max(data[, get(y_col)], na.rm = TRUE)
-  range_x <- max_data_x - min_data_x
-  range_y <- max_data_y - min_data_y
-  range_axis_x <- range_x * 1.1
-  range_axis_y <- range_y * 1.1
-  if(same_xy_scale == TRUE){
-    if(range_x > range_y){
-      range_axis_y <- range_axis_y * range_x/range_y
-    }else{
-      range_axis_x <- range_axis_x * range_y/range_x
-    }}
-  min_axis_x <- (min_data_x + max_data_x)/2 - 0.5*range_axis_x
-  max_axis_x <- (min_data_x + max_data_x)/2 + 0.5*range_axis_x
-  min_axis_y <- (min_data_y + max_data_y)/2 - 0.5*range_axis_y
-  max_axis_y <- (min_data_y + max_data_y)/2 + 0.5*range_axis_y
-  
-
-  #data <- highlight_key(data, ~model)
-  fig <- plot_ly(data, type = "scatter", mode = "markers",
-                 x = ~jitter(get(x_col), jitter_x),
-                 y = ~jitter(get(y_col), jitter_y),
-                 color = ~restyle,
-                 colors = dot_palette[1:n_colors],
-                 opacity = dot_opacity,
-                 size = 10,
-                 name = ~get(g_col),
-                 hoverinfo = "text",
-                 text = ~paste(model, frame_size,
-                               "<br>Cat:", restyle,
-                               paste0("<br>", x_info, ":"), round(get(x_col), digits),
-                               paste0("<br>", y_info, ":"), round(get(y_col), digits)),
-                 showlegend = restyle_legend
-  ) %>% 
-    layout(xaxis = list(title = x_label,
-                        tickfont = list(size = 16), titlefont = list(size = 16),
-                        range = c(min_axis_x, max_axis_x)),
-           yaxis = list(title = y_label,
-                        tickfont = list(size = 16), titlefont = list(size = 16),
-                        range = c(min_axis_y, max_axis_y)),
-           legend = list(font = list(size = 10),
-                         itemsizing = "constant"),
-           title = list(text = paste(y_label, "vs.", x_label),
-                        x = 0,
-                        xanchor = "left"),
-           autosize = F, width = 800, height = 600
-    ) #%>%
-#    highlight(on = "plotly_click", off = "plotly_doubleclick")
-  
-  if(g_col == "model_size"){
-    fig <- fig  %>%
-      add_text(text = ~paste("\U2B05", model, frame_size),
-               textfont = list(size = 12, color = ~restyle),
-               color = ~restyle,
-               opacity = 1,
-               symbol = "circle",
-               textposition = "right",
-               visible = "legendonly",
-               sort = FALSE,
-               showlegend = TRUE,
-      )
-  }
-  
-  if(!is.null(annotate_model)){
-    for(j in 1:length(annotate_model)){
-        fig <- fig %>% add_annotations(
-        x = data[model == annotate_model[j], get(x_col)],
-        y = data[model == annotate_model[j], get(y_col)],
-        text = paste(data[model == annotate_model[j], model],
-                     data[model == annotate_model[j], year]),
-        xref = "x",
-        yref = "y",
-        showarrow = TRUE,
-        arrowhead = 1,
-        ax = 20,
-        ay = -20,
-#        arrowcolor = ~restyle,
-        arrowcolor = "black",
-#        font = list(color = ~restyle, size = 16)
-        font = list(color = "black", size = 16)
-      )
-    }
-  }
-  
-  # add style legend -- cannot get color to show
-  # fig <- fig %>% add_annotations(
-  #   x = 0,
-  #   y = 1,
-  #   xref = "paper",
-  #   yref = "paper",
-  #   text = paste0("\U23FA", "Race"),
-  #   textfont = list(size = 10, color = pal_okabe_ito_4[1]),
-  #   showarrow = F
-  # )
-  
-  
-  return(fig)
-}
-
-```
-
-
-```{r scatter-fig-new, echo=FALSE}
-scatter_fig_new <- function(data = geobike,
-                        x_col = "reach", y_col = "stack", g_col = "model_size",
-                        x_label = "Reach", y_label = "Stack",
-                        x_info = NULL, y_info = NULL,
-                        digits = 0,
-                        dot_palette = pal_okabe_ito_7,
-                        dot_opacity = 0.3,
-                        same_xy_scale = TRUE){ # if units are same on x and y then scales should be preserved
-
-  y_cols <- c(x_col, y_col, g_col, "model_size", "restyle", "color", "Size")
-  subdata <- na.omit(data[, .SD, .SDcols = y_cols])
-
-  #shared_data <- highlight_key(data, ~model)
-  bike_x <- highlight_key(subdata)
-  
-  if(is.null(x_info)){x_info <- x_label}
-  if(is.null(y_info)){y_info <- y_label}
-  restyle_legend <- ifelse(g_col == "restyle",
-                           TRUE,
-                           FALSE)
-  n_colors <- length(levels(subdata[, restyle]))
-  
-  # set range of axes
-  min_data_x <- min(subdata[, get(x_col)], na.rm = TRUE)
-  min_data_y <- min(subdata[, get(y_col)], na.rm = TRUE)
-  max_data_x <- max(subdata[, get(x_col)], na.rm = TRUE)
-  max_data_y <- max(subdata[, get(y_col)], na.rm = TRUE)
-  range_x <- max_data_x - min_data_x
-  range_y <- max_data_y - min_data_y
-  range_axis_x <- range_x * 1.1
-  range_axis_y <- range_y * 1.1
-  if(same_xy_scale == TRUE){
-    if(range_x > range_y){
-      range_axis_y <- range_axis_y * range_x/range_y
-    }else{
-      range_axis_x <- range_axis_x * range_y/range_x
-    }}
-  min_axis_x <- (min_data_x + max_data_x)/2 - 0.5*range_axis_x
-  max_axis_x <- (min_data_x + max_data_x)/2 + 0.5*range_axis_x
-  min_axis_y <- (min_data_y + max_data_y)/2 - 0.5*range_axis_y
-  max_axis_y <- (min_data_y + max_data_y)/2 + 0.5*range_axis_y
-  
-  fig <- bike_x %>% plot_ly()
-  fig <- fig %>%
-    # add dots colored by restyle
-    add_trace(
-      type = "scatter",
-      mode = "markers",
-      x = ~get(x_col),
-      y = ~get(y_col),
-      color = ~restyle,
-      colors = dot_palette[1:n_colors],
-      opacity = dot_opacity,
-      size = 10,
-      showlegend = FALSE,
-      marker = list( 
-        size = 10,
-        line = list('width' = 2)
-      ),
-      hoverinfo = "text",
-      text = ~paste(model_size,
-                    "<br>Cat:", restyle,
-                    paste0("<br>", x_info, ":"), round(get(x_col), digits),
-                    paste0("<br>", y_info, ":"), round(get(y_col), digits))
-    )
-  # superimpose dots colored by column "color" but using model_size as the legend item
-  fig <- fig  %>%
-    add_trace(
-      type = "scatter",
-      mode = "markers",
-      x = ~get(x_col),
-      y = ~get(y_col),
-      marker = list( 
-        size = 14,
-        opacity = 1,
- #       color = ~restyle,
-        color = ~color # color is a column in the data with the hex code for the color
- #       colors = dot_palette[1:n_colors]
-      ),
-      text = ~paste("\U2B05", model_size),
-      textfont = list(size = 12),
-      name = ~get(g_col),
-      textposition = "right",
-      visible = "legendonly",
-      showlegend = TRUE
-    ) %>% 
-    layout(xaxis = list(title = x_label,
-                        tickfont = list(size = 12), titlefont = list(size = 12),
-                        range = c(min_axis_x, max_axis_x)),
-           yaxis = list(title = y_label,
-                        tickfont = list(size = 12), titlefont = list(size = 12),
-                        range = c(min_axis_y, max_axis_y)),
-           legend = list(font = list(size = 10),
-                         itemsizing = "constant"),
-           # title = list(text = paste(y_label, "vs.", x_label),
-           #              x = 0.5,
-           #              xanchor = "center"),
-           autosize = F, width = 7*96, height = 5*96,
-           NULL
-    )
-  
-  
-  # set up check boxes
-  boxes <- filter_checkbox("size", "Size", bike_x, ~Size, inline = FALSE)
-  # boxes$attribs$style <- css(font.size = "90%") # <-change the font size
-
-# plot check boxes and fig
-  p <- bscols(
-    widths = c(8, 2), fig, boxes
-  )
-  return(p)
-}
-```
-
 ```{r scatter-fig-global, echo=FALSE}
 scatter_fig_global <- function(data = geobike,
-                        x_col = "reach", y_col = "stack", g_col = "model_size",
-                        x_label = "Reach", y_label = "Stack",
-                        x_info = NULL, y_info = NULL,
-                        digits = 0,
-                        color_col = "restyle",
-                        dot_palette = pal_okabe_ito_7,
-                        dot_opacity = 0.3,
-                        same_xy_scale = TRUE,
-                        set_autorange = TRUE,
-                        add_regression = FALSE){ # if units are same on x and y then scales should be preserved
+                               x_col = "reach", y_col = "stack", g_col = "model_size",
+                               x_label = "Reach", y_label = "Stack",
+                               x_info = NULL, y_info = NULL,
+                               xtra_info = NULL, # added to highlighted name
+                               highlight_col = "model_size", # column for highlight info
+                               digits = 0,
+                               color_col = "kmeans_style",
+                               dot_palette = pal_okabe_ito_7,
+                               dot_opacity = 0.3,
+                               same_xy_scale = TRUE,
+                               set_autorange = TRUE,
+                               add_regression = FALSE){ # if units are same on x and y then scales should be preserved
   
   # this version links all plots so that size can be filtered globally
-
+  
   # y_cols <- c(x_col, y_col, g_col, "model_size", "restyle", "color", "Size")
   #subdata <- na.omit(data$origData()[, .SD, .SDcols = y_cols])
-
+  
   #shared_data <- highlight_key(data, ~model)
   # bike_x <- highlight_key(subdata)
   
+  # popup info box
   if(is.null(x_info)){x_info <- x_label}
   if(is.null(y_info)){y_info <- y_label}
-  restyle_legend <- ifelse(g_col == "restyle",
-                           TRUE,
-                           FALSE)
+  popup_text <- paste(data$origData()[, model_size],
+                      "<br>Cat:", data$origData()[, get(color_col)],
+                      paste0("<br>", x_info, ":"), round(data$origData()[, get(x_col)], digits),
+                      paste0("<br>", y_info, ":"), round(data$origData()[, get(y_col)], digits))
+  if(!is.null(xtra_info)){
+    travel <- substr(data$origData()[, get(xtra_info)], 1, 2)
+    offset <- substr(data$origData()[, get(xtra_info)], 3, 5)
+    popup_text <- paste(popup_text,
+                        paste0("<br>", "travel: ", travel, " mm"),
+                        paste0("<br>", "offset: ", offset, " mm"))
+  }
+  
+  # highlight info text
+  if(highlight_col == "model_size"){
+    highlight_text <- paste("\U2B05", data$origData()[, model_size])
+  }else{
+      travel <- substr(data$origData()[, get(xtra_info)], 1, 2)
+      offset <- substr(data$origData()[, get(xtra_info)], 3, 5)
+      highlight_text <- paste(paste0(travel, " travel; ",
+                                     offset, " offset"))
+  }
+  
+
+  
   n_colors <- length(levels(data$origData()[, get(color_col)]))
   
   # set range of axes
@@ -2966,7 +2988,9 @@ scatter_fig_global <- function(data = geobike,
   min_axis_y <- (min_data_y + max_data_y)/2 - 0.5*range_axis_y
   max_axis_y <- (min_data_y + max_data_y)/2 + 0.5*range_axis_y
   
+  
   fig <- data %>% plot_ly(width = 6.5*96, height = 4.5*96)
+  # plot dots but no legend, because I don't want the legend to show/hide points
   fig <- fig %>%
     # add dots colored by get(color_col)
     add_trace(
@@ -2976,6 +3000,7 @@ scatter_fig_global <- function(data = geobike,
       y = ~get(y_col),
       color = ~get(color_col),
       colors = dot_palette[1:n_colors],
+      #      color = ~color, # this doesn't work for plot points
       opacity = dot_opacity,
       size = 10,
       showlegend = FALSE,
@@ -2984,13 +3009,16 @@ scatter_fig_global <- function(data = geobike,
         line = list('width' = 2)
       ),
       hoverinfo = "text",
+      # text = popup_text,
       text = ~paste(model_size,
                     "<br>Cat:", get(color_col),
                     paste0("<br>", x_info, ":"), round(get(x_col), digits),
                     paste0("<br>", y_info, ":"), round(get(y_col), digits))
     )
+  
   # superimpose dots colored by column "color" but using model_size as the legend item
-   fig <- fig  %>%
+  # plot legend, but no dots. Clicking on legend makes the dot appear. Since the dot is already there from above, only the text really appears
+  fig <- fig  %>%
     add_trace(
       type = "scatter",
       mode = "markers",
@@ -2999,79 +3027,246 @@ scatter_fig_global <- function(data = geobike,
       marker = list(
         size = 14,
         opacity = 1,
-        # color = ~functional_style,
+        # this doesn't work for the legend for some reason
+        # color = ~get(color_col),
         # colors = dot_palette[1:n_colors]
         color = ~color # color is a column in the data with the hex code for the color
       ),
-      text = ~paste("\U2B05", model_size),
-      textfont = list(size = 12),
-      name = ~get(g_col),
+      # text = ~paste("\U2B05", model_size), # what pops up when legend item is clicked
+      text = highlight_text, # what pops up when legend item is clicked
+      # textfont = list(size = 12),
+      name = ~get(g_col), # this is column for legend items
       textposition = "right",
       visible = "legendonly",
       showlegend = TRUE
-    ) |>
+    )
+  
+  fig <- fig |>
     layout(xaxis = list(title = x_label,
                         tickfont = list(size = 12), titlefont = list(size = 12)
-                        ),
-           yaxis = list(title = y_label,
-                        tickfont = list(size = 12), titlefont = list(size = 12)
-                        ),
-           legend = list(font = list(size = 10),
-                         itemsizing = "constant"),
-           title = list(text = paste(y_label, "vs.", x_label),
-                        x = 0.5,
-                        xanchor = "center"),
-           # autosize = F, width = 7*96, height = 5*96,
-           NULL
+    ),
+    yaxis = list(title = y_label,
+                 tickfont = list(size = 12), titlefont = list(size = 12)
+    ),
+    legend = list(font = list(size = 10),
+                  itemsizing = "constant"),
+    title = list(text = paste(y_label, "vs.", x_label),
+                 x = 0.5,
+                 xanchor = "center"),
+    # autosize = F, width = 7*96, height = 5*96,
+    NULL
     )
-   if(set_autorange == TRUE){
-     fig <- fig |>
-       layout(xaxis = list(autorange = TRUE),
-              yaxis = list(autorange = TRUE))
-     
-   }else{
-     fig <- fig |>
-       layout(xaxis = list(range = c(min_axis_x, max_axis_x)),
-              yaxis = list(range = c(min_axis_y, max_axis_y)))
-   }
-   
-   if(add_regression == TRUE){
-     xy <- data.table(
-       x = data$origData()[, get(x_col)],
-       y = data$origData()[, get(y_col)],
-       style = data$origData()[, get(color_col)]
-     ) |>
-       na.omit()
-     
-     fit <- lm(y ~ x, data = xy)
-     r <- cor(xy$x, xy$y)
-     
-     # style means
-     xy_means <- xy[, .(x = mean(x),
-                        y = mean(y)),
-                    by = .(style)]
-#     fit <- lm(y ~ x, data = xy_means)
-#     r <- cor(xy_means$x, xy_means$y)
-     
-     fig <- fig |>
-       add_trace(
-         type = "scatter",
-         mode = "lines",
-         x = xy$x,
-         y = fitted(fit),
-         alpha = 1,
-         name = 'prediction',
-         hoverinfo = "text",
-         text = ~paste(
-             "<br>Cor:", round(r, 2)),
-         NULL
-       )
-   }
+
+
+  if(set_autorange == TRUE){
+    fig <- fig |>
+      layout(xaxis = list(autorange = TRUE),
+             yaxis = list(autorange = TRUE))
+    
+  }else{
+    fig <- fig |>
+      layout(xaxis = list(range = c(min_axis_x, max_axis_x)),
+             yaxis = list(range = c(min_axis_y, max_axis_y)))
+  }
+  
+  if(add_regression == TRUE){
+    xy <- data.table(
+      x = data$origData()[, get(x_col)],
+      y = data$origData()[, get(y_col)],
+      style = data$origData()[, get(color_col)]
+    ) |>
+      na.omit()
+    
+    fit <- lm(y ~ x, data = xy)
+    r <- cor(xy$x, xy$y)
+    
+    # style means
+    xy_means <- xy[, .(x = mean(x),
+                       y = mean(y)),
+                   by = .(style)]
+    #     fit <- lm(y ~ x, data = xy_means)
+    #     r <- cor(xy_means$x, xy_means$y)
+    
+    fig <- fig |>
+      add_trace(
+        type = "scatter",
+        mode = "lines",
+        x = xy$x,
+        y = fitted(fit),
+        alpha = 1,
+        name = 'prediction',
+        hoverinfo = "text",
+        text = ~paste(
+          "<br>Cor:", round(r, 2)),
+        NULL
+      )
+  }
   
   
   return(fig)
 }
 ```
+
+
+```{r}
+scatter_fig <- function(shared_data = geobike_shared,
+                        link_group = "2dsus",
+                        x_col = "reach", y_col = "stack", g_col = "model_size",
+                        # this controls if the group label is shown with text
+                        show_group_label = TRUE,
+                        # these two arguments remove all rows except those with value filter_keep in the column filter_col. This is used in the sus geometry plot with stacked rows for each fork but in the first trace set I only want to plot the rigid fork.
+                        filter_col = NULL, # 2nd filter column
+                        filter_keep = NULL, # keep rows with these values
+                        x_label = "Reach", y_label = "Stack",
+                        x_info = NULL, y_info = NULL,
+                        xtra_info = NULL, # added to highlighted name
+                        highlight_col = "highlight_text", # column for highlight info
+                        digits = 0,
+                        color_col = "kmeans_style",
+                        dot_palette = pal_okabe_ito_7,
+                        dot_opacity = 0.3,
+                        same_xy_scale = TRUE,
+                        set_autorange = TRUE,
+                        add_regression = FALSE){
+  
+  if(is.null(x_info)){x_info <- x_label}
+  if(is.null(y_info)){y_info <- y_label}
+
+  # Split by group
+  groups <- unique(shared_data$origData()[, get(g_col)])
+  
+
+  # Create initial plot
+  fig <- plot_ly()
+  
+  # Loop over groups to add two traces: one for points, one for labels
+  for (grp in groups) {
+    # Filter for group
+    grp_data <- shared_data$data(withKey = FALSE) %>% filter(get(g_col) == grp)
+    if(!is.null(filter_col)){
+      grp_data <- grp_data[get(filter_col) == filter_keep, ]
+    }
+    grp_shared <- SharedData$new(grp_data, key = ~get(g_col), group = link_group)
+    
+    # First trace: markers only, always visible
+    fig <- fig |>
+      add_trace(
+        data = grp_shared,
+        type = "scatter",
+        mode = "markers",
+        x = ~get(x_col),
+        y = ~get(y_col),
+        marker = list(size = 10, opacity = 0.2, color = ~color),
+        hoverinfo = "text",
+        hovertext = ~paste(model_size,
+                      "<br>Cat:", kmeans_style,
+                      paste0("<br>", x_info, ":"), round(get(x_col), digits),
+                      paste0("<br>", y_info, ":"), round(get(y_col), digits)),
+        showlegend = FALSE
+        # name = NULL
+      )
+  }
+  
+  # Loop over groups to add two traces: one for points, one for labels
+  for (grp in groups) {
+    # Filter for group
+    grp_data <- shared_data$data(withKey = FALSE) %>% filter(get(g_col) == grp)
+    grp_shared <- SharedData$new(grp_data, key = ~get(g_col), group = link_group)
+    
+    if(link_group == "2dsus"){
+     hover_text <- ~paste(model_size,
+                        "<br>Cat:", kmeans_style,
+                        paste0("<br>", x_info, ":"), round(get(x_col), digits),
+                        paste0("<br>", y_info, ":"), round(get(y_col), digits),
+                        paste0("<br>Fork:", get(highlight_col)))
+    }else{
+      hover_text <- ~paste(model_size,
+                        "<br>Cat:", kmeans_style,
+                        paste0("<br>", x_info, ":"), round(get(x_col), digits),
+                        paste0("<br>", y_info, ":"), round(get(y_col), digits))
+    }
+    
+    
+    # Second trace: text only, initially hidden, toggled via legend
+    fig <- fig |>
+      add_trace(
+        data = grp_shared,
+        type = "scatter",
+        mode = "markers+text",
+        x = ~get(x_col),
+        y = ~get(y_col),
+        # hover text
+        hoverinfo = "text",
+        hovertext = hover_text,
+        # highlight text
+        text = ~get(g_col),
+        textposition = "right",
+        textfont = list(size = 12),
+        marker = list(size = 12, opacity = 1, color = ~color),
+        name = grp,  # Same legend label
+        showlegend = TRUE,
+        visible = "legendonly",
+        legendgroup = grp
+      )
+  }
+  
+  fig <- fig |>
+    layout(xaxis = list(title = x_label,
+                        tickfont = list(size = 12), titlefont = list(size = 12),
+                        legend = list(
+                          tracegroupgap = 0  # minimizes space between legend groups
+                        )
+    ),
+    yaxis = list(title = y_label,
+                 tickfont = list(size = 12), titlefont = list(size = 12)
+    ),
+    legend = list(font = list(size = 10),
+                  itemsizing = "constant"),
+    title = list(text = paste(y_label, "vs.", x_label),
+                 x = 0.5,
+                 xanchor = "center"),
+    # autosize = F, width = 7*96, height = 5*96,
+    NULL
+    )
+  
+  if(add_regression == TRUE){
+    xy <- data.table(
+      x = shared_data$origData()[, get(x_col)],
+      y = shared_data$origData()[, get(y_col)],
+      style = shared_data$origData()[, get(color_col)]
+    ) |>
+      na.omit()
+    
+    fit <- lm(y ~ x, data = xy)
+    r <- cor(xy$x, xy$y)
+    
+    # style means
+    xy_means <- xy[, .(x = mean(x),
+                       y = mean(y)),
+                   by = .(style)]
+    #     fit <- lm(y ~ x, data = xy_means)
+    #     r <- cor(xy_means$x, xy_means$y)
+    
+    fig <- fig |>
+      add_trace(
+        type = "scatter",
+        mode = "lines",
+        x = xy$x,
+        y = fitted(fit),
+        alpha = 1,
+        name = 'prediction',
+        hoverinfo = "text",
+        text = ~paste(
+          "<br>Cor:", round(r, 2)),
+        NULL
+      )
+  }
+  
+  
+  return(fig)}
+```
+
+
 
 ```{r output-as-R-file}
 # highlight and run to put update into R folder

@@ -17,9 +17,9 @@ source(source_path)
 ```{r gravel-style-table, echo=FALSE}
 knitr::opts_chunk$set(knitr.kable.NA = '')
 
-cluster_labels <- levels(geobike$restyle)
-style_class_table <- geobike[my_fit == TRUE, .SD, .SDcols = c("model", "restyle")]
-style_table <- dcast(setDT(style_class_table), rowid(restyle) ~ restyle, value.var = "model")[, .SD, .SDcols = cluster_labels] %>%
+cluster_labels <- levels(geobike$kmeans_style)
+style_class_table <- geobike[my_fit == TRUE, .SD, .SDcols = c("model", "kmeans_style")]
+style_table <- dcast(setDT(style_class_table), rowid(kmeans_style) ~ kmeans_style, value.var = "model")[, .SD, .SDcols = cluster_labels] %>%
   clean_names() %>%
   setnames(new = c("Racy", "Relaxed", "Rowdy"))
 style_table[is.na(style_table)] <- " "

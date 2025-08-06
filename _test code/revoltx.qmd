@@ -13,7 +13,7 @@ source(source_path)
 ```
 
 ```{r revoltx-bikes, echo = FALSE}
-bikes_cols <- c("model", "year", "frame_size", "reach", "stack", "rear_center", "front_center", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "trail", "front_wheelbase", "stack_reach", "sta_hta", "restyle", "model_size")
+bikes_cols <- c("model", "year", "frame_size", "reach", "stack", "rear_center", "front_center", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "trail", "front_wheelbase", "stack_reach", "sta_hta", "kmeans_style", "model_size")
 bikes <- geobike[, .SD, .SDcols = bikes_cols]
 opacity <- rep(0.5, nrow(bikes))
 ```
@@ -70,7 +70,7 @@ for(i in 1:nrow(xy_sets)){
   p <- base_plot(data = my_fit,
                  x_col = xy_sets[i, x],
                  y_col = xy_sets[i, y],
-                 color_col = "restyle",
+                 color_col = "kmeans_style",
                  legend_col = "model_size",
                  x_label = xy_sets[i, x_label],
                  y_label = xy_sets[i, y_label],
@@ -105,7 +105,7 @@ for(i in 1:nrow(xy_sets)){
     p <- p %>% annotate_model(data = my_fit,
                               x_col = xy_sets[i, x],
                               y_col = xy_sets[i, y],
-                              g_col = "restyle",
+                              g_col = "kmeans_style",
                               text_col = "model",
                               text_target = nbd,
                               dx = c(20, 20),

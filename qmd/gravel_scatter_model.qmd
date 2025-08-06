@@ -25,7 +25,7 @@ source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 ```
 
-```{r legend, echo=FALSE, fig.width= 8, fig.height=0.5}
+```{r legend, echo=FALSE, fig.width= 8, fig.height=0.5, eval=FALSE}
 # plot_ly(data = geobike, type = "scatter", mode = "markers",
 #         x = ~ reach,
 #         y = ~ stack,
