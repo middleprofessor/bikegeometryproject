@@ -15,14 +15,15 @@ library(DT)
 library(reactable)
 
 row_i <- 573 # sklar ML
-table_cols <- c("axle_crown", "stack", "reach", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "wheelbase", "front_center", "rear_center", "trail")
-clean_cols <- c("fork length", "stack", "reach", "head tube angle", "seat tube angle", "BB drop", "wheelbase", "frontcenter", "rearcenter", "trail")
+table_cols <- c("axle_crown", "stack", "reach", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "wheelbase", "front_center", "rear_center", "trail_45")
+clean_cols <- c("fork length", "stack", "reach", "head tube angle", "seat tube angle", "BB drop", "wheelbase", "frontcenter", "rearcenter", "trail (45mm)")
 
 geom_table <- data.table(NULL)
 
 #for(row_i in 1:nrow(geobike)){
 for(row_i in 1:nrow(geobike)){
   rigid <- geobike[row_i, .SD, .SDcols = table_cols] |> as.numeric()
+  # rigid[1] <- round(rigid[1], 0) # make axle-crown an integer
   rudy_30_45 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "30 45")] |> as.numeric()
   rudy_30_51 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "30 51")] |> as.numeric()
   rudy_40_45 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "40 45")] |> as.numeric()
@@ -30,6 +31,7 @@ for(row_i in 1:nrow(geobike)){
   fox_50_45 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "50 45")] |> as.numeric()
   fox_50_50 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "50 50")] |> as.numeric()
   value_table <- data.table(
+    rigid,
       rudy_30_45,
       rudy_40_45,
       rudy_30_51,
@@ -45,6 +47,7 @@ for(row_i in 1:nrow(geobike)){
     value_table[i, ] <- x
   }
   colnames(value_table) <- c(
+    "Rigid",
     "30 mm Travel, 45 mm Offset",
     "40 mm Travel, 45 mm Offset",
     "30 mm Travel, 51 mm Offset",
@@ -58,7 +61,7 @@ for(row_i in 1:nrow(geobike)){
     data.table(
       Model = geobike[row_i, model_size],
       Measure = clean_cols,
-      Rigid = as.integer(rigid),
+#      Rigid = rigid,
       value_table
     ))
 }

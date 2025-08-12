@@ -13,7 +13,6 @@ BlackMtnCy Monstercross V5 2022.xlsx
 BMC URS AL 2022.xlsx
 BMC URS One 2022.xlsx
 Bombtrack Beyond 2 2022.xlsx
-Bombtrack Beyond+ Adv 2022.xlsx
 Bombtrack Hook 2022.xlsx
 Breezer Radar X Pro 2022.xlsx
 Cannondale SuperSix Evo SE 2022.xlsx
@@ -59,7 +58,6 @@ OPEN U.P. 2022.xlsx
 Open WI.DE 2022.xlsx
 Orbea Terra H 2023.xlsx
 Orbea Terra M 2023.xlsx
-Otso Fenrir 2022.xlsx
 Otso Waheela C front 2022.xlsx
 Otso Waheela C rear 2022.xlsx
 Otso Warakin Stainless 2022.xlsx

@@ -514,10 +514,12 @@ geometry_with_sus_fork <- function(frame,
   front_center.new <- wheelbase.new - rear_center.new
 
   # trail
-  radius <- (ifelse(frame$wheel_size == 700 | frame$wheel_size == 29, 622, 584) + frame$tire_width_spec*2)/2
+  tire_width <- 45
+  radius <- (ifelse(frame$wheel_size == 700 | frame$wheel_size == 29, 622, 584) +
+               tire_width*2)/2
   offset_h <- sus_rake/sin(deg_2_rad(hta.new))
 
-  trail.new <- radius/tan(hta_r) - offset_h
+  trail_45.new <- radius/tan(hta_r) - offset_h
   
   # rear_axle = 1, top_seat = 2, top_head_tube = 3, top_crown = 4,
   # front_axle = 5, bottom_bracket = 6, top_seat_tube = 7
@@ -532,9 +534,9 @@ geometry_with_sus_fork <- function(frame,
     bb_drop = bb_drop.new,
     rc = rear_center.new,
     fc = front_center.new,
-    trail = trail.new
+    trail_45 = trail_45.new
   )
-  names(measure_set) <- c("axle_crown_sag", "wheelbase", "stack", "reach", "hta", "sta", "bb_drop", "rc", "fc", "trail")
+  names(measure_set) <- c("axle_crown_sag", "wheelbase", "stack", "reach", "hta", "sta", "bb_drop", "rc", "fc", "trail_45")
 
   return(measure_set)
 
@@ -567,7 +569,7 @@ geometry_with_sus_fork <- function(frame,
 # stack_sus_columns <- function(dt){
 #   frame_cols <- c("model", "frame_size", "model_size", "my_fit",
 #                   "frame_size_std", "kmeans_style", "color", "fork_offset_rake")
-#   geom_rigid <- c("stack", "reach", "head_tube_angle", "seat_tube_angle", "front_center", "rear_center", "bottom_bracket_drop")
+#   geom_rigid <- c("stack", "reach", "head_tube_angle", "seat_tube_angle", "front_center", "rear_center", "bottom_bracket_drop", "trail_45")
 #   geom_30_45 <- paste(geom_rigid, "30 45")
 #   geom_30_51 <- paste(geom_rigid, "30 51")
 #   geom_40_45 <- paste(geom_rigid, "40 45")
@@ -580,22 +582,40 @@ geometry_with_sus_fork <- function(frame,
 #   reach_cols <- c("reach", paste("reach", forks))
 #   sta_cols <- c("seat_tube_angle", paste("seat_tube_angle", forks))
 #   hta_cols <- c("head_tube_angle", paste("head_tube_angle", forks))
+#   bb_cols <- c("bottom_bracket_drop", paste("bottom_bracket_drop", forks))
+#   trail_cols <- c("trail_45", paste("trail_45", forks))
+#   fc_cols <- c("front_center", paste("front_center", forks))
+#   rc_cols <- c("rear_center", paste("rear_center", forks))
 # 
 #   sus_dt_wide <- dt[, .SD, .SDcols = c(frame_cols, geom_rigid,
 #                                        stack_cols, reach_cols,
-#                                        sta_cols, hta_cols)]
+#                                        sta_cols, hta_cols,
+#                                        bb_cols, trail_cols,
+#                                        fc_cols, rc_cols)]
 # 
 #   sus_dt <- melt(sus_dt_wide,
 #                  id.vars = frame_cols,
-#                  measure.vars = list(stack_cols, reach_cols, sta_cols, hta_cols),
+#                  measure.vars = list(stack_cols, reach_cols, sta_cols, hta_cols,
+#                                      bb_cols, trail_cols, fc_cols, rc_cols),
 #                  variable.name = "fork",
-#                  value.name = c("stack", "reach", "seat_tube_angle", "head_tube_angle"))
+#                  value.name = c("stack", "reach", "seat_tube_angle", "head_tube_angle",
+#                                 "bottom_bracket_drop", "trail_45", "front_center",
+#                                 "rear_center"))
 #   # map fork id to fork label
 #   sus_dt[, fork := c("rigid", forks)[fork]] # this is used for popup and hover
 #   sus_dt[, fork_key := factor(fork, levels = c("rigid", forks))] # this is used for checkbox filter
 #   # replace rigid with fork specs
 #   sus_dt[fork == "rigid", fork := paste("0", round(fork_offset_rake,0))]
 # 
+#   # test columns
+#   sus_dt[substr(fork,1,2) == "0 ", travel := "rigid"]
+#   sus_dt[substr(fork,1,2) == "30", travel := "30 mm"]
+#   sus_dt[substr(fork,1,2) == "40", travel := "40 mm"]
+#   sus_dt[substr(fork,1,2) == "50", travel := "50 mm"]
+#   sus_dt[, travel := factor(travel, levels = c("rigid", "30 mm", "40 mm", "50 mm"))]
+# 
+#   sus_dt[, row_id := paste(model_size, fork)]
+#   sus_dt[, row_id := .I]
 #   # make highlight column
 #   # highlight info text
 #   sus_dt[, highlight_text := paste(substr(fork, 1, 2), "travel;",
@@ -916,8 +936,8 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
            sus_measures["rc"]]
     bike[row_i, (paste("front_center", sus_travel, sus_rake)) :=
            sus_measures["fc"]]
-    bike[row_i, (paste("trail", sus_travel, sus_rake)) :=
-           sus_measures["trail"]]
+    bike[row_i, (paste("trail_45", sus_travel, sus_rake)) :=
+           sus_measures["trail_45"]]
 
     sus_length = 435
     sus_travel = 40
@@ -942,8 +962,8 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
            sus_measures["rc"]]
     bike[row_i, (paste("front_center", sus_travel, sus_rake)) :=
            sus_measures["fc"]]
-    bike[row_i, (paste("trail", sus_travel, sus_rake)) :=
-           sus_measures["trail"]]
+    bike[row_i, (paste("trail_45", sus_travel, sus_rake)) :=
+           sus_measures["trail_45"]]
 
     sus_length = 425
     sus_travel = 30
@@ -968,8 +988,8 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
            sus_measures["rc"]]
     bike[row_i, (paste("front_center", sus_travel, sus_rake)) :=
            sus_measures["fc"]]
-    bike[row_i, (paste("trail", sus_travel, sus_rake)) :=
-           sus_measures["trail"]]
+    bike[row_i, (paste("trail_45", sus_travel, sus_rake)) :=
+           sus_measures["trail_45"]]
 
     sus_length = 435
     sus_travel = 40
@@ -994,8 +1014,8 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
            sus_measures["rc"]]
     bike[row_i, (paste("front_center", sus_travel, sus_rake)) :=
            sus_measures["fc"]]
-    bike[row_i, (paste("trail", sus_travel, sus_rake)) :=
-           sus_measures["trail"]]
+    bike[row_i, (paste("trail_45", sus_travel, sus_rake)) :=
+           sus_measures["trail_45"]]
 
     sus_length = 445
     sus_travel = 50
@@ -1020,8 +1040,8 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
            sus_measures["rc"]]
     bike[row_i, (paste("front_center", sus_travel, sus_rake)) :=
            sus_measures["fc"]]
-    bike[row_i, (paste("trail", sus_travel, sus_rake)) :=
-           sus_measures["trail"]]
+    bike[row_i, (paste("trail_45", sus_travel, sus_rake)) :=
+           sus_measures["trail_45"]]
     
     sus_length = 445
     sus_travel = 50
@@ -1046,8 +1066,8 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
            sus_measures["rc"]]
     bike[row_i, (paste("front_center", sus_travel, sus_rake)) :=
            sus_measures["fc"]]
-    bike[row_i, (paste("trail", sus_travel, sus_rake)) :=
-           sus_measures["trail"]]
+    bike[row_i, (paste("trail_45", sus_travel, sus_rake)) :=
+           sus_measures["trail_45"]]
 
     
   }
@@ -2117,6 +2137,7 @@ if(import_it != TRUE){
   geobike <- import_bike_list(style = "gravel")
   geobike_import <- copy(geobike)
   # geobike <- geobike_import
+  
   # classify bikes by kmeans
   # kmeans first splits into k = 2 groups because there is only good support for 2. Then splits
   # group 2 into two groups because there is good support for this.
@@ -2180,7 +2201,7 @@ if(import_it != TRUE){
                    by = c("model", "frame_size"), all.x = TRUE)
   
 
-  geobike[, color := pal_okabe_ito_3[as.integer(functional_style)]]
+  geobike[, color := pal_okabe_ito_3[as.integer(kmeans_style)]]
   geobike[, color_kmeans := pal_okabe_ito_3[as.integer(kmeans_style)]]
   geobike[, color_tree := pal_okabe_ito_3[as.integer(tree_style)]]
   geobike[, color_function := pal_okabe_ito_3[as.integer(functional_style)]]
@@ -2193,6 +2214,7 @@ if(import_it != TRUE){
   saveRDS(geobike, geobike_path)
   saveRDS(my_fit, my_fit_path)
   
+  # compute and save sus geometry
   geobike_sus <- stack_sus_columns(geobike)
   saveRDS(geobike_sus, geobike_sus_path)
   
@@ -3008,6 +3030,7 @@ scatter_fig <- function(shared_data = geobike_shared,
                         x_info = NULL, y_info = NULL,
                         xtra_info = NULL, # added to highlighted name
                         highlight_col = "highlight_text", # column for highlight info
+                        label_col = NULL,
                         digits = 0,
                         color_col = "kmeans_style",
                         dot_palette = pal_okabe_ito_7,
@@ -3061,12 +3084,14 @@ scatter_fig <- function(shared_data = geobike_shared,
     grp_shared <- SharedData$new(grp_data, key = ~get(g_col), group = link_group)
     
     if(link_group == "2dsus"){
-     hover_text <- ~paste(model_size,
-                        "<br>Cat:", kmeans_style,
-                        paste0("<br>", x_info, ":"), round(get(x_col), digits),
-                        paste0("<br>", y_info, ":"), round(get(y_col), digits),
-                        paste0("<br>Fork:", get(highlight_col)))
+      text_col <- label_col
+      hover_text <- ~paste(model_size,
+                           "<br>Cat:", kmeans_style,
+                           paste0("<br>", x_info, ":"), round(get(x_col), digits),
+                           paste0("<br>", y_info, ":"), round(get(y_col), digits),
+                           paste0("<br>Fork:", get(highlight_col)))
     }else{
+      text_col <- g_col
       hover_text <- ~paste(model_size,
                         "<br>Cat:", kmeans_style,
                         paste0("<br>", x_info, ":"), round(get(x_col), digits),
@@ -3086,7 +3111,7 @@ scatter_fig <- function(shared_data = geobike_shared,
         hoverinfo = "text",
         hovertext = hover_text,
         # highlight text
-        text = ~get(g_col),
+        text = ~get(text_col),
         textposition = "right",
         textfont = list(size = 12),
         marker = list(size = 12, opacity = 1, color = ~color),

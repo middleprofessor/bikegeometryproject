@@ -118,16 +118,8 @@ p9 <- scatter_fig(shared_data = geobike_shared,
   #boxes <- filter_checkbox("size", "Size", geobike_shared, ~Size, inline = FALSE)
   boxes <- filter_checkbox("size", "Size", geobike_shared, ~frame_size_std, inline = FALSE)
 
-  p1_box <- bscols(
-    widths = c(8,3), p1, boxes
-  )
-  p1_box
-  
-  p2_box <- bscols(
-    widths = c(8,3), p1
-  )
-  p2_box
-  
+  bscols(widths = c(8,3), p1, boxes)
+  bscols(widths = c(8,3), p2)
   bscols(widths = c(8,3), p3)
   bscols(widths = c(8,3), p4)
   bscols(widths = c(8,3), p5)
