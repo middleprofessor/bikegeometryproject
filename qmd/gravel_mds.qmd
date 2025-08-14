@@ -11,41 +11,7 @@ source(source_path)
 
 ```{r mds-plot, echo=FALSE, out.width = "100%", out.height = "100%"}
 
-classifier_cols = c(
-  "stack",
-  "reach",
-  "front_center",
-  "rear_center",
-  "head_tube_angle",
-  "seat_tube_angle",
-  "trail_45"
-)
-# dt should be my_fit
-  dt_info <- geobike[my_fit == TRUE, .SD, .SDcols =
-                       c("model", "model_size", "frame_size", "color",
-                         "kmeans_style", "tire_width_max", "axle_crown")]
-  model <- dt_info[, model]
-  Y <- geobike[my_fit == TRUE, .SD, .SDcols = classifier_cols] |>
-    scale()
-  row.names(Y) <- model
-  
-# distance matrix
-  d <- dist(Y, method = "euclidean")
-
-# Step 2: Classical MDS (k=2 for 2D plot)
-  mds_coords <- cmdscale(d, k = 2)
-  
-  # cor(geobike[my_fit == TRUE, .SD, .SDcols = c("kmeans_racy", "kmeans_relaxed", "kmeans_rowdy")],
-  #     mds_coords[, 1:2])
-
-  # Step 3: Combine with original metadata
-  mds_dt <- data.table(
-    dt_info,
-    mds1 = mds_coords[, 1],
-    mds2 = mds_coords[, 2]
-  )
-  
-  geobike_mds_shared <- SharedData$new(mds_dt, key = ~model_size, group = "mds")
+  geobike_mds_shared <- SharedData$new(geobike, key = ~model_size, group = "mds")
 
   p1 <- scatter_fig(shared_data = geobike_mds_shared,
                     link_group = "mds",
@@ -54,8 +20,9 @@ classifier_cols = c(
                     g_col = "model_size")
 
   filters <- list(
-    filter_slider("tire", "Max Tire Width (mm)", geobike_mds_shared, ~tire_width_max),
-    filter_slider("axle_crown", "Axle-Crown (mm)", geobike_mds_shared, ~axle_crown)
+    filter_checkbox("material", "Frame material", geobike_mds_shared, ~material, inline = TRUE),
+    filter_checkbox("fork", "Fork Class (mm)", geobike_mds_shared, ~fork_class, inline = TRUE),
+    filter_slider("tire", "Max Tire Width (mm)", geobike_mds_shared, ~tire_width_max)
   )
 
   bscols( widths = c(3, 9), filters, p1)

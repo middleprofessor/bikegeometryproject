@@ -10,7 +10,7 @@ source(source_path)
 
 ### Start here
 
-The [Which bikes are racy/rowdy/relaxed?](qmd/gravel_style_plot.qmd) page contains interactive plots for all gravel bike models in the database. Click on the points for finding bikes in the style you're seeking.
+The [Which bikes are racy/rowdy/relaxed?](qmd/gravel_mds.qmd) page contains the plot showing overall similarity among all gravel bike models in the database. Click on the points for finding bikes in the style you're seeking. The plot also includes filters for finding bikes with specific features.
 
 ```{r echo=FALSE}
 image_folder <- "images"

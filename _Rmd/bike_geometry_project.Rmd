@@ -461,6 +461,24 @@ geometry_with_sus_fork <- function(frame,
                                    headset_stack = 12){
   
   # note headset stack doesn't matter for this
+  # AC length 30 mm is 425
+  # AC length 40 mm is 435
+  # Rockshox Rudy: 5% sag recommended. 435 - .05*40 = 433
+  # Fox Taper-Cast: 15-20% sag recommended. 435 - 0.15*40 = 429
+  # Cane Creek Invert has a PSI recommend but not a sag recommend
+  # Lauf fork spec is 419 mm sagged at 6%
+  # 30 mm travel
+  # Rudy: 425 - 0.05*30 = 423.5
+  # Fox TC: 425 - 0.2*30 = 419
+  # Cane Creek = Fox TC
+  # Lauf 419 mm AC, 47mm rake
+  # 40 mm travel
+  # Rudy: 435 - 0.05*40 = 433
+  # Fox TC: 435 - 0.2*40 = 427
+  # Cane Creek = Fox TC
+  # 50 mm travel
+  # Fox: 445 - .2*50 = 435
+  
   # frame <- geobike[model == "BMC URS AL 2022" & frame_size == "M", ]
   # frame <- geobike[model == "Sklar SS Ti 2025" & frame_size == "ML", ]
   # frame <- geobike[model == "Santa Cruz Stigmata CC 2023" & frame_size == "M", ]
@@ -590,7 +608,7 @@ geometry_with_sus_fork <- function(frame,
 ```
 
 ## stack sus columns to plot
-```{r eval = FALSE}
+```{r stack-sus-columns}
 stack_sus_columns <- function(dt){
   frame_cols <- c("model", "frame_size", "model_size", "my_fit",
                   "frame_size_std", "kmeans_style", "color", "fork_offset_rake")
@@ -1612,17 +1630,28 @@ kmeans_classifier <- function(dt,
   explore_table <- data.table(
     dt_info,
     km_cluster = kmeans_result$cluster,
-    rkm_cluster = rkm$cluster
+    rkm_cluster = rkm_result$cluster
   )
 
   kmeans_class <- data.table(
     dt_info,
     init_cluster = rkm_result$cluster
   )
- 
+  
+  # scores
   kmeans_scores <- d_scores(Y, kmeans_class,
                             cluster_col = "init_cluster",
                             prefix = "kmeans")
+  
+    # multidimensional scaling
+  # these are scores but I'm using the d-scores below
+  # Step 2: Classical MDS (k=2 for 2D plot)
+  D <- dist(Y, method = "euclidean")
+  mds_coords <- cmdscale(D, k = 2) # two dimensions for three groups
+  # kmeans_scores[, c("mds1", "mds2") := mds_coords[, 1:2]]
+  kmeans_scores[, mds1 := mds_coords[, 1]]
+  kmeans_scores[, mds2 := mds_coords[, 2]]
+
   return(kmeans_scores)
 
 }
@@ -2236,6 +2265,30 @@ if(import_it != TRUE){
   geobike_import <- copy(geobike)
   # geobike <- geobike_import
   
+  # suspension class
+  # 30 mm travel
+  # Rudy: 425 - 0.05*30 = 423.5
+  # Fox TC: 425 - 0.2*30 = 419
+  # Cane Creek = Fox TC
+  # Lauf 419 mm AC, 47mm rake
+  # 40 mm travel
+  # Rudy: 435 - 0.05*40 = 433
+  # Fox TC: 435 - 0.2*40 = 427
+  # Cane Creek = Fox TC
+  # 50 mm travel
+  # Fox: 445 - .2*50 = 435
+  geobike[fork == "rigid" & axle_crown < 412, fork_class := "rigid"]
+  geobike[fork == "rigid" & axle_crown >= 412 & axle_crown < 426, fork_class := "30 mm"]
+  geobike[fork == "rigid" & axle_crown >= 426 & axle_crown < 436, fork_class := "40 mm"]
+  geobike[fork == "rigid" & axle_crown >= 436 & axle_crown < 446, fork_class := "50 mm"]
+  geobike[fork == "rigid" & axle_crown >= 471 & axle_crown < 489, fork_class := "100 mm"]
+  geobike[fork == "rigid" & axle_crown >= 489 & axle_crown < 507, fork_class := "120 mm"]
+  geobike[fork == "suspension", fork_class := paste(suspension_corrected, "mm")]
+  # make a factor and order
+  fork_classes <- c("rigid", "30 mm", "40 mm", "50 mm", "100 mm", "120 mm")
+  geobike[, fork_class := factor(fork_class, levels = fork_classes)]
+
+  
   # classify bikes by kmeans
   # kmeans first splits into k = 2 groups because there is only good support for 2. Then splits
   # group 2 into two groups because there is good support for this.
@@ -2251,7 +2304,10 @@ if(import_it != TRUE){
                    kmeans_classes[, .SD, .SDcols = c("model", "kmeans_style")],
                    by = c("model"), all.x = TRUE)
   geobike <- merge(geobike,
-                   kmeans_classes[, .SD, .SDcols = c("model", "frame_size", paste0("kmeans_", style_levels))],
+                   kmeans_classes[, .SD,
+                                  .SDcols = c("model", "frame_size",
+                                              paste0("kmeans_", style_levels),
+                                              "mds1", "mds2")],
                    by = c("model", "frame_size"), all.x = TRUE)
 
   # nested kmeans
@@ -2650,8 +2706,31 @@ convert_single_files <- function(){
 ```
 
 
-```{r add-bike-specs}
+```{r add-bike-specs, eval=FALSE}
+# this script adds 3 rows to specs and populates with style = gravel, handlebar = drop bar, fork = rigid
 
+insert_after <- "spec_list"
+
+filelist_path <- here("data/gravel incomplete")
+excel_files <- list.files(filelist_path, pattern = "\\.xlsx$", full.names = TRUE)
+for (file in excel_files) {
+#  insert_row_num <- find_insert_row(file, named_range)
+  data_range <- read_excel(file, range = "B7:B7", col_names = FALSE) |>
+    as.character()
+  last_row_data_block <- substr(data_range, 5, 6) |> as.integer()
+  start_row_specs_block <- last_row_data_block + 2
+  end_row_specs_block <- start_row_specs_block + 100
+  specs_range <- paste0("A", start_row_specs_block,":A", end_row_specs_block)
+  specs <- read_excel(file, range = specs_range, col_names = FALSE)
+  insert_after_row <- which(specs == insert_after)
+  
+# Row to insert
+  insert_row <- start_row_specs_block + insert_after_row  # +1 to insert 
+  
+# this script adds 3 rows to specs and populates with style = gravel, handlebar = drop bar, fork = rigid
+  system(sprintf("osascript insert_row_with_values.scpt '%s' %d", file, insert_row))
+
+}
 
 ```
 
