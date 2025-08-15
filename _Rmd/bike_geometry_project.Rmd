@@ -1272,11 +1272,16 @@ import_bikes_excel_multiple <- function(style = "gravel",
 ```{r}
 import_bikes_excel_single <- function(style_folder = "gravel",
                          prefix = ""){
-  bike_list_file = paste0(paste0(style_folder, "/"), style_folder, "_list.txt")
-  bike_list_path <- here(data_folder, bike_list_file)
-  bike_list <- fread(bike_list_path, sep = "\t", header = FALSE)
+  # bike_list_file = paste0(paste0(style_folder, "/"), style_folder, "_list.txt")
+  # bike_list_path <- here(data_folder, bike_list_file)
+  # bike_list <- fread(bike_list_path, sep = "\t", header = FALSE)
+  
+  filelist_path <- here(data_folder,style_folder)
+  bike_list <- list.files(filelist_path, pattern = "\\.xlsx$", full.names = FALSE)
+  bike_list <- bike_list[!grepl("^~\\$", basename(bike_list))] # delete excel hidden
+
   geobike <- data.table(NULL)
-  for(i in 1:nrow(bike_list)){
+  for(i in 1:length(bike_list)){
     bike_file = bike_list[i]
     bike_path <- here(data_folder, style_folder, bike_file)
     model_data <- read_excel(bike_path, range = "A1:B5", col_names = FALSE,
@@ -1317,9 +1322,9 @@ import_bike_list <- function(style = "gravel",
                          prefix = ""){
   
   geobike <- rbind(
-    import_bikes_excel_single("gravel", prefix),
-    import_bikes_excel_single("gravel incomplete", prefix),
-    import_bikes_excel_single("hardtail", prefix)
+    import_bikes_excel_single("gravel"),
+    import_bikes_excel_single("gravel incomplete"),
+    import_bikes_excel_single("hardtail")
   )
   geobike[, id := .I]
 
@@ -2311,25 +2316,25 @@ if(import_it != TRUE){
                    by = c("model", "frame_size"), all.x = TRUE)
 
   # nested kmeans
-  nkmeans_classes <- nested_km_classifier(
-    geobike[my_fit == TRUE]
-  )
-  geobike <- merge(geobike,
-                   nkmeans_classes[, .SD, .SDcols = c("model", "nkmeans_style")],
-                   by = c("model"), all.x = TRUE)
-  geobike <- merge(geobike,
-                   nkmeans_classes[, .SD, .SDcols = c("model", "frame_size", paste0("nkmeans_", style_levels))],
-                   by = c("model", "frame_size"), all.x = TRUE)
+  # nkmeans_classes <- nested_km_classifier(
+  #   geobike[my_fit == TRUE]
+  # )
+  # geobike <- merge(geobike,
+  #                  nkmeans_classes[, .SD, .SDcols = c("model", "nkmeans_style")],
+  #                  by = c("model"), all.x = TRUE)
+  # geobike <- merge(geobike,
+  #                  nkmeans_classes[, .SD, .SDcols = c("model", "frame_size", paste0("nkmeans_", style_levels))],
+  #                  by = c("model", "frame_size"), all.x = TRUE)
 
-  # mclust
-  mclust_classes <- mclust_classifier(geobike[my_fit == TRUE,])
-  geobike <- merge(geobike,
-                   mclust_classes[, .SD, .SDcols = c("model", "mclust_style")],
-                   by = c("model"), all.x = TRUE)
-  geobike <- merge(geobike,
-                   mclust_classes[, .SD, .SDcols = c("model", "frame_size", paste0("mclust_", style_levels))],
-                   by = c("model", "frame_size"), all.x = TRUE)
-
+  # # mclust
+  # mclust_classes <- mclust_classifier(geobike[my_fit == TRUE,])
+  # geobike <- merge(geobike,
+  #                  mclust_classes[, .SD, .SDcols = c("model", "mclust_style")],
+  #                  by = c("model"), all.x = TRUE)
+  # geobike <- merge(geobike,
+  #                  mclust_classes[, .SD, .SDcols = c("model", "frame_size", paste0("mclust_", style_levels))],
+  #                  by = c("model", "frame_size"), all.x = TRUE)
+  # 
 
   # tree classifier
   tree_classes <- tree_classifier(
