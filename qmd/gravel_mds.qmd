@@ -1,11 +1,15 @@
 ---
 title: "The three gravel styles: racy, relaxed, and rowdy"
 ---
+::: {.callout-tip title="Tips for navigating"}
+1. Hover over data for model and frame size identification.
+2. Scroll legend and click on items to identify specific model in the plot.
+3. Click on popup icon-bar over legend to zoom in/out and pan.
+:::
 
 ```{r gravel-mds-setup, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("bike_geometry_project.R")
 source(source_path)
-
 ```
 
 
@@ -26,29 +30,21 @@ p1 <- scatter_fig(shared_data = geobike_mds_shared,
 
 filters <- list(
   filter_checkbox("material", "Frame material", geobike_mds_shared, ~material, inline = TRUE),
-  filter_checkbox("fork", "Fork Class (mm)", geobike_mds_shared, ~fork_class, inline = TRUE),
-  filter_checkbox("axle", "Axle Spacing", geobike_mds_shared, ~axle_spacing, inline = TRUE),
+  filter_checkbox("fork", "Suspension correction (mm)", geobike_mds_shared, ~fork_class, inline = TRUE),
+  filter_checkbox("udh", "UDH", geobike_mds_shared, ~udh, inline = TRUE),
+  filter_checkbox("sliding", "Sliding dropout (mm)", geobike_mds_shared, ~dropout, inline = TRUE),
+  filter_checkbox("axle", "Axle spacing", geobike_mds_shared, ~axle_spacing, inline = TRUE),
   filter_checkbox("handlebar", "Handlebar", geobike_mds_shared, ~handlebar, inline = TRUE),
-  filter_slider("tire_700", "Max 700c Tire Width (mm)", geobike_mds_shared, ~tire_width_max_700c, step = 1),
-  filter_slider("tire_650", "Max 650b Tire Width (in)", geobike_mds_shared, ~tire_width_max_650b, step = 0.05)
+  filter_slider("tire_700", "Max 700c tire width (mm)", geobike_mds_shared, ~tire_width_max_700c, step = 1),
+  filter_slider("tire_650", "Max 650b tire width (in)", geobike_mds_shared, ~tire_width_max_650b, step = 0.05)
   )
 
 bscols( widths = c(3, 9), filters, p1)
 
 ```
 
-
-::: {.callout-tip title="Which bikes are racy? rowdy? relaxed?"}
-1. Hover over data for model and frame size identification.
-2. Scroll legend and click on items to identify specific model in the plot.
-3. Click on popup icon-bar over legend to zoom in/out and pan.
-:::
-
 ::: {.callout-note}
-1. The ternary scores are the projections of the centered, scaled data onto the style (Racy, Relaxed, Rowdy) axes.
-2. There are several ways to construct a style axis. The ternary plot uses the 2nd of these two ways:
-    i. the vector of differences from the centroid to the style mean of the centered, scaled data.
-    ii. the vector of correlation coefficients between the style classification (1 is "in style" and 0 is "out of style") and each measure.
-3. The input data is the ML subset of bikes that fit a 176 cm rider
+1. The two axes were computed by [multidimensional scaling](https://en.wikipedia.org/wiki/Multidimensional_scaling){target="_blank"}.
+2. Classification of gravel bikes is based on a frame size that fits a 175 cm high rider (generally frame size M or 54), according to manufacturer's charts.
 :::
 

@@ -1,22 +1,16 @@
 ---
-title: "How does a suspension fork change my bike geometry?"
-editor: source
-format:
-  html:
-    toc: false
+title: "How does a suspension fork change bike geometry -- Plots of data"
 ---
-::: {.callout-tip}
+
+::: {.callout-tip title="Tips for navigating"}
 1. Hover over data for model and frame size identification.
-2. Scroll legend and click on items to identify specific model and frame size combinations.
-3. Click on **Focal** checkbox to view only the frame size used for the classification.
-4. Click on popup icon-bar over legend to zoom in/out and pan.
+2. Scroll legend and click on items to identify specific model.
+3. Click on popup icon-bar over legend to zoom in/out and pan.
 :::
 
-::: {.callout-note}
-Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") high rider, according to manufacturer's charts.
+::: {.callout-tip title="More notes!"}
+More notes at the bottom!
 :::
-
-[Click here to see a version of this page that simultaneously highlights all frame sizes within a model](../qmd/gravel_scatter_model.qmd)
 
 ```{r setup-gravel-scatter, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("bike_geometry_project.R")
@@ -113,5 +107,26 @@ p4 <- scatter_fig(shared_data = geobike_sus_shared,
 
 ```
 
+
+
+
+::: {.callout-note}
+Classification of gravel bikes is based on a frame size that fits a 175 cm high rider (generally frame size M or 54), according to manufacturer's charts.
+:::
+
+::: {.callout-note}
+The suspension fork length and geometry is based on 20% sag: fork_length - 0.2*travel
+:::
+
+::: {.callout-warning title="A Rudy Fork geometry corrector"}
+Rockshox recommends 5% sag (as opposed to 20% sag) on the Rudy fork. The geometry measures will be half-way between the target fork and the next-size up fork (for example, for a 30 mm Rudy fork, the geometry will be between the measures for the 30 mm fork and the 40 mm fork, of the same offset)
+:::
+
+::: {.callout-tip title="Gravel forks"}
+1. Cane Creek Invert has two models: 30 mm (425 mm axle-crown) and 40 (435 mm axle-crown) mm travel. Both models have 45 mm offset
+2. Rockshox Rudy has four models: 30 mm (425 mm axle-crown) and 40 (435 mm axle-crown) mm travel, each with either 45 mm or 51 mm offset.
+3. Fox 32 TC Factory has four models: 40 (435.5 mm axle-crown) mm and 50 (445.5 mm axle-crown) mm travel, each with either 45 mm or 50 mm offset.
+4. Lauf has one model with 30 mm travel (425 Axle Crown and 47 mm offset)
+:::
 
 

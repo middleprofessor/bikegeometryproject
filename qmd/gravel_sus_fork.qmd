@@ -1,7 +1,18 @@
 ---
-title: "How does a suspension fork change bike geometry?"
-subtitle: "And how race/rowdy/relaxed are they?"
+title: "How does a suspension fork change bike geometry -- Tables of data"
 ---
+::: {.callout-tip title="How to search for a specific model and size!"}
+1. Use the pop-up box at the upper-left to search for a specific bike model and size.
+2. If there is already a model in the pop-up box then
+i. click in the box
+ii. hit the delete key
+iii. start typing model name.
+:::
+
+::: {.callout-tip}
+More notes at the bottom!
+:::
+
 
 ```{r gravel-sus-setup, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("bike_geometry_project.R")
@@ -91,13 +102,21 @@ filter_ui <- filter_select(id = "fsid",
 
 
 
-::: {.callout-tip title="How does a suspension change bike geometry?"}
+::: {.callout-note}
+The suspension fork length and geometry is based on 20% sag: fork_length - 0.2*travel
+:::
+
+::: {.callout-warning title="A Rudy Fork geometry corrector"}
+Rockshox recommends 5% sag on the Rudy fork while Fox, Cane Creek, and Lauf recommend (or are tuned for) 20% sag. The sus geometry for a rudy fork will be
+
+1. For 30 mm fork, 20% sag is 419 mm AC and 5% sag is 423.5 mm AC. For a 40 mm fork, 20% sag is 427 mm AC. So the sus geometry of a Rudy fork will be 1/2way between the measures for the 30 mm and 40 mm forks here.
+2. For 40 mm fork, 20% sag is 427 mm AC and 5% sag is 433 mm AC. For a 50 mm fork, 20% sag is 437 mm AC. So the sus geometry of a Rudy fork will be more than 1/2way between the measures for the 40 mm and 50 mm forks here.
+:::
+
+::: {.callout-tip title="HGravel forks"}
 1. Cane Creek Invert has two models: 30 mm (425 mm axle-crown) and 40 (435 mm axle-crown) mm travel. Both models have 45 mm offset
 2. Rockshox Rudy has four models: 30 mm (425 mm axle-crown) and 40 (435 mm axle-crown) mm travel, each with either 45 mm or 51 mm offset.
 3. Fox 32 TC Factory has four models: 40 (435.5 mm axle-crown) mm and 50 (445.5 mm axle-crown) mm travel, each with either 45 mm or 50 mm offset.
-:::
-
-::: {.callout-note}
-1. The suspension fork length is based on 10% sag: fork_length - 0.1*travel
+4. Lauf has one model with 30 mm travel (425 Axle Crown and 47 mm offset)
 :::
 

@@ -5,16 +5,17 @@ format:
   html:
     toc: false
 ---
-::: {.callout-tip}
+::: {.callout-tip title="Tips for navigating"}
 1. Hover over data for model and frame size identification.
 2. Scroll legend and click on items to identify specific model and frame size combinations.
-3. Click on **Focal** checkbox to view only the frame size used for the classification.
+3. Click on Rider Height checkbox to view frames of a specific size. The 175 height is the most complete.
 4. Click on popup icon-bar over legend to zoom in/out and pan.
 :::
 
-::: {.callout-note}
-Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") high rider, according to manufacturer's charts.
+::: {.callout-tip title="More notes!"}
+More notes at the bottom!
 :::
+
 
 [Click here to see a version of this page that simultaneously highlights all frame sizes within a model](../qmd/gravel_scatter_model.qmd)
 
@@ -116,7 +117,7 @@ p9 <- scatter_fig(shared_data = geobike_shared,
   # gg_legend_ly <- ggplotly(gg_legend, width = 6.5*96, height = 1*96)
 
   #boxes <- filter_checkbox("size", "Size", geobike_shared, ~Size, inline = FALSE)
-  boxes <- filter_checkbox("size", "Size", geobike_shared, ~frame_size_std, inline = FALSE)
+  boxes <- filter_checkbox("size", "Rider Height", geobike_shared, ~frame_size_std, inline = FALSE)
 
   bscols(widths = c(8,3), p1, boxes)
   bscols(widths = c(8,3), p2)
@@ -130,5 +131,7 @@ p9 <- scatter_fig(shared_data = geobike_shared,
 
 ```
 
-
+::: {.callout-note}
+Classification of gravel bikes is based on a frame size that fits a 175 cm high rider (generally frame size M or 54), according to manufacturer's charts.
+:::
 
