@@ -1318,6 +1318,7 @@ import_bikes_excel_single <- function(style_folder = "gravel",
     bike_i <- read_bike(bike_label = bike_label,
                         bike_range = geom_range,
                         data_file = paste0(style_folder,"/", bike_file))
+    bike_i[, url := model_data[5,2]]
     bike_i[, my_fit := NA]
     bike_i <- cbind(bike_i, bike_specs_t )
     
@@ -3282,7 +3283,7 @@ scatter_fig <- function(shared_data = geobike_shared,
                         color_col = "kmeans_style",
                         dot_palette = pal_okabe_ito_7,
                         dot_opacity = 0.3,
-                        same_xy_scale = TRUE,
+                        same_xy_scale = FALSE,
                         set_autorange = TRUE,
                         add_regression = FALSE){
   
@@ -3340,9 +3341,9 @@ scatter_fig <- function(shared_data = geobike_shared,
     }else{
       text_col <- g_col
       hover_text <- ~paste(model_size,
-                        "<br>Cat:", kmeans_style,
-                        paste0("<br>", x_info, ":"), round(get(x_col), digits),
-                        paste0("<br>", y_info, ":"), round(get(y_col), digits))
+                           "<br>Cat:", kmeans_style,
+                           paste0("<br>", x_info, ":"), round(get(x_col), digits),
+                           paste0("<br>", y_info, ":"), round(get(y_col), digits))
     }
     
     

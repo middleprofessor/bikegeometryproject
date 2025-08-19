@@ -24,14 +24,11 @@ source(source_path)
 
 ```{r make-plots, echo=FALSE}
 
-geobike_shared <- SharedData$new(my_fit)
+racy_shared <- SharedData$new(geobike[my_fit == TRUE],
+                                 key = ~model_size, group = "2dracy")
+
 add_regression <- TRUE
 
-# p0 <- base_ternary(data = geobike_shared,
-#                    axis_cols = c("stack", "reach", "chainstay_length"),
-#                    axis_labels = c("Stack", "Reach", "Chainstay"),
-#                    g_col = "restyle"
-#                    )
 
 # which classifier
 tree_class <- 1
@@ -41,82 +38,83 @@ mclust_class <- 4
 racy_col <- c("tree_racy", "functional_racy", "kmeans_racy", "mclust_racy")[kmeans_class]
 color_col <- c("tree_style", "functional_style", "kmeans_style", "mclust_style")[kmeans_class]
 
-p1 <- scatter_fig_global(data = geobike_shared,
+
+p1 <- scatter_fig(shared_data = racy_shared,
+                  link_group = "2dracy",
                   y_col = racy_col, x_col = "stack",
                   y_label = "Racy Index", x_label = "Stack (mm)",
-                  g_col = "model_size",
                   color_col = color_col,
-                  same_xy_scale = FALSE,
+                  g_col = "model_size",
                   add_regression = add_regression)
-p2 <- scatter_fig_global(data = geobike_shared,
+p2 <- scatter_fig(shared_data = racy_shared,
+                  link_group = "2dracy",
                   y_col = racy_col, x_col = "reach",
                   y_label = "Racy Index", x_label = "Reach (mm)",
                   g_col = "model_size",
                   color_col = color_col,
-                  same_xy_scale = FALSE,
                   add_regression = add_regression)
-p3 <- scatter_fig_global(data = geobike_shared,
+p3 <- scatter_fig(shared_data = racy_shared,
+                  link_group = "2dracy",
                   y_col = racy_col, x_col = "head_tube_angle",
                   y_label = "Racy Index", x_label = "Head Tube Angle (°)",
                   g_col = "model_size",
                   color_col = color_col,
-                  same_xy_scale = FALSE,
                   add_regression = add_regression)
-p4 <- scatter_fig_global(data = geobike_shared,
+p4 <- scatter_fig(shared_data = racy_shared,
+                  link_group = "2dracy",
                   y_col = racy_col, x_col = "seat_tube_angle",
                   y_label = "Racy Index", x_label = "Seat Tube Angle (°)",
                   g_col = "model_size",
                   color_col = color_col,
-                  same_xy_scale = FALSE,
                   add_regression = add_regression)
-p5 <- scatter_fig_global(data = geobike_shared,
+p5 <- scatter_fig(shared_data = racy_shared,
+                  link_group = "2dracy",
                   y_col = racy_col, x_col = "bottom_bracket_drop",
                   y_label = "Racy Index", x_label = "Bottom Bracket Drop (mm)",
                   g_col = "model_size",
                   color_col = color_col,
-                  same_xy_scale = FALSE,
                   add_regression = add_regression)
-p6 <- scatter_fig_global(data = geobike_shared,
+p6 <- scatter_fig(shared_data = racy_shared,
+                  link_group = "2dracy",
                   y_col = racy_col, x_col = "chainstay_length",
                   y_label = "Racy Index", x_label = "Chainstay Length (mm)",
                   g_col = "model_size",
                   color_col = color_col,
-                  same_xy_scale = FALSE,
                   add_regression = add_regression)
-p7 <- scatter_fig_global(data = geobike_shared,
+p7 <- scatter_fig(shared_data = racy_shared,
+                  link_group = "2dracy",
                   y_col = racy_col, x_col = "front_center",
                   y_label = "Racy Index", x_label = "Front Center (mm)",
                   g_col = "model_size",
                   color_col = color_col,
-                  same_xy_scale = FALSE,
                   add_regression = add_regression)
-p8 <- scatter_fig_global(data = geobike_shared,
+p8 <- scatter_fig(shared_data = racy_shared,
+                  link_group = "2dracy",
                   y_col = racy_col, x_col = "stack_reach",
                   y_label = "Racy Index", x_label = "Stack:Reach",
                   g_col = "model_size",
                   color_col = color_col,
-                  same_xy_scale = FALSE,
                   add_regression = add_regression)
-p9 <- scatter_fig_global(data = geobike_shared,
+p9 <- scatter_fig(shared_data = racy_shared,
+                  link_group = "2dracy",
                   y_col = racy_col, x_col = "front_rear",
                   y_label = "Racy Index", x_label = "Front Center:Rear Center",
                   g_col = "model_size",
                   color_col = color_col,
-                  same_xy_scale = FALSE,
                   add_regression = add_regression)
-p10 <- scatter_fig_global(data = geobike_shared,
+p10 <- scatter_fig(shared_data = racy_shared,
+                  link_group = "2dracy",
                   y_col = racy_col, x_col = "trail_45",
                   y_label = "Racy Index", x_label = "Trail (45 mm tire) (mm)",
                   g_col = "model_size",
                   color_col = color_col,
-                  same_xy_scale = FALSE,
                   add_regression = add_regression)
 
 ```
 
 ### Racy bike frames have a combination of low stack, short front-center, high head tube angles, and low trail
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
+```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="70%"}
 p1
 p3
 p7
@@ -125,35 +123,35 @@ p10
 
 ### Racy frames have short reach, relative to rowdy frames
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
+```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="70%"}
 
 p2
 ```
 
 ### Racy frames have short chainstays (and rear-center), relative to relaxed frames
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
+```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="70%"}
 
 p6
 ```
 
 ### Racy frames can have low seat tube angles
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
+```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="70%"}
 
 p4
 ```
 
 ### Racy frames tend to have short front and rear centers. Relaxed frames tend to have long front and rear centers. So both racy and relaxed frames have low front-center:rear-center but for different reasons.
 
-```{r}
+```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="70%"}
 p9
 
 ```
 
 ### Stack:Reach and bottom brack drop aren't really related to relaxedness
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="100%"}
+```{r, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="70%"}
 p5
 p8
 ```
