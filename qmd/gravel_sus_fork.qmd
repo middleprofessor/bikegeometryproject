@@ -107,13 +107,14 @@ The suspension fork length and geometry is based on 20% sag: fork_length - 0.2*t
 :::
 
 ::: {.callout-warning title="A Rudy Fork geometry corrector"}
-Rockshox recommends 5% sag on the Rudy fork while Fox, Cane Creek, and Lauf recommend (or are tuned for) 20% sag. The sus geometry for a rudy fork will be
-
-1. For 30 mm fork, 20% sag is 419 mm AC and 5% sag is 423.5 mm AC. For a 40 mm fork, 20% sag is 427 mm AC. So the sus geometry of a Rudy fork will be 1/2way between the measures for the 30 mm and 40 mm forks here.
-2. For 40 mm fork, 20% sag is 427 mm AC and 5% sag is 433 mm AC. For a 50 mm fork, 20% sag is 437 mm AC. So the sus geometry of a Rudy fork will be more than 1/2way between the measures for the 40 mm and 50 mm forks here.
+Rockshox recommends 5% sag on the Rudy fork while Fox, Cane Creek, and Lauf recommend (or are tuned for) 20% sag. The sus geometry for a 30 mm Rudy fork will be about 1/2 way between the 30 mm and 40 mm measures (for the same offset). The sus geometry for a 40 mm Rudy fork will be about 3/5 way between the 40 mm and 50 mm measures (for the same offset).
 :::
 
-::: {.callout-tip title="HGravel forks"}
+::: {.callout-warning title="Is your frame suspension corrected?"}
+Several companies are calling their frame suspension corrected, or sell a suspension fork with a build, but their rigid Axle-Crown length is far short (by > 10 mm and often > 15 mm) the sagged length of a 30 mm fork.
+:::
+
+::: {.callout-tip title="Gravel forks"}
 1. Cane Creek Invert has two models: 30 mm (425 mm axle-crown) and 40 (435 mm axle-crown) mm travel. Both models have 45 mm offset
 2. Rockshox Rudy has four models: 30 mm (425 mm axle-crown) and 40 (435 mm axle-crown) mm travel, each with either 45 mm or 51 mm offset.
 3. Fox 32 TC Factory has four models: 40 (435.5 mm axle-crown) mm and 50 (445.5 mm axle-crown) mm travel, each with either 45 mm or 50 mm offset.

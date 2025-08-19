@@ -119,7 +119,11 @@ The suspension fork length and geometry is based on 20% sag: fork_length - 0.2*t
 :::
 
 ::: {.callout-warning title="A Rudy Fork geometry corrector"}
-Rockshox recommends 5% sag (as opposed to 20% sag) on the Rudy fork. The geometry measures will be half-way between the target fork and the next-size up fork (for example, for a 30 mm Rudy fork, the geometry will be between the measures for the 30 mm fork and the 40 mm fork, of the same offset)
+Rockshox recommends 5% sag on the Rudy fork while Fox, Cane Creek, and Lauf recommend (or are tuned for) 20% sag. The sus geometry for a 30 mm Rudy fork will be about 1/2 way between the 30 mm and 40 mm measures (for the same offset). The sus geometry for a 40 mm Rudy fork will be about 3/5 way between the 40 mm and 50 mm measures (for the same offset).
+:::
+
+::: {.callout-warning title="Is your frame suspension corrected?"}
+Several companies are calling their frame suspension corrected, or sell a suspension fork with a build, but their rigid Axle-Crown length is far short (by > 10 mm and often > 15 mm) the sagged length of a 30 mm fork.
 :::
 
 ::: {.callout-tip title="Gravel forks"}

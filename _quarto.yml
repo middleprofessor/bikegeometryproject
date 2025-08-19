@@ -25,7 +25,7 @@ website:
       - text: "Gravel Plots"
         menu:
           - qmd/gravel_scatter.qmd
-      - text: "Gravel Suspensions"
+      - text: "Gravel Suspension"
         menu:
           - qmd/gravel_sus_fork.qmd
           - qmd/gravel_scatter_sus.qmd
