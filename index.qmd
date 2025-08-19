@@ -12,16 +12,12 @@ source(source_path)
 
 The [Which bikes are racy/rowdy/relaxed?](qmd/gravel_mds.qmd) page contains the plot showing overall similarity among all gravel bike models in the database. Click on the points for finding bikes in the style you're seeking. The plot also includes filters for finding bikes with specific features.
 
-```{r echo=FALSE}
-image_folder <- "images"
-image_file <- "gravel-ternary.png"
-image_path <- here(image_folder, image_file)
-include_graphics(image_path)
-```
+**This page also includes filters for tire width, UDH, frame material, suspension correction, and more.**
+
 
 ### A little deeper
 
-The [What makes a rowdy frame rowdy?](qmd/what_makes_a_rowdy_bike_rowdy.qmd) and [What makes a relaxed frame relaxed?](qmd/what_makes_a_relaxed_bike_relaxed.qmd) pages are full of plots showing which frame measures are most correlated with a style, and which aren't.
+The what makes a [racy frame racy?](qmd/what_makes_a_racy_bike_racy.qmd), a [relaxed frame relaxed?](qmd/what_makes_a_relaxed_bike_relaxed.qmd), and a [rowdy frame rowdy?](qmd/what_makes_a_rowdy_bike_rowdy.qmd) pages are full of plots showing which frame measures are most correlated with a style, and which aren't.
 
 ### Into the weeds
 
@@ -34,16 +30,12 @@ image_path <- here(image_folder, image_file)
 include_graphics(image_path)
 ```
 
-### A view from afar
+### How does my bike frame geometry change if I add suspension
 
-The [What is Gravel Style?](qmd/what_is_a_gravel_bike.qmd) page compares gravel bikes in the database to Road Race, Road Endurance, Cyclocross, and XC Mountain bikes.
+See how your bike frame's [geometry changes with a suspension fork](qmd/gravel_sus_fork.qmd).
 
-```{r echo=FALSE}
-image_folder <- "images"
-image_file <- "gravel-style.png"
-image_path <- here(image_folder, image_file)
-include_graphics(image_path)
-```
+See how your bike frame's [relative similarity to other bikes changes with a suspension fork]( qmd/gravel_scatter_sus.qmd).
+
 
 ### The classification
 
@@ -65,10 +57,5 @@ image_path <- here(image_folder, image_file)
 include_graphics(image_path)
 ```
 
-### Also, check out the Gravel Stories
-
-[Which gravel bikes have mountain bike inspired geometry?](qmd/which_gravel_bikes_are_mtb_inspired.qmd)
-
-[Is a gravel bike a 1990s mountain bike?](qmd/mtb_90s.qmd)
 
 copyright 2022 Jeffrey A. Walker
