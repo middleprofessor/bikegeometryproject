@@ -3,6 +3,11 @@ title: "Gravel Table"
 editor: source
 ---
 
+::: {.callout-note}
+1. The classification was computed using a robust [k-means method](https://en.wikipedia.org/wiki/K-means_clustering){target="_blank"}.
+2. The classification is based on a frame size that fits a 175 cm high rider (generally frame size M or 54), according to manufacturer's charts.
+:::
+
 ```{r setup-gravel-style, warning=FALSE, message=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,

@@ -4,7 +4,8 @@ editor: source
 ---
 
 ::: {.callout-note}
-Classification of gravel bikes is based on a frame size that fits a 176 cm (5' 9.3") high rider, according to manufacturer's charts.
+1. The tree was computed using [Ward's hierarchical clustering method](https://en.wikipedia.org/wiki/Ward%27s_method){target="_blank"}.
+2. The tree is based on a frame size that fits a 175 cm high rider (generally frame size M or 54), according to manufacturer's charts. Splitting the tree into the three major clusters results in a classification that is close to, but not equivalent, to the classification computed using robust k-means (the classification elsewhere on this site).
 :::
 
 ```{r setup-tree, warning=FALSE, message=FALSE, echo=FALSE}
