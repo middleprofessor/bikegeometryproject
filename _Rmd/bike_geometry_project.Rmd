@@ -2325,29 +2325,6 @@ if(import_it != TRUE){
   geobike_import <- copy(geobike)
   # geobike <- geobike_import
   
-  # suspension class
-  # 30 mm travel
-  # Rudy: 425 - 0.05*30 = 423.5
-  # Fox TC: 425 - 0.2*30 = 419
-  # Cane Creek = Fox TC
-  # Lauf 419 mm AC, 47mm rake
-  # 40 mm travel
-  # Rudy: 435 - 0.05*40 = 433
-  # Fox TC: 435 - 0.2*40 = 427
-  # Cane Creek = Fox TC
-  # 50 mm travel
-  # Fox: 445 - .2*50 = 435
-  # geobike[fork == "rigid" & axle_crown < 412, fork_class := "rigid"]
-  # geobike[fork == "rigid" & axle_crown >= 412 & axle_crown < 426, fork_class := "30 mm"]
-  # geobike[fork == "rigid" & axle_crown >= 426 & axle_crown < 436, fork_class := "40 mm"]
-  # geobike[fork == "rigid" & axle_crown >= 436 & axle_crown < 446, fork_class := "50 mm"]
-  # geobike[fork == "rigid" & axle_crown >= 471 & axle_crown < 489, fork_class := "100 mm"]
-  # geobike[fork == "rigid" & axle_crown >= 489 & axle_crown < 507, fork_class := "120 mm"]
-  # geobike[fork == "suspension", fork_class := paste(suspension_corrected, "mm")]
-  # # make a factor and order
-  # fork_classes <- c("rigid", "30 mm", "40 mm", "50 mm", "100 mm", "120 mm")
-  # geobike[, fork_class := factor(fork_class, levels = fork_classes)]
-
   
   # classify bikes by kmeans
   # kmeans first splits into k = 2 groups because there is only good support for 2. Then splits
@@ -2358,7 +2335,8 @@ if(import_it != TRUE){
   
   # kmeans
   kmeans_classes <- kmeans_classifier(
-    geobike[my_fit == TRUE]
+    geobike[my_fit == TRUE],
+    k = 3
   )
   geobike <- merge(geobike,
                    kmeans_classes[, .SD, .SDcols = c("model", "kmeans_style")],
@@ -2394,8 +2372,10 @@ if(import_it != TRUE){
   # tree classifier
   tree_classes <- tree_classifier(
     geobike[my_fit == TRUE],
+    k = 4,
     method = "ward.D2"
   )
+  tree_classes[is.na(tree_style), tree_style := "rowdy"]
   geobike <- merge(geobike,
                    tree_classes[, .SD, .SDcols = c("model", "tree_style")],
                    by = c("model"), all.x = TRUE)
