@@ -8,27 +8,27 @@ source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 ```
 
-### Start here
+### About
 
-The [Which bikes are racy/rowdy/relaxed?](qmd/gravel_mds.qmd) page contains the plot showing overall similarity among all gravel bike models in the database. Click on the points for finding bikes in the style you're seeking. The plot also includes filters for finding bikes with specific features.
+This site is designed to find the set of bikes that match the specifications you want in a frame. The focus is frame geometry, but there are also filters for material, suspension correction, UDH compatability, sliding dropout, handlebar (flat or drop), axle spacing, and maximum tire width.
 
-**This page also includes filters for tire width, UDH, frame material, suspension correction, and more.**
+### Gravel style
 
+This site classifies bikes into Racy, Relaxed, and Rowdy styles based on their frame geometry.
 
-### A little deeper
+* Racy bikes are racy!
+* Relaxed bikes are generally designed for long tours or exploring off road
+* Rowdy bikes are mountainy bikey
 
-The what makes a [racy frame racy?](qmd/what_makes_a_racy_bike_racy.qmd), a [relaxed frame relaxed?](qmd/what_makes_a_relaxed_bike_relaxed.qmd), and a [rowdy frame rowdy?](qmd/what_makes_a_rowdy_bike_rowdy.qmd) pages are full of plots showing which frame measures are most correlated with a style, and which aren't.
+This is somewhat unique -- most websites or podcasts that I know of categorize gravel bikes as "more racy" or "more mountain bikey"
 
-### Into the weeds
+### Things to do here:
+
+[Which bikes are racy/rowdy/relaxed?](qmd/gravel_mds.qmd) -- Compare overall similarity of frame geometry among hundreds of gravel bikes, color coded by style. This is the page with the filters.
+
+What makes a [racy frame racy?](qmd/what_makes_a_racy_bike_racy.qmd), a [relaxed frame relaxed?](qmd/what_makes_a_relaxed_bike_relaxed.qmd), and a [rowdy frame rowdy?](qmd/what_makes_a_rowdy_bike_rowdy.qmd) - plots showing which frame measures are most correlated with a style, and which aren't.
 
 The [Gravel 2D](qmd/gravel_scatter.qmd) page contains interactive, 2D scatter plots of different pairs of frame geometry measures for all gravel bike models and frame sizes in the database.
-
-```{r echo=FALSE}
-image_folder <- "images"
-image_file <- "gravel-scatter.png"
-image_path <- here(image_folder, image_file)
-include_graphics(image_path)
-```
 
 ### How does my bike frame geometry change if I add suspension
 
@@ -41,21 +41,8 @@ See how your bike frame's [relative similarity to other bikes changes with a sus
 
 The [Gravel Tree](qmd/gravel_tree.qmd) page contains a tree diagram showing the relative similarity in frame geometry among all gravel bikes in the database and the clustering of the models into three major styles.
 
-```{r echo=FALSE}
-image_folder <- "images"
-image_file <- "gravel-tree-1.png"
-image_path <- here(image_folder, image_file)
-include_graphics(image_path)
-```
 
 The [Gravel Table](qmd/gravel_class.qmd) page contains a table of the classification of all gravel bike models in the database into All-road, Endurance, and Trail categories.
-
-```{r echo=FALSE}
-image_folder <- "images"
-image_file <- "gravel-table.png"
-image_path <- here(image_folder, image_file)
-include_graphics(image_path)
-```
 
 
 copyright 2022 Jeffrey A. Walker
