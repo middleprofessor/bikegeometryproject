@@ -8,6 +8,8 @@ source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 ```
 
+[TL;DR](qmd/gravel_mds.qmd)
+
 ### A gravel bike finder tool
 
 This site is designed to find the set of bikes that match the specifications you want in a frame. The focus is frame geometry, but there are also filters for material, suspension correction, UDH compatibility, sliding dropout, handlebar (flat or drop), axle spacing, and maximum tire width.
@@ -26,7 +28,7 @@ Also...some hardtail mountain bikes are included because some hardtails make rea
 
 ### Things to do here:
 
-[Which bikes are racy/rowdy/relaxed?](qmd/gravel_mds.qmd) -- Compare overall similarity of frame geometry among hundreds of gravel bikes, color coded by style. This is the page with the filters.
+[Which bikes are racy/rowdy/relaxed?](qmd/gravel_mds.qmd) -- A single plot that compares overall similarity of frame geometry among hundreds of gravel bikes, color coded by style. This is the page with the filters.
 
 What makes a [racy frame racy?](qmd/what_makes_a_racy_bike_racy.qmd), a [relaxed frame relaxed?](qmd/what_makes_a_relaxed_bike_relaxed.qmd), and a [rowdy frame rowdy?](qmd/what_makes_a_rowdy_bike_rowdy.qmd) - plots showing which frame measures are most correlated with a style, and which aren't.
 

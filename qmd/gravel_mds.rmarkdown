@@ -1,0 +1,60 @@
+---
+title: "The three gravel styles: racy, relaxed, and rowdy"
+---
+
+
+
+::: {.callout-tip title="Tips for navigating"}
+1. Hover over data for model and frame size identification.
+2. Scroll legend and click on items to identify specific model in the plot.
+3. Click on popup icon-bar over legend to zoom in/out and pan.
+:::
+
+
+
+
+```{r gravel-mds-setup, echo=FALSE, warning=FALSE, message=FALSE}
+source_path <- here::here("bike_geometry_project.R")
+source(source_path)
+```
+
+```{r mds-plot, echo=FALSE, out.width = "100%", out.height = "100%"}
+
+med_fit <- geobike[my_fit == TRUE]
+med_fit[is.na(tire_width_max_700c), tire_width_max_700c := 0]
+med_fit[is.na(tire_width_max_650b), tire_width_max_650b := 0]
+#med_fit[, fit_650b := ifelse(is.na(tire_max_650b), "All")]
+  
+geobike_mds_shared <- SharedData$new(med_fit, key = ~model_size, group = "mds")
+
+p1 <- scatter_fig(shared_data = geobike_mds_shared,
+                  link_group = "mds",
+                  x_col = "mds1", y_col = "mds2",
+                  x_label = "Rowdiness", y_label = "Relaxedness",
+                  g_col = "model_size",
+                  digits = 1)
+
+filters <- list(
+  filter_checkbox("material", "Frame material", geobike_mds_shared, ~material, inline = TRUE),
+  filter_checkbox("fork", "Suspension correction (mm)", geobike_mds_shared, ~fork_class, inline = TRUE),
+  filter_checkbox("udh", "UDH", geobike_mds_shared, ~udh, inline = TRUE),
+  filter_checkbox("sliding", "Sliding dropout (mm)", geobike_mds_shared, ~dropout, inline = TRUE),
+  filter_checkbox("axle", "Axle spacing", geobike_mds_shared, ~axle_spacing, inline = TRUE),
+  filter_checkbox("handlebar", "Handlebar", geobike_mds_shared, ~handlebar, inline = TRUE),
+  filter_slider("tire_700", "Max 700c tire width (mm)", geobike_mds_shared, ~tire_width_max_700c, step = 1),
+  filter_slider("tire_650", "Max 650b tire width (in)", geobike_mds_shared, ~tire_width_max_650b, step = 0.05)
+  )
+
+bscols( widths = c(3, 9), filters, p1)
+
+```
+
+
+
+
+::: {.callout-note}
+1. The two axes were computed by [multidimensional scaling](https://en.wikipedia.org/wiki/Multidimensional_scaling){target="_blank"}.
+2. Classification of gravel bikes is based on a frame size that fits a 175 cm high rider (generally frame size M or 54), according to manufacturer's charts.
+:::
+
+
