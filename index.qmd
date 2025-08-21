@@ -8,9 +8,9 @@ source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 ```
 
-### About
+### A gravel bike finder tool
 
-This site is designed to find the set of bikes that match the specifications you want in a frame. The focus is frame geometry, but there are also filters for material, suspension correction, UDH compatability, sliding dropout, handlebar (flat or drop), axle spacing, and maximum tire width.
+This site is designed to find the set of bikes that match the specifications you want in a frame. The focus is frame geometry, but there are also filters for material, suspension correction, UDH compatibility, sliding dropout, handlebar (flat or drop), axle spacing, and maximum tire width.
 
 ### Gravel style
 
@@ -21,6 +21,8 @@ This site classifies bikes into Racy, Relaxed, and Rowdy styles based on their f
 * Rowdy bikes are mountainy bikey
 
 This is somewhat unique -- most websites or podcasts that I know of categorize gravel bikes as "more racy" or "more mountain bikey"
+
+Also...some hardtail mountain bikes are included because some hardtails make really good gravel bikes.
 
 ### Things to do here:
 
