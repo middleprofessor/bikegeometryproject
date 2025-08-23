@@ -1323,7 +1323,9 @@ import_bikes_excel_single <- function(style_folder = "gravel",
     bike_i <- cbind(bike_i, bike_specs_t )
     
      # convert strings to numbers
-    bike_i[, udh := ifelse(is.na(udh), "No", "Yes")]
+    bike_i[, udh := ifelse(is.na(udh), "no", udh)]
+    bike_i[, udh := toupper(udh)]
+
     bike_i[, dropout := ifelse(is.na(dropout), 0, as.numeric(dropout))]
     bike_i[, tire_width_max_700c := as.integer(tire_width_max_700c)]
       # this should be temporary
