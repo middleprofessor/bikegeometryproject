@@ -694,6 +694,7 @@ get_frame_size_letters <- function(frame_size){
   frame_size_letters <- str_replace(frame_size_letters, "SM", "S")
   frame_size_letters <- str_replace(frame_size_letters, "MD", "M")
   frame_size_letters <- str_replace(frame_size_letters, "LG", "L")
+  frame_size_letters <- str_replace(frame_size_letters, "SL", "S")
   frame_size_letters <- str_replace(frame_size_letters, "MED", "M")
   frame_size_letters <- str_replace(frame_size_letters, "LRG", "L")
   frame_size_letters <- str_replace(frame_size_letters, "EXTRA", "X")
@@ -734,6 +735,71 @@ get_frame_size_numbers <- function(frame_size){
   frame_size_numbers <- as.numeric(frame_size_numbers)
 
   return(frame_size_numbers)
+}
+```
+
+
+```{r}
+clean_frame_size <- function(bike){
+  
+  bike[, frame_size_orig := frame_size]
+  
+  # preprocess specific models
+  
+  # Norco seach
+  bike[frame_size == "S1", frame_size := "XS"]
+  bike[frame_size == "S2", frame_size := "S"]
+  bike[frame_size == "S3", frame_size := "M"]
+  bike[frame_size == "S4", frame_size := "L"]
+  bike[frame_size == "S5", frame_size := "XL"]
+
+  # Light Blue Darwin
+  bike[frame_size == "Small/Medium", frame_size := "SMMD"] # this will convert to SM
+
+  # Esker bikes
+  bike[frame_size == "S1/SM", frame_size := "S"]
+  bike[frame_size == "S2/MD", frame_size := "M"]
+  bike[frame_size == "S3/LG", frame_size := "L"]
+  bike[frame_size == "S4/XL", frame_size := "XL"]
+  
+  # fustle causway
+  bike[frame_size == "XS/SM", frame_size := "S"]
+  bike[frame_size == "SM/MD", frame_size := "M"]
+  bike[frame_size == "MD/LG", frame_size := "L"]
+  bike[frame_size == "LG/XL", frame_size := "XL"]
+  
+  # Manzanita Whippet - use Lemond Size -- see excel sheet
+  # 48.7	50.3	51.9	53.4	54.8	56.9	58.2	59.7
+  bike[frame_size == "M1", frame_size := 48.7]
+  bike[frame_size == "M2", frame_size := 50.3]
+  bike[frame_size == "M3", frame_size := 51.9]
+  bike[frame_size == "M4", frame_size := 53.4]
+  bike[frame_size == "M5", frame_size := 54.8]
+  bike[frame_size == "M6", frame_size := 56.9]
+  bike[frame_size == "M7", frame_size := 58.2]
+  bike[frame_size == "M8", frame_size := 59.7]
+
+  # viral wanderer
+  bike[frame_size == "V2", frame_size := "S"]
+  bike[frame_size == "V3", frame_size := "M"]
+  bike[frame_size == "V4", frame_size := "L"]
+  bike[frame_size == "V5", frame_size := "XL"]
+  
+  
+  # clean
+  bike[, frame_size_working := toupper(frame_size)]
+
+  bike[, frame_size_working := str_remove_all(frame_size_working, " ")]
+  bike[, frame_size_letters := lapply(frame_size_working, get_frame_size_letters) |>
+         unlist()]
+  bike[, frame_size_numbers := lapply(frame_size_working, get_frame_size_numbers) |>
+         unlist()]
+  bike[frame_size_letters == "", frame_size_letters := NA]
+  bike[frame_size_letters == "R", frame_size_letters := NA]
+  bike[frame_size_letters == "T", frame_size_letters := NA]
+
+  return(bike)
+
 }
 ```
 
@@ -804,22 +870,19 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
   bike[, tire_width_max := round(tire_width_max, 0)]
   
   # clean frame size
-  
-  bike[, frame_size_letters := lapply(frame_size, get_frame_size_letters) |>
-         unlist()]
-  bike[, frame_size_numbers := lapply(frame_size, get_frame_size_numbers) |>
-         unlist()]
-  bike[, frame_size_orig := frame_size]
+  bike <- clean_frame_size(bike)
   bike[!is.na(frame_size_numbers) & !is.na(frame_size_letters),
        frame_size := paste0(frame_size_numbers, frame_size_letters)]
   bike[!is.na(frame_size_numbers) & is.na(frame_size_letters),
        frame_size := frame_size_numbers |> as.character()]
   bike[is.na(frame_size_numbers) & !is.na(frame_size_letters),
        frame_size := frame_size_letters]
-  
+
+  # decompositions
+  # need this
   bike[, rear_center := sqrt(chainstay_length^2 - bottom_bracket_drop^2)] # horizontal
   
-  # decompositions
+
   # seat_tube_v and seat_tube_h are decomp of seat tube
   bike[, seat_tube_v := seat_tube_length *
          sin(deg_2_rad(seat_tube_angle))]
@@ -853,6 +916,7 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
   bike[is.na(axle_crown), axle_crown := axle_crown_mean]
   
   # more stuff
+
   # effective seat post length
   bike[, seat_tube_effective_length := stack/sin(seat_tube_angle*pi/180)]
   
@@ -1166,6 +1230,8 @@ assign_std_size <- function(geobike){
     (median(geobike[frame_size_letters == "XL", rider_min], na.rm=TRUE) +
       median(geobike[frame_size_letters == "XL", rider_max], na.rm=TRUE))/2
   ) |> round(0)
+  
+  median_sizes <- c(159, 167, 175, 183, 191)
 
 
 #  geobike[, frame_size_std := as.numeric(NA)]
@@ -1183,38 +1249,158 @@ assign_std_size <- function(geobike){
     }
   }
   
-# add size Medium
-  model_list <- unique(geobike[, model])
-  for(i in 1:length(model_list)){
-    frame_size_std_list <- geobike[model == model_list[i], frame_size_std]
-    frame_size_letters_list <- geobike[model == model_list[i],
-                                       frame_size_letters]
-    if(!175 %in% frame_size_std_list){
-      geobike[model == model_list[i] & frame_size_letters == "M", frame_size_std := 175]
-    }
+  model_list_all <- unique(geobike[, model])
+  geobike[, frame_size_std_s := ifelse(frame_size_std == 167, TRUE, NA)]
+  geobike[, frame_size_std_m := ifelse(frame_size_std == 175, TRUE, NA)]
+  geobike[, frame_size_std_l := ifelse(frame_size_std == 183, TRUE, NA)]
+
+# do Medium
+  model_list_med <- unique(geobike[frame_size_std_m == TRUE, model])
+  model_list_diff <- setdiff(model_list_all, model_list_med)
+  for(i in 1:length(model_list_diff)){
+    geobike[model == model_list_diff[i] & frame_size_letters == "M", frame_size_std_m := TRUE]
   }
 
-  for(i in 1:length(model_list)){
-    frame_size_std_list <- geobike[model == model_list[i], frame_size_std]
-    frame_size_numbers_list <- geobike[model == model_list[i],
-                                       frame_size_letters]
-    if(!175 %in% frame_size_std_list){
-      geobike[model == model_list[i] &
-                frame_size_numbers >= 53 &
-                frame_size_numbers <= 54, frame_size_std := 175]
-    }
+  model_list_med <- unique(geobike[frame_size_std_m == TRUE, model])
+  model_list_diff <- setdiff(model_list_all, model_list_med)
+  for(i in 1:length(model_list_diff)){
+    geobike[model == model_list_diff[i] &
+              frame_size_numbers >= 53.5 &
+              frame_size_numbers <= 54.5, frame_size_std_m := TRUE]
+    
   }
-  
+  # grab bigger
+  model_list_med <- unique(geobike[frame_size_std_m == TRUE, model])
+  model_list_diff <- setdiff(model_list_all, model_list_med)
+  for(i in 1:length(model_list_diff)){
+    geobike[model == model_list_diff[i] &
+              frame_size_numbers >= 53 &
+              frame_size_numbers <= 54.9, frame_size_std_m := TRUE]
+    
+  }
+  model_list_med <- unique(geobike[frame_size_std_m == TRUE, model])
+  model_list_diff <- setdiff(model_list_all, model_list_med)
+  nrow(geobike[frame_size_std_m == TRUE, ])
+  temp <- geobike[frame_size_std_m == TRUE, .(N = .N), by = model]
+#  temp[N > 1] |> View()
+
+# do small
+  model_list_small <- unique(geobike[frame_size_std_s == TRUE, model])
+  model_list_diff <- setdiff(model_list_all, model_list_small)
+  for(i in 1:length(model_list_diff)){
+    geobike[model == model_list_diff[i] & frame_size_letters == "S", frame_size_std_s := TRUE]
+  }
+
+  model_list_small <- unique(geobike[frame_size_std_s == TRUE, model])
+  model_list_diff <- setdiff(model_list_all, model_list_small)
+  for(i in 1:length(model_list_diff)){
+    geobike[model == model_list_diff[i] &
+              frame_size_numbers >= 51.5 &
+              frame_size_numbers <= 52.5, frame_size_std_s := TRUE]
+    
+  }
+  # grab bigger
+  model_list_small <- unique(geobike[frame_size_std_s == TRUE, model])
+  model_list_diff <- setdiff(model_list_all, model_list_small)
+  for(i in 1:length(model_list_diff)){
+    geobike[model == model_list_diff[i] &
+              frame_size_numbers >= 50 &
+              frame_size_numbers <= 52.9, frame_size_std_s := TRUE]
+    
+  }
+  model_list_small <- unique(geobike[frame_size_std_s == TRUE, model])
+  model_list_diff <- setdiff(model_list_all, model_list_small)
+  nrow(geobike[frame_size_std_s == TRUE, ])
+  temp <- geobike[frame_size_std_s == TRUE, .(N = .N), by = model]
+#  temp[N > 1] |> View()
+
+  # do large
+  model_list_lg <- unique(geobike[frame_size_std_l == TRUE, model])
+  model_list_diff <- setdiff(model_list_all, model_list_lg)
+  for(i in 1:length(model_list_diff)){
+    geobike[model == model_list_diff[i] & frame_size_letters == "M", frame_size_std_l := TRUE]
+  }
+
+  model_list_lg <- unique(geobike[frame_size_std_l == TRUE, model])
+  model_list_diff <- setdiff(model_list_all, model_list_lg)
+  for(i in 1:length(model_list_diff)){
+    geobike[model == model_list_diff[i] &
+              frame_size_numbers >= 55.5 &
+              frame_size_numbers <= 56.5, frame_size_std_l := TRUE]
+    
+  }
+  #grab 57
+  model_list_lg <- unique(geobike[frame_size_std_l == TRUE, model])
+  model_list_diff <- setdiff(model_list_all, model_list_lg)
+  for(i in 1:length(model_list_diff)){
+    geobike[model == model_list_diff[i] &
+              frame_size_numbers >= 55 &
+              frame_size_numbers <= 56.9, frame_size_std_l := TRUE]
+    
+  }
+  model_list_lg <- unique(geobike[frame_size_std_l == TRUE, model])
+  model_list_diff <- setdiff(model_list_all, model_list_lg)
+  nrow(geobike[frame_size_std_l == TRUE, ])
+  temp <- geobike[frame_size_std_l == TRUE, .(N = .N), by = model]
+#  temp[N > 1] |> View()
+
   # total models
-  # length(model_list)
-  # nrow(geobike[frame_size_std == 175, ])
-  # setdiff(model_list, geobike[frame_size_std == 175, model])
-  # geobike[model == "Rose Backroad XPLR", frame_size]
+  # length(unique(geobike$model))
+  # nrow(geobike[frame_size_std_s == TRUE, ])
+  # nrow(geobike[frame_size_std_m == TRUE, ])
+  # nrow(geobike[frame_size_std_l == TRUE, ])
+  # 
 
   return(geobike)
 }
 ```
 
+
+```{r}
+better_assign_std_size <- function(geobike){
+  # see "bike size classes.xlsx" and computations on "gravel_scatter.qmd"
+  rider_size <- c(153, 159, 163, 167, 171, 175, 179, 183, 187, 191, 196)
+  frame_size_char <- c("XXS", "XS", "XSS", "S", "SM", "M", "ML", "L", "LXL", "XL", "XXL")
+  frame_size_num_lo <- c(40, 48.5, 49.5, 51, 52.5, 53.5, 54.5, 55.75, 57.25, 59, 60.75)
+frame_size_num_hi <- c(48.5, 49.5, 51, 52.5, 53.5, 54.5, 55.75, 57.25, 59, 60.75, 68)
+
+
+# first do bikes with rider height data
+  for(i in 1:nrow(geobike)){
+    rider_min <- geobike[i, rider_min]
+    rider_max <- geobike[i, rider_max]
+    if(!is.na(rider_min)){
+      for(j in 1:length(rider_size)){
+        if(rider_size[j] > rider_min & rider_size[j] <= rider_max){
+          geobike[i, frame_size_std_fine := rider_size[j]]
+        }
+      }
+    }else{
+      geobike[i, frame_size_std_fine := NA]
+    }
+  }
+
+# then do frame_size_char
+for(i in 1:nrow(geobike)){
+  if(is.na(geobike[i, frame_size_std_fine]) & !is.na(geobike[i, frame_size_letters])){
+    j <- which(frame_size_char == geobike[i, frame_size_letters])
+    geobike[i, frame_size_std_fine := rider_size[j]]
+  }
+}
+# then do frame_size_num
+for(i in 1:nrow(geobike)){
+  if(is.na(geobike[i, frame_size_std_fine]) & !is.na(geobike[i, frame_size_numbers])){
+    j <- which(frame_size_num_lo <= geobike[i, frame_size_numbers] &
+                 frame_size_num_hi > geobike[i, frame_size_numbers])
+    geobike[i, frame_size_std_fine := rider_size[j]]
+  }
+}
+
+# geobike[, .SD, .SDcols = c("model", "frame_size_std", "frame_size_orig", "frame_size_letters", "frame_size_numbers")] |> View()
+
+return(geobike)
+}
+```
 
 # Import bikes
 
@@ -1395,14 +1581,7 @@ import_bike_list <- function(style = "gravel",
   model_2_shape_map <- c(rep(shape_list, n_recycles), shape_list[1:left_over])
   geobike[, shape_id := model_2_shape_map[as.integer(as.factor(model))]]
   
-  y_cols <- c("rear_x", "rear_y",
-              "seat_x", "seat_y",
-              "head_x", "head_y",
-              "crown_x", "crown_y",
-              "front_x", "front_y",
-              "bottom_x", "bottom_y",
-              "seattube_x", "seattube_y")
-  
+
   # center X at bottom bracket
   geobike[, rear_x := rear_x - bottom_x]
   geobike[, seat_x := seat_x - bottom_x]
@@ -1416,7 +1595,7 @@ import_bike_list <- function(style = "gravel",
   
   # get classifier size medium
   geobike <- assign_std_size(geobike)
-  geobike[, frame_size_std_m := ifelse(frame_size_std == 175, TRUE, FALSE)]
+  geobike <- better_assign_std_size(geobike)
 
   # set my_fit or classifier fit
   geobike[, my_fit := frame_size_std_m] 
@@ -1439,37 +1618,11 @@ import_bike_list <- function(style = "gravel",
   geobike[axle_crown > 435, axle_crown_class := axle_crown_list[6]]
 
 
-  # order in legend of plots is S/M, S, M/L, M. Solution:
-  # 1) add U200B after " S" and " M"
-  # 2) replace U200B/ with U200F/
-
-  # geobike[, frame_size := paste0(" ", frame_size)]
-  # geobike[, frame_size := str_replace(frame_size, " XXS", paste0("\U200B", " XXS"))]
-  # geobike[, frame_size := str_replace(frame_size, " XS", paste0("\U200C", " XS"))]
-  # geobike[, frame_size := str_replace(frame_size, " S", paste0("\U200D", " S", "\U200B"))]
-  # geobike[, frame_size := str_replace(frame_size, " M", paste0("\U200E", " M", "\U200B"))]
-  # geobike[, frame_size := str_replace(frame_size, " XM", paste0("\U200E", " XM"))]
-  # geobike[, frame_size := str_replace(frame_size, " L", paste0("\U200F", " L"))]
-  # geobike[, frame_size := str_replace(frame_size, " XL", paste0("\U200F", " XL"))]
-  # geobike[, frame_size := str_replace(frame_size, " XXL", paste0("\U200F", " XXL"))]
-  
-  # this screws up Scott addict gravel in a way that I cannot understand so this is a very kludgy wrangle
-  # model != "Scott Addict Gravel" |
-  # geobike[model != "Devinci Hatchet" & model != "Scott Addict Gravel",
-  #         frame_size := str_replace(frame_size, paste0("\U200B", "/"), paste0("\U200F", "/"))]
-  
   # add model-frame_size column
   geobike[, model_size := paste(model, frame_size)]
   setorder(geobike, model)
   geobike[, model_size := factor(model_size,
                                  levels = unique(model_size))]
-  
-  # create size classes
-  size_classes <- c("xxs","xs", "s", "m", "ml", "l", "xl", "xxl")
-  geobike[, top_tube_size := discretize(top_tube_effective_length, method = "cluster", breaks = 8)]
-  geobike[, frame_size_working := size_classes[as.integer(top_tube_size)]]
-  geobike[, frame_size_working := factor(frame_size_working,
-                                         levels = size_classes)]
   
   # create size class columns
   # for(height in seq(150, 195, by = 5)){
@@ -1560,10 +1713,13 @@ d_scores <- function(Y, class_dt, cluster_col = "init_cluster", prefix = "kmeans
   # assign style to axes
   style_levels <- c("racy", "relaxed", "rowdy")
   relaxed <- which.max(loadings[rownames(loadings) == "rear_center"])
+#  relaxed <- class_dt[model == "Tumbleweed Stargazer 2025", init_cluster]
   colnames(scores_scaled)[relaxed] <- "relaxed"
   rowdy <- which.max(loadings[rownames(loadings) == "reach"])
+#  rowdy <- class_dt[model == "Specialized Chisel 2022", init_cluster]
   colnames(scores_scaled)[rowdy] <- "rowdy"
   racy <- which.max(loadings[rownames(loadings) == "head_tube_angle"])
+#  racy <- class_dt[model == "Cervelo Aspero 2024", init_cluster]
   colnames(scores_scaled)[racy] <- "racy"
   scores_scaled <- data.table(scores_scaled)
 
@@ -2301,7 +2457,7 @@ gravel_scores <- function(data, y_cols){
 ```
 
 ```{r import-gravel, eval=TRUE}
-import_it <- FALSE
+import_it <-  TRUE
 
    classifier_cols <- c(
       "stack",
@@ -2374,7 +2530,7 @@ if(import_it != TRUE){
   # tree classifier
   tree_classes <- tree_classifier(
     geobike[my_fit == TRUE],
-    k = 4,
+    k = 3,
     method = "ward.D2"
   )
   tree_classes[is.na(tree_style), tree_style := "rowdy"]
@@ -2389,18 +2545,18 @@ if(import_it != TRUE){
   functional_classes <- functional_classifier(
     geobike[my_fit == TRUE]
   )
-  geobike <- merge(geobike,
-                   functional_classes[, .SD, .SDcols = c("model", "functional_style")],
-                   by = c("model"), all.x = TRUE)
-  geobike <- merge(geobike,
-                   functional_classes[, .SD, .SDcols = c("model", "frame_size", paste0("functional_", style_levels))],
-                   by = c("model", "frame_size"), all.x = TRUE)
+  # geobike <- merge(geobike,
+  #                  functional_classes[, .SD, .SDcols = c("model", "functional_style")],
+  #                  by = c("model"), all.x = TRUE)
+  # geobike <- merge(geobike,
+  #                  functional_classes[, .SD, .SDcols = c("model", "frame_size", paste0("functional_", style_levels))],
+  #                  by = c("model", "frame_size"), all.x = TRUE)
   
 
   geobike[, color := pal_okabe_ito_3[as.integer(kmeans_style)]]
   geobike[, color_kmeans := pal_okabe_ito_3[as.integer(kmeans_style)]]
   geobike[, color_tree := pal_okabe_ito_3[as.integer(tree_style)]]
-  geobike[, color_function := pal_okabe_ito_3[as.integer(functional_style)]]
+#  geobike[, color_function := pal_okabe_ito_3[as.integer(functional_style)]]
   geobike[, highlight_text := model_size]
 
   # my_fit

@@ -1,5 +1,5 @@
 ---
-title: "Gravel 2D"
+title: "Gravel Geometry"
 editor: source
 format:
   html:
@@ -35,6 +35,40 @@ source(source_path)
 ### Trail vs. Head Tube Angle
 ### Stack/Reach vs. Front Center/Wheelbase
 ### Seat Tube Angle/Head Tube Angle vs. Front Center/Wheelbase
+
+```
+
+```{r size-stats, echo=FALSE, eval=FALSE}
+sizes <- c("XXS", "XS", "S", "SM", "M", "ML", "L", "XL", "XXL")
+median_min <- numeric(length(sizes))
+median_max <- numeric(length(sizes))
+median_val <- numeric(length(sizes))
+for(i in 1:length(sizes)){
+  median_min[i] <- median(geobike[frame_size_letters == sizes[i],
+                                  rider_min], na.rm = TRUE)
+  median_max[i] <- median(geobike[frame_size_letters == sizes[i],
+                                  rider_max], na.rm = TRUE)
+  median_val[i] <- median(c(median_min[i], median_max[i]), na.rm = TRUE)
+}
+size_chart <- data.table(
+  size = sizes,
+  rider_min = median_min,
+  rider_max = median_max,
+  rider_size = median_val
+)
+# top end of S
+
+frame_size_list <- c("XXS", "XS", "XS/S", "S", "S/M", "M", "M/L", "L", "L/XL", "XL", "XXL")
+rider_height_list <- c(153, 159, 163, 167, 171, 175, 179, 183, 187, 191, 196)
+median_frame_size <- numeric(length(rider_height_list))
+for(i in 1:length(number_list)){
+  median_frame_size[i] <- median(geobike[rider_height_list[i] > rider_min & rider_height_list[i] <= rider_max, frame_size_numbers], na.rm = TRUE)
+}
+final_size_chart <- data.table(
+  rider_height = rider_height_list,
+  frame_size_char = frame_size_list,
+  frame_size_num = median_frame_size
+)
 
 ```
 
@@ -117,17 +151,25 @@ p9 <- scatter_fig(shared_data = geobike_shared,
   # gg_legend_ly <- ggplotly(gg_legend, width = 6.5*96, height = 1*96)
 
   #boxes <- filter_checkbox("size", "Size", geobike_shared, ~Size, inline = FALSE)
-  boxes <- filter_checkbox("size", "Rider Height", geobike_shared, ~frame_size_std, inline = FALSE)
+  sm_box <- filter_checkbox("small", "Small", geobike_shared, ~frame_size_std_s, inline = FALSE)
+  med_box <- filter_checkbox("med", "Medium", geobike_shared, ~frame_size_std_m, inline = FALSE)
+  lg_box <- filter_checkbox("large", "Large", geobike_shared, ~frame_size_std_l, inline = FALSE)
+  height_boxes <- filter_checkbox("rider_height", "Rider Height", geobike_shared, ~frame_size_std_fine, inline = FALSE)
 
-  bscols(widths = c(8,3), p1, boxes)
-  bscols(widths = c(8,3), p2)
-  bscols(widths = c(8,3), p3)
-  bscols(widths = c(8,3), p4)
-  bscols(widths = c(8,3), p5)
-  bscols(widths = c(8,3), p6)
-  bscols(widths = c(8,3), p7)
-  bscols(widths = c(8,3), p8)
-  bscols(widths = c(8,3), p9)
+
+#  bscols(widths = c(8,1,1,1,1), p1, sm_box, med_box, lg_box, height_boxes)
+  bscols(p1,
+         list(sm_box, med_box, lg_box),
+         height_boxes,
+         widths = c(8, 2, 2))
+  # bscols(widths = c(8,4), p2)
+  # bscols(widths = c(8,4), p3)
+  # bscols(widths = c(8,4), p4)
+  # bscols(widths = c(8,4), p5)
+  # bscols(widths = c(8,4), p6)
+  # bscols(widths = c(8,4), p7)
+  # bscols(widths = c(8,4), p8)
+  # bscols(widths = c(8,4), p9)
 
 ```
 

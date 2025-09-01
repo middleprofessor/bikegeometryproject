@@ -94,7 +94,7 @@ filter_ui <- filter_select(id = "fsid",
  p <- bscols(widths = c(2, 10), filter_ui, fig
   )
   
-  p
+ p
 
 
 

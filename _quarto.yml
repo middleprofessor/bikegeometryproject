@@ -22,7 +22,7 @@ website:
           - qmd/what_makes_a_rowdy_bike_rowdy.qmd
           - qmd/gravel_tree.qmd
           - qmd/gravel_class.qmd
-      - text: "Gravel Plots"
+      - text: "Gravel Geometry"
         menu:
           - qmd/gravel_scatter.qmd
       - text: "Gravel Suspension"
