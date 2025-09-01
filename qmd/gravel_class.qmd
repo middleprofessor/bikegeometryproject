@@ -1,5 +1,5 @@
 ---
-title: "Gravel Table"
+title: "A table of gravel styles"
 editor: source
 ---
 

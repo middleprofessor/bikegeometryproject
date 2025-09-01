@@ -26,27 +26,31 @@ This is somewhat unique -- most websites or podcasts that I know of categorize g
 
 Also...some hardtail mountain bikes are included because some hardtails make really good gravel bikes.
 
-### Things to do here:
+### Things to do here
+#### Which bikes are racy/relaxed/rowdy?
 
-[Which bikes are racy/rowdy/relaxed?](qmd/gravel_mds.qmd) -- A single plot that compares overall similarity of frame geometry among hundreds of gravel bikes, color coded by style. This is the page with the filters.
+[A single plot that compares overall similarity of frame geometry](qmd/gravel_mds.qmd) among gravel bikes, color coded by style.  This page has filters to view only bikes that match specific criteria, such as frame material or maximum tire width.
+
+[A table of the classification of all gravel bike models in the database into Racy, Relaxed, and Rowdy categories](qmd/gravel_class.qmd). This page has filters to view only bikes that match specific criteria, such as frame material or maximum tire width.
+
+#### What frame measures are associated with Racy, Relaxed, and Rowdy frames?
 
 What makes a [racy frame racy?](qmd/what_makes_a_racy_bike_racy.qmd), a [relaxed frame relaxed?](qmd/what_makes_a_relaxed_bike_relaxed.qmd), and a [rowdy frame rowdy?](qmd/what_makes_a_rowdy_bike_rowdy.qmd) - plots showing which frame measures are most correlated with a style, and which aren't.
 
+#### A gallery of frame measures
+
 The [Gravel 2D](qmd/gravel_scatter.qmd) page contains interactive, 2D scatter plots of different pairs of frame geometry measures for all gravel bike models and frame sizes in the database.
 
-### How does my bike frame geometry change if I add suspension
+#### How does my bike frame geometry change if I add suspension
 
 See how your bike frame's [geometry changes with a suspension fork](qmd/gravel_sus_fork.qmd).
 
 See how your bike frame's [relative similarity to other bikes changes with a suspension fork]( qmd/gravel_scatter_sus.qmd).
 
 
-### The classification
+#### A Tree Diagram of frame similarity
 
 The [Gravel Tree](qmd/gravel_tree.qmd) page contains a tree diagram showing the relative similarity in frame geometry among all gravel bikes in the database and the clustering of the models into three major styles.
-
-
-The [Gravel Table](qmd/gravel_class.qmd) page contains a table of the classification of all gravel bike models in the database into All-road, Endurance, and Trail categories.
 
 
 copyright 2022 Jeffrey A. Walker

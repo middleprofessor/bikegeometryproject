@@ -162,14 +162,14 @@ p9 <- scatter_fig(shared_data = geobike_shared,
          list(sm_box, med_box, lg_box),
          height_boxes,
          widths = c(8, 2, 2))
-  # bscols(widths = c(8,4), p2)
-  # bscols(widths = c(8,4), p3)
-  # bscols(widths = c(8,4), p4)
-  # bscols(widths = c(8,4), p5)
-  # bscols(widths = c(8,4), p6)
-  # bscols(widths = c(8,4), p7)
-  # bscols(widths = c(8,4), p8)
-  # bscols(widths = c(8,4), p9)
+  bscols(widths = c(8,4), p2)
+  bscols(widths = c(8,4), p3)
+  bscols(widths = c(8,4), p4)
+  bscols(widths = c(8,4), p5)
+  bscols(widths = c(8,4), p6)
+  bscols(widths = c(8,4), p7)
+  bscols(widths = c(8,4), p8)
+  bscols(widths = c(8,4), p9)
 
 ```
 

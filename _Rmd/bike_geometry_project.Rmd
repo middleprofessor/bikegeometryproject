@@ -701,8 +701,9 @@ get_frame_size_letters <- function(frame_size){
   frame_size_letters <- str_replace(frame_size_letters, "XM", "ML")
   
   # something like "SmallMedium" maps to small but should map to "SM"
+  # I think this can be deleted
   if(frame_size == "Small/Medium"){frame_size_letters <- "SM"}
-  
+
   return(frame_size_letters)
 }
 ```
@@ -755,6 +756,9 @@ clean_frame_size <- function(bike){
 
   # Light Blue Darwin
   bike[frame_size == "Small/Medium", frame_size := "SMMD"] # this will convert to SM
+  
+  # Haute Sauce
+  bike[frame_size == "S/M", frame_size := "SMMD"] # this will convert to SM
 
   # Esker bikes
   bike[frame_size == "S1/SM", frame_size := "S"]
@@ -784,8 +788,7 @@ clean_frame_size <- function(bike){
   bike[frame_size == "V3", frame_size := "M"]
   bike[frame_size == "V4", frame_size := "L"]
   bike[frame_size == "V5", frame_size := "XL"]
-  
-  
+
   # clean
   bike[, frame_size_working := toupper(frame_size)]
 
@@ -1538,15 +1541,21 @@ import_bikes_excel_single <- function(style_folder = "gravel",
     # Cane Creek = Fox TC
     # 50 mm travel
     # Fox: 445 - .2*50 = 435
-    bike_i[fork == "rigid" & axle_crown < 412, fork_class := "rigid"]
-    bike_i[fork == "rigid" & axle_crown >= 412 & axle_crown < 426, fork_class := "30 mm"]
-    bike_i[fork == "rigid" & axle_crown >= 426 & axle_crown < 436, fork_class := "40 mm"]
-    bike_i[fork == "rigid" & axle_crown >= 436 & axle_crown < 446, fork_class := "50 mm"]
+    min_0 <- 411 # 30 mm
+    min_1 <- 415 # 30 mm
+    min_2 <- 423 # (419 + 427)/2 # 40 mm
+    min_3 <- 431 # (427 + 435)/2 # 50 mm
+    min_4 <- 439
+    bike_i[fork == "rigid" & axle_crown < min_0, fork_class := "0 mm"]
+    bike_i[fork == "rigid" & axle_crown >= min_0 & axle_crown < min_1, fork_class := "20 mm"]
+    bike_i[fork == "rigid" & axle_crown >= min_1 & axle_crown < min_2, fork_class := "30 mm"]
+    bike_i[fork == "rigid" & axle_crown >= min_2 & axle_crown < min_3, fork_class := "40 mm"]
+    bike_i[fork == "rigid" & axle_crown >= min_3 & axle_crown < min_4, fork_class := "50 mm"]
     bike_i[fork == "rigid" & axle_crown >= 471 & axle_crown < 489, fork_class := "100 mm"]
     bike_i[fork == "rigid" & axle_crown >= 489 & axle_crown < 507, fork_class := "120 mm"]
     bike_i[fork == "suspension", fork_class := paste(suspension_corrected, "mm")]
     # make a factor and order
-    fork_classes <- c("rigid", "30 mm", "40 mm", "50 mm", "100 mm", "120 mm")
+    fork_classes <- c("0 mm", "20 mm", "30 mm", "40 mm", "50 mm", "100 mm", "120 mm")
     bike_i[, fork_class := factor(fork_class, levels = fork_classes)]
     
     # axle spacing

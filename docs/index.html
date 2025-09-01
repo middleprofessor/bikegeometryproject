@@ -94,6 +94,10 @@ ul.task-list li input[type="checkbox"] {
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-gravel-style">    
         <li>
+    <a class="dropdown-item" href="./qmd/gravel_class.html">
+ <span class="dropdown-text">A table of gravel styles</span></a>
+  </li>  
+        <li>
     <a class="dropdown-item" href="./qmd/gravel_mds.html">
  <span class="dropdown-text">The three gravel styles: racy, relaxed, and rowdy</span></a>
   </li>  
@@ -112,10 +116,6 @@ ul.task-list li input[type="checkbox"] {
         <li>
     <a class="dropdown-item" href="./qmd/gravel_tree.html">
  <span class="dropdown-text">Gravel Tree</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./qmd/gravel_class.html">
- <span class="dropdown-text">Gravel Table</span></a>
   </li>  
     </ul>
   </li>
@@ -169,9 +169,7 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#a-gravel-bike-finder-tool" id="toc-a-gravel-bike-finder-tool" class="nav-link active" data-scroll-target="#a-gravel-bike-finder-tool">A gravel bike finder tool</a></li>
   <li><a href="#gravel-style" id="toc-gravel-style" class="nav-link" data-scroll-target="#gravel-style">Gravel style</a></li>
-  <li><a href="#things-to-do-here" id="toc-things-to-do-here" class="nav-link" data-scroll-target="#things-to-do-here">Things to do here:</a></li>
-  <li><a href="#how-does-my-bike-frame-geometry-change-if-i-add-suspension" id="toc-how-does-my-bike-frame-geometry-change-if-i-add-suspension" class="nav-link" data-scroll-target="#how-does-my-bike-frame-geometry-change-if-i-add-suspension">How does my bike frame geometry change if I add suspension</a></li>
-  <li><a href="#the-classification" id="toc-the-classification" class="nav-link" data-scroll-target="#the-classification">The classification</a></li>
+  <li><a href="#things-to-do-here" id="toc-things-to-do-here" class="nav-link" data-scroll-target="#things-to-do-here">Things to do here</a></li>
   </ul>
 </nav>
     </div>
@@ -215,23 +213,32 @@ ul.task-list li input[type="checkbox"] {
 <p>Also…some hardtail mountain bikes are included because some hardtails make really good gravel bikes.</p>
 </section>
 <section id="things-to-do-here" class="level3">
-<h3 class="anchored" data-anchor-id="things-to-do-here">Things to do here:</h3>
-<p><a href="./qmd/gravel_mds.html">Which bikes are racy/rowdy/relaxed?</a> – A single plot that compares overall similarity of frame geometry among hundreds of gravel bikes, color coded by style. This is the page with the filters.</p>
+<h3 class="anchored" data-anchor-id="things-to-do-here">Things to do here</h3>
+<section id="which-bikes-are-racyrelaxedrowdy" class="level4">
+<h4 class="anchored" data-anchor-id="which-bikes-are-racyrelaxedrowdy">Which bikes are racy/relaxed/rowdy?</h4>
+<p><a href="./qmd/gravel_mds.html">A single plot that compares overall similarity of frame geometry</a> among gravel bikes, color coded by style. This page has filters to view only bikes that match specific criteria, such as frame material or maximum tire width.</p>
+<p><a href="./qmd/gravel_class.html">A table of the classification of all gravel bike models in the database into Racy, Relaxed, and Rowdy categories</a>. This page has filters to view only bikes that match specific criteria, such as frame material or maximum tire width.</p>
+</section>
+<section id="what-frame-measures-are-associated-with-racy-relaxed-and-rowdy-frames" class="level4">
+<h4 class="anchored" data-anchor-id="what-frame-measures-are-associated-with-racy-relaxed-and-rowdy-frames">What frame measures are associated with Racy, Relaxed, and Rowdy frames?</h4>
 <p>What makes a <a href="./qmd/what_makes_a_racy_bike_racy.html">racy frame racy?</a>, a <a href="./qmd/what_makes_a_relaxed_bike_relaxed.html">relaxed frame relaxed?</a>, and a <a href="./qmd/what_makes_a_rowdy_bike_rowdy.html">rowdy frame rowdy?</a> - plots showing which frame measures are most correlated with a style, and which aren’t.</p>
+</section>
+<section id="a-gallery-of-frame-measures" class="level4">
+<h4 class="anchored" data-anchor-id="a-gallery-of-frame-measures">A gallery of frame measures</h4>
 <p>The <a href="./qmd/gravel_scatter.html">Gravel 2D</a> page contains interactive, 2D scatter plots of different pairs of frame geometry measures for all gravel bike models and frame sizes in the database.</p>
 </section>
-<section id="how-does-my-bike-frame-geometry-change-if-i-add-suspension" class="level3">
-<h3 class="anchored" data-anchor-id="how-does-my-bike-frame-geometry-change-if-i-add-suspension">How does my bike frame geometry change if I add suspension</h3>
+<section id="how-does-my-bike-frame-geometry-change-if-i-add-suspension" class="level4">
+<h4 class="anchored" data-anchor-id="how-does-my-bike-frame-geometry-change-if-i-add-suspension">How does my bike frame geometry change if I add suspension</h4>
 <p>See how your bike frame’s <a href="./qmd/gravel_sus_fork.html">geometry changes with a suspension fork</a>.</p>
 <p>See how your bike frame’s <a href="./qmd/gravel_scatter_sus.html">relative similarity to other bikes changes with a suspension fork</a>.</p>
 </section>
-<section id="the-classification" class="level3">
-<h3 class="anchored" data-anchor-id="the-classification">The classification</h3>
+<section id="a-tree-diagram-of-frame-similarity" class="level4">
+<h4 class="anchored" data-anchor-id="a-tree-diagram-of-frame-similarity">A Tree Diagram of frame similarity</h4>
 <p>The <a href="./qmd/gravel_tree.html">Gravel Tree</a> page contains a tree diagram showing the relative similarity in frame geometry among all gravel bikes in the database and the clustering of the models into three major styles.</p>
-<p>The <a href="./qmd/gravel_class.html">Gravel Table</a> page contains a table of the classification of all gravel bike models in the database into All-road, Endurance, and Trail categories.</p>
 <p>copyright 2022 Jeffrey A. Walker</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
