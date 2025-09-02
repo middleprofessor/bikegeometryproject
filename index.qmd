@@ -8,7 +8,7 @@ source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 ```
 
-[TL;DR](qmd/gravel_mds.qmd)
+Current number of bike models in the database: `r length(unique(geobike[, model]))`!
 
 ### A gravel bike finder tool
 
@@ -42,18 +42,18 @@ Also...some hardtail mountain bikes are included because some hardtails make rea
 
 What makes a [racy frame racy?](qmd/what_makes_a_racy_bike_racy.qmd), a [relaxed frame relaxed?](qmd/what_makes_a_relaxed_bike_relaxed.qmd), and a [rowdy frame rowdy?](qmd/what_makes_a_rowdy_bike_rowdy.qmd) - plots showing which frame measures are most correlated with a style, and which aren't.
 
-#### A gallery of frame measures
+### A gallery of frame measures
 
 The [Gravel 2D](qmd/gravel_scatter.qmd) page contains interactive, 2D scatter plots of different pairs of frame geometry measures for all gravel bike models and frame sizes in the database.
 
-#### How does my bike frame geometry change if I add suspension
+### How does my bike frame geometry change if I add suspension?
 
 See how your bike frame's [geometry changes with a suspension fork](qmd/gravel_sus_fork.qmd).
 
 See how your bike frame's [relative similarity to other bikes changes with a suspension fork]( qmd/gravel_scatter_sus.qmd).
 
 
-#### A Tree Diagram of frame similarity
+### A Tree Diagram of frame similarity
 
 The [Gravel Tree](qmd/gravel_tree.qmd) page contains a tree diagram showing the relative similarity in frame geometry among all gravel bikes in the database and the clustering of the models into three major styles.
 
