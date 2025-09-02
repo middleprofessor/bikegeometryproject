@@ -901,6 +901,9 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
   bike[, head_h := head_tube_length * cos(deg_2_rad(head_tube_angle))]
 
   # fill in missing
+  # add axle crown if it and wheelbase are missing
+  bike[is.na(wheelbase) & is.na(axle_crown), axle_crown := 395]
+
   # wheelbase
   bike[is.na(wheelbase), wheelbase := compute_wheelbase(bike[is.na(wheelbase)])]
 
