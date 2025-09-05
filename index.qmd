@@ -24,9 +24,9 @@ Two quick finder tools, with filters are:
 
 This site classifies bikes into Racy, Relaxed, and Rowdy styles based on their frame geometry.
 
-* Racy bikes are racy!
-* Relaxed bikes are generally designed for long tours or exploring off road
-* Rowdy bikes are mountainy bikey
+* [Racy bikes are racy!](qmd/what_makes_a_racy_bike_racy.qmd)
+* [Relaxed bikes are relaxed!](qmd/what_makes_a_relaxed_bike_relaxed.qmd)
+* [Rowdy bikes are rowdy!](qmd/what_makes_a_rowdy_bike_rowdy.qmd)
 
 This is somewhat unique -- most websites or podcasts that I know of categorize gravel bikes as "more racy" or "more mountain bikey"
 
