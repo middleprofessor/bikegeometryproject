@@ -19,7 +19,7 @@ source(source_path)
 
 ```
 
-```{r gravel-tree, fig.height=14, fig.width=10, echo=FALSE}
+```{r gravel-tree, fig.height=22, fig.width=10, echo=FALSE}
 
 tree_path <- here("rds", "tree.Rds")
 tree_v2_color <- readRDS(tree_path)
