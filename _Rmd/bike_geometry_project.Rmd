@@ -872,6 +872,16 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
   # clean tire_width_max
   bike[, tire_width_max := round(tire_width_max, 0)]
   
+  # clean rider_spec
+  bike[, rider_min_spec := rider_min]
+  bike[, rider_max_spec := rider_max]
+  n_sizes <- nrow(bike)
+  rider_min_vec <- bike[2:n_sizes, rider_min]
+  rider_max_vec <- bike[1:(n_sizes-1), rider_max]
+  rider_size <- (rider_min_vec + rider_max_vec)/2
+  bike[2:n_sizes, rider_min := rider_size]
+  bike[1:(n_sizes-1), rider_max := rider_size]
+
   # clean frame size
   bike <- clean_frame_size(bike)
   bike[!is.na(frame_size_numbers) & !is.na(frame_size_letters),
@@ -1520,8 +1530,11 @@ import_bikes_excel_single <- function(style_folder = "gravel",
     bike_i[, udh := toupper(udh)]
     
     bike_i[, dropout := ifelse(is.na(dropout), "fixed", dropout)]
+    bike_i[, base_build := as.numeric(base_build)]
+    bike_i[, frameset := as.numeric(frameset)]
+
     bike_i[, tire_width_max_700c := as.integer(tire_width_max_700c)]
-      # this should be temporary
+    # this should be temporary
       bike_i[is.na(tire_width_max_700c) & (wheel_size == 700 | wheel_size == 29),
            tire_width_max_700c := as.integer(tire_width_max)]
     bike_i[, tire_width_max_650b := as.numeric(tire_width_max_650b)]
@@ -1725,13 +1738,13 @@ d_scores <- function(Y, class_dt, cluster_col = "init_cluster", prefix = "kmeans
   # assign style to axes
   style_levels <- c("racy", "relaxed", "rowdy")
   relaxed <- which.max(loadings[rownames(loadings) == "rear_center"])
-#  relaxed <- class_dt[model == "Tumbleweed Stargazer 2025", init_cluster]
+  relaxed <- class_dt[model == "Tumbleweed Stargazer 2025", init_cluster]
   colnames(scores_scaled)[relaxed] <- "relaxed"
   rowdy <- which.max(loadings[rownames(loadings) == "reach"])
-#  rowdy <- class_dt[model == "Specialized Chisel 2022", init_cluster]
+  rowdy <- class_dt[model == "Specialized Chisel 2022", init_cluster]
   colnames(scores_scaled)[rowdy] <- "rowdy"
   racy <- which.max(loadings[rownames(loadings) == "head_tube_angle"])
-#  racy <- class_dt[model == "Cervelo Aspero 2024", init_cluster]
+  racy <- class_dt[model == "Cervelo Aspero 2024", init_cluster]
   colnames(scores_scaled)[racy] <- "racy"
   scores_scaled <- data.table(scores_scaled)
 
@@ -2467,6 +2480,7 @@ gravel_scores <- function(data, y_cols){
 }
 
 ```
+
 
 ```{r import-gravel, eval=TRUE}
 import_it <-  TRUE
