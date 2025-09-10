@@ -1,5 +1,5 @@
 ---
-title: "The three gravel styles: racy, relaxed, and rowdy"
+title: "A plot of overall frame similarity"
 ---
 ::: {.callout-tip title="Tips for navigating"}
 1. Hover over data for model and frame size identification.
@@ -37,7 +37,9 @@ filters <- list(
   filter_checkbox("axle", "Axle spacing", geobike_mds_shared, ~axle_spacing, inline = TRUE),
   filter_checkbox("handlebar", "Handlebar", geobike_mds_shared, ~handlebar, inline = TRUE),
   filter_slider("tire_700", "Max 700c tire width (mm)", geobike_mds_shared, ~tire_width_max_700c, step = 1),
-  filter_slider("tire_650", "Max 650b tire width (in)", geobike_mds_shared, ~tire_width_max_650b, step = 0.05)
+  filter_slider("tire_650", "Max 650b tire width (in)", geobike_mds_shared, ~tire_width_max_650b, step = 0.05),
+  filter_slider("frameset", "Frameset ($)", geobike_mds_shared, ~frameset_usd),
+  filter_slider("base_build", "Base Build ($)", geobike_mds_shared, ~base_build_usd)
   )
 
 bscols( widths = c(3, 9), filters, p1)

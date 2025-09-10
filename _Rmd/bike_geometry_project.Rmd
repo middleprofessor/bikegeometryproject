@@ -45,6 +45,10 @@ library(COveR) # overlapping kmeans
 library(ksharp) # sharpen kmeans
 library(ktaucenters) # robust kmeans
 
+# web helper packages
+library(priceR)
+Sys.setenv("EXCHANGERATEHOST_ACCESS_KEY"="4caf1c67ee8dfb8e14158a2e44616e16")
+
 # graphing packages
 library(ggsci) # color palettes
 library(ggpubr) # publication quality plots
@@ -52,6 +56,9 @@ library(ggforce) # better jitter
 library(cowplot) # combine plots
 library(knitr) # kable tables
 library(kableExtra) # kable_styling tables
+
+library(DT)
+library(reactable)
 
 library(ggiraph)
 library(GGally)
@@ -1481,8 +1488,7 @@ import_bikes_excel_multiple <- function(style = "gravel",
 ```
 
 ```{r}
-import_bikes_excel_single <- function(style_folder = "gravel",
-                         prefix = ""){
+import_bikes_excel_single <- function(style_folder = "gravel", currencies){
   # bike_list_file = paste0(paste0(style_folder, "/"), style_folder, "_list.txt")
   # bike_list_path <- here(data_folder, bike_list_file)
   # bike_list <- fread(bike_list_path, sep = "\t", header = FALSE)
@@ -1490,6 +1496,10 @@ import_bikes_excel_single <- function(style_folder = "gravel",
   filelist_path <- here(data_folder,style_folder)
   bike_list <- list.files(filelist_path, pattern = "\\.xlsx$", full.names = FALSE)
   bike_list <- bike_list[!grepl("^~\\$", basename(bike_list))] # delete excel hidden
+
+  # currencies
+  euro_2_usd <- currencies$eur
+  gbp_2_usd <- currencies$gbp
 
   geobike <- data.table(NULL)
   for(i in 1:length(bike_list)){
@@ -1543,6 +1553,19 @@ import_bikes_excel_single <- function(style_folder = "gravel",
     bike_i[, front_axle := as.integer(front_axle)]
     bike_i[, rear_axle := as.integer(rear_axle)]
     
+    # price data
+    bike_i[, frameset_usd := frameset]
+    bike_i[, base_build_usd := base_build]
+    currency <- bike_i[1, currency]
+    if(!is.na(currency) & currency == "euro"){
+      bike_i[!is.na(frameset), frameset_usd := euro_2_usd * frameset]
+      bike_i[!is.na(base_build), base_build_usd := euro_2_usd * base_build]
+    }
+    if(!is.na(currency) & currency == "pound"){
+      bike_i[!is.na(frameset), frameset_usd := gbp_2_usd * frameset]
+      bike_i[!is.na(base_build), base_build_usd := gbp_2_usd * base_build]
+   }
+    
     # Stuff for filters
     
     # suspension class
@@ -1586,13 +1609,12 @@ import_bikes_excel_single <- function(style_folder = "gravel",
 ```
 
 ```{r import-bike-list, echo=FALSE}
-import_bike_list <- function(style = "gravel",
-                         prefix = ""){
+import_bike_list <- function(style = "gravel", currencies){
   
   geobike <- rbind(
-    import_bikes_excel_single("gravel"),
-    import_bikes_excel_single("gravel incomplete"),
-    import_bikes_excel_single("hardtail")
+    import_bikes_excel_single("gravel", currencies),
+    import_bikes_excel_single("gravel incomplete", currencies),
+    import_bikes_excel_single("hardtail", currencies)
   )
   geobike[, id := .I]
 
@@ -2483,7 +2505,7 @@ gravel_scores <- function(data, y_cols){
 
 
 ```{r import-gravel, eval=TRUE}
-import_it <-  TRUE
+import_it <-  TRUE # make false when creating .R file below!
 
    classifier_cols <- c(
       "stack",
@@ -2504,8 +2526,14 @@ if(import_it != TRUE){
   geobike_sus <- readRDS(geobike_sus_path)
   my_fit <- readRDS(my_fit_path)
 }else{
+  
+  # currencies
+  euro_2_usd <- convert_currencies(1, "EUR", "USD")
+  gbp_2_usd <- convert_currencies(1, "GBP", "USD")
+  currency_list <- list(eur = euro_2_usd, gbp = gbp_2_usd)
+
   # import from xlsx
-  geobike <- import_bike_list(style = "gravel")
+  geobike <- import_bike_list(style = "gravel", currency_list)
   geobike_import <- copy(geobike)
   # geobike <- geobike_import
   

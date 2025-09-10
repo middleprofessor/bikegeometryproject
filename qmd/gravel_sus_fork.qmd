@@ -22,8 +22,6 @@ source(source_path)
 
 
 ```{r geom-table, echo=FALSE, eval=TRUE}
-library(DT)
-library(reactable)
 
 row_i <- 573 # sklar ML
 table_cols <- c("axle_crown", "stack", "reach", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "wheelbase", "front_center", "rear_center", "trail_45")
