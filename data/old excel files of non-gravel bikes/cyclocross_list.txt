@@ -1,0 +1,5 @@
+model	frame	data_range	my_fit
+Trek Boone 6 2022	carbon	a1:h26	56 cm
+Specialized Crux 2023	carbon	a5:h31	56
+Cannondale SuperX 2023	carbon	a5:h28	56
+Canyon Inflite CF 2023	carbon	a5:h28	S

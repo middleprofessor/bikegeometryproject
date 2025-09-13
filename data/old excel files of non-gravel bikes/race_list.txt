@@ -1,0 +1,6 @@
+model	frame	data_range	my_fit
+Cannondale SuperSix Evo 2022	carbon	a5:i29	54
+Trek Emonda SLR 2023	carbon	a5:j26	56 cm
+Canyon Ultimate CF 2023	carbon	a5:j28	S
+Specialized Tarmac SL7 2023	carbon	a5:i31	56
+BMC Teammachine SLR One 2023	carbon	a5:h33	54

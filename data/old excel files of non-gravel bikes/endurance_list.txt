@@ -1,0 +1,7 @@
+model	frame	data_range	my_fit
+Cannondale Synapse Carbon 2023	carbon	a5:h29	54
+Canyon Endurance CF SL 2023	carbon	a5:h27	S
+Trek Domane SL Gen 4 2023	carbon	a5:j26	56 cm
+Specialized Roubaix 2023	carbon	a5:j31	56
+BMC Roadmachine One 2023	carbon	a5:h33	54
+

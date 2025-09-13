@@ -29,7 +29,9 @@ website:
         menu:
           - qmd/gravel_sus_fork.qmd
           - qmd/gravel_scatter_sus.qmd
-
+      - text: "Gravel Compare"
+        menu:
+          - qmd/test_bike_comparison.qmd
 format:
   html:
     theme: cosmo

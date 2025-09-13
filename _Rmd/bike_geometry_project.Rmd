@@ -57,8 +57,11 @@ library(cowplot) # combine plots
 library(knitr) # kable tables
 library(kableExtra) # kable_styling tables
 
+# html packages
 library(DT)
 library(reactable)
+library(htmltools)
+library(jsonlite)
 
 library(ggiraph)
 library(GGally)
@@ -2528,8 +2531,14 @@ if(import_it != TRUE){
 }else{
   
   # currencies
-  euro_2_usd <- convert_currencies(1, "EUR", "USD")
-  gbp_2_usd <- convert_currencies(1, "GBP", "USD")
+  get_currencies <- FALSE
+  if(get_currencies == TRUE){
+    euro_2_usd <- convert_currencies(1, "EUR", "USD")
+    gbp_2_usd <- convert_currencies(1, "GBP", "USD")
+  }else{
+    euro_2_usd <- 1.17 # 12 Sep 2025
+    gbp_2_usd <- 1.36 # 12 Sep 2025
+  }
   currency_list <- list(eur = euro_2_usd, gbp = gbp_2_usd)
 
   # import from xlsx

@@ -1,4 +1,4 @@
-## ----setup, message = FALSE, warning = FALSE-----------------------------
+## ----setup, message = FALSE, warning = FALSE--------------------
 knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE,
                       warning = FALSE,
@@ -36,6 +36,10 @@ library(COveR) # overlapping kmeans
 library(ksharp) # sharpen kmeans
 library(ktaucenters) # robust kmeans
 
+# web helper packages
+library(priceR)
+Sys.setenv("EXCHANGERATEHOST_ACCESS_KEY"="4caf1c67ee8dfb8e14158a2e44616e16")
+
 # graphing packages
 library(ggsci) # color palettes
 library(ggpubr) # publication quality plots
@@ -44,8 +48,11 @@ library(cowplot) # combine plots
 library(knitr) # kable tables
 library(kableExtra) # kable_styling tables
 
+# html packages
 library(DT)
 library(reactable)
+library(htmltools)
+library(jsonlite)
 
 library(ggiraph)
 library(GGally)
@@ -91,7 +98,7 @@ pal_okabe_ito_3 <- pal_okabe_ito[c(2,3,1)]
 pal_okabe_ito_4 <- c(pal_okabe_ito_3, pal_okabe_ito[c(6)])
 
 
-## ----deg_2_rad-----------------------------------------------------------
+## ----deg_2_rad--------------------------------------------------
 deg_2_rad <- function(x){
   rad <- x*pi/180
   return(rad)
@@ -99,7 +106,7 @@ deg_2_rad <- function(x){
   
 
 
-## ----ggdendro-extensions-------------------------------------------------
+## ----ggdendro-extensions----------------------------------------
 # https://atrebas.github.io/post/2019-06-08-lightweight-dendrograms/
 dendro_data_k <- function(hc, k) {
   hcdata    <-  ggdendro::dendro_data(hc, type = "rectangle")
@@ -228,7 +235,7 @@ plot_ggdendro <- function(hcdata,
 
 
 
-## ----treed---------------------------------------------------------------
+## ----treed------------------------------------------------------
 get_tree <- function(geobike_subset,
                   y_cols,
                   scale_it = TRUE,
@@ -260,7 +267,7 @@ get_tree <- function(geobike_subset,
 }
 
 
-## ----bike-geometry-helpers-----------------------------------------------
+## ----bike-geometry-helpers--------------------------------------
 compute_axle_crown <- function(){
   
 }
@@ -324,7 +331,7 @@ compute_steering_h <- function(bike){
 
 
 
-## ----missing data--------------------------------------------------------
+## ----missing data-----------------------------------------------
 compute_wheelbase <- function(bike){
   steering_h <- compute_steering_h(bike[is.na(wheelbase)])
   offset_h <- compute_offset_h(bike[is.na(wheelbase)])
@@ -389,7 +396,7 @@ compute_effective_top_tube_length <- function(bike){
 }
 
 
-## ------------------------------------------------------------------------
+## ---------------------------------------------------------------
 estimate_axle_crown <- function(bike){
   # wb = rear_center + reach + headtube_h + headset_h + fork_h + rake_h
   hta <- bike[, head_tube_angle]
@@ -411,7 +418,7 @@ estimate_axle_crown <- function(bike){
 }
 
 
-## ------------------------------------------------------------------------
+## ---------------------------------------------------------------
 geom_checker <- function(chainstay_length, # chainstay length
                          bottom_bracket_drop, # bottom bracket drop
                          reach,
@@ -432,7 +439,7 @@ geom_checker <- function(chainstay_length, # chainstay length
   }
 
 
-## ------------------------------------------------------------------------
+## ---------------------------------------------------------------
 geometry_with_sus_fork <- function(frame,
                                    sus_length = 435,
                                    sus_travel = 40,
@@ -568,7 +575,7 @@ geometry_with_sus_fork <- function(frame,
   
 
 
-## ----sus-checker, eval=FALSE---------------------------------------------
+## ----sus-checker, eval=FALSE------------------------------------
 #     sus_measures <- geometry_with_sus_fork(frame,
 #                                            sus_length = 435,
 #                                            sus_travel = 40,
@@ -587,7 +594,7 @@ geometry_with_sus_fork <- function(frame,
 #   )
 
 
-## ----stack-sus-columns---------------------------------------------------
+## ----stack-sus-columns------------------------------------------
 stack_sus_columns <- function(dt){
   frame_cols <- c("model", "frame_size", "model_size", "my_fit",
                   "frame_size_std", "kmeans_style", "color", "fork_offset_rake")
@@ -649,7 +656,7 @@ stack_sus_columns <- function(dt){
 
 
 
-## ------------------------------------------------------------------------
+## ---------------------------------------------------------------
 get_frame_size_letters <- function(frame_size){
   frame_size_letters <- str_replace_all(frame_size, "[^A-Za-z0-9]", "")
   
@@ -684,7 +691,7 @@ get_frame_size_letters <- function(frame_size){
 }
 
 
-## ------------------------------------------------------------------------
+## ---------------------------------------------------------------
 get_frame_size_numbers <- function(frame_size){
   frame_size_numbers <- str_replace_all(frame_size, "[^A-Za-z0-9]", "")
   frame_size_numbers <- str_replace(frame_size_numbers, "2X", "XX")
@@ -715,7 +722,7 @@ get_frame_size_numbers <- function(frame_size){
 }
 
 
-## ------------------------------------------------------------------------
+## ---------------------------------------------------------------
 clean_frame_size <- function(bike){
   
   bike[, frame_size_orig := frame_size]
@@ -781,7 +788,7 @@ clean_frame_size <- function(bike){
 }
 
 
-## ----read-bike-function, echo=FALSE--------------------------------------
+## ----read-bike-function, echo=FALSE-----------------------------
 # data_path <- here(data_folder, "ghost_grappler.txt")
 # dt <- fread(data_path)
 # bike_label = "Tumbleweed Stargazer 2022"
@@ -1188,7 +1195,7 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
 
 
 
-## ----size-classes--------------------------------------------------------
+## ----size-classes-----------------------------------------------
 
 assign_std_size <- function(geobike){
   
@@ -1345,7 +1352,7 @@ assign_std_size <- function(geobike){
 }
 
 
-## ------------------------------------------------------------------------
+## ---------------------------------------------------------------
 better_assign_std_size <- function(geobike){
   # see "bike size classes.xlsx" and computations on "gravel_scatter.qmd"
   rider_size <- c(153, 159, 163, 167, 171, 175, 179, 183, 187, 191, 196)
@@ -1391,7 +1398,7 @@ return(geobike)
 }
 
 
-## ----import-bikes, echo=FALSE--------------------------------------------
+## ----import-bikes, echo=FALSE-----------------------------------
 # need to modify so all imports use this function
 import_bikes <- function(style = "gravel",
                          prefix = ""){
@@ -1417,7 +1424,7 @@ import_bikes <- function(style = "gravel",
 
 
 
-## ------------------------------------------------------------------------
+## ---------------------------------------------------------------
 import_bikes_excel_multiple <- function(style = "gravel",
                          prefix = ""){
   bike_list_file = paste0(style, "_list.txt")
@@ -1451,9 +1458,8 @@ import_bikes_excel_multiple <- function(style = "gravel",
 }
 
 
-## ------------------------------------------------------------------------
-import_bikes_excel_single <- function(style_folder = "gravel",
-                         prefix = ""){
+## ---------------------------------------------------------------
+import_bikes_excel_single <- function(style_folder = "gravel", currencies){
   # bike_list_file = paste0(paste0(style_folder, "/"), style_folder, "_list.txt")
   # bike_list_path <- here(data_folder, bike_list_file)
   # bike_list <- fread(bike_list_path, sep = "\t", header = FALSE)
@@ -1461,6 +1467,10 @@ import_bikes_excel_single <- function(style_folder = "gravel",
   filelist_path <- here(data_folder,style_folder)
   bike_list <- list.files(filelist_path, pattern = "\\.xlsx$", full.names = FALSE)
   bike_list <- bike_list[!grepl("^~\\$", basename(bike_list))] # delete excel hidden
+
+  # currencies
+  euro_2_usd <- currencies$eur
+  gbp_2_usd <- currencies$gbp
 
   geobike <- data.table(NULL)
   for(i in 1:length(bike_list)){
@@ -1514,6 +1524,19 @@ import_bikes_excel_single <- function(style_folder = "gravel",
     bike_i[, front_axle := as.integer(front_axle)]
     bike_i[, rear_axle := as.integer(rear_axle)]
     
+    # price data
+    bike_i[, frameset_usd := frameset]
+    bike_i[, base_build_usd := base_build]
+    currency <- bike_i[1, currency]
+    if(!is.na(currency) & currency == "euro"){
+      bike_i[!is.na(frameset), frameset_usd := euro_2_usd * frameset]
+      bike_i[!is.na(base_build), base_build_usd := euro_2_usd * base_build]
+    }
+    if(!is.na(currency) & currency == "pound"){
+      bike_i[!is.na(frameset), frameset_usd := gbp_2_usd * frameset]
+      bike_i[!is.na(base_build), base_build_usd := gbp_2_usd * base_build]
+   }
+    
     # Stuff for filters
     
     # suspension class
@@ -1556,14 +1579,13 @@ import_bikes_excel_single <- function(style_folder = "gravel",
 }
 
 
-## ----import-bike-list, echo=FALSE----------------------------------------
-import_bike_list <- function(style = "gravel",
-                         prefix = ""){
+## ----import-bike-list, echo=FALSE-------------------------------
+import_bike_list <- function(style = "gravel", currencies){
   
   geobike <- rbind(
-    import_bikes_excel_single("gravel"),
-    import_bikes_excel_single("gravel incomplete"),
-    import_bikes_excel_single("hardtail")
+    import_bikes_excel_single("gravel", currencies),
+    import_bikes_excel_single("gravel incomplete", currencies),
+    import_bikes_excel_single("hardtail", currencies)
   )
   geobike[, id := .I]
 
@@ -1632,7 +1654,7 @@ import_bike_list <- function(style = "gravel",
 }
 
 
-## ------------------------------------------------------------------------
+## ---------------------------------------------------------------
 classifier_scores <- function(dt, means){
   # create scores 
   # Get variables for each centroid
@@ -1674,14 +1696,14 @@ classifier_scores <- function(dt, means){
 }
 
 
-## ----get_centroids-------------------------------------------------------
+## ----get_centroids----------------------------------------------
 get_centroids <- function(Y, cluster){
   centroids <- rowsum(Y, group = cluster) / as.vector(table(cluster))
   return(centroids)
 }
 
 
-## ----d_scores------------------------------------------------------------
+## ----d_scores---------------------------------------------------
 d_scores <- function(Y, class_dt, cluster_col = "init_cluster", prefix = "kmeans"){
   # projections onto axis through cluster centroid. Y is the matrix of data
   # and must be centered at the origin. The results are exactly the same as
@@ -1738,7 +1760,7 @@ d_scores <- function(Y, class_dt, cluster_col = "init_cluster", prefix = "kmeans
 }
 
 
-## ----r_scores------------------------------------------------------------
+## ----r_scores---------------------------------------------------
 r_scores <- function(Y, class_dt, cluster_col = "cluster"){
   dummy <- data.table(
     clust1 = ifelse(class_dt[, get(cluster_col)] == 1, 1, 0),
@@ -1782,7 +1804,7 @@ r_scores <- function(Y, class_dt, cluster_col = "cluster"){
 }
 
 
-## ----mclust_classifier---------------------------------------------------
+## ----mclust_classifier------------------------------------------
 mclust_classifier <- function(dt,
                               k = 3,
                               classifier_cols = c(
@@ -1818,7 +1840,7 @@ mclust_classifier <- function(dt,
 }
 
 
-## ----kmeans-classifier---------------------------------------------------
+## ----kmeans-classifier------------------------------------------
 kmeans_classifier <- function(dt,
                               k = 3,
                               classifier_cols = c(
@@ -1870,7 +1892,7 @@ kmeans_classifier <- function(dt,
 }
 
 
-## ----nested-kmeans-classifier--------------------------------------------
+## ----nested-kmeans-classifier-----------------------------------
 nested_km_classifier <- function(dt){
   
   A_cols = c(
@@ -1937,7 +1959,7 @@ nested_km_classifier <- function(dt){
 }
 
 
-## ----kmeans-explore------------------------------------------------------
+## ----kmeans-explore---------------------------------------------
 kmeans_classifier_explore <- function(dt){
 
   A_classifier_cols <- c(
@@ -2051,7 +2073,7 @@ return(k_means_class_table)
 }
 
 
-## ------------------------------------------------------------------------
+## ---------------------------------------------------------------
 jack_clust <- function(data, classifier_cols, two_deep = FALSE){
   
   #   kmeans k = 2, p.s = .84 cols = "stack", "reach", "front_center", "rear_center", "head_tube_angle", "seat_tube_angle", "trail_45",
@@ -2216,7 +2238,7 @@ jack_clust <- function(data, classifier_cols, two_deep = FALSE){
   
 
 
-## ----tree-classifier, echo=FALSE-----------------------------------------
+## ----tree-classifier, echo=FALSE--------------------------------
 tree_classifier <- function(
     dt,
     k = 3,
@@ -2267,7 +2289,7 @@ tree_classifier <- function(
 
 
 
-## ------------------------------------------------------------------------
+## ---------------------------------------------------------------
 functional_classifier <- function(dt){
   # dt should be my_fit
   functional_class <- dt[my_fit == TRUE, .SD, .SDcols = c("model", "frame_size")]
@@ -2348,7 +2370,7 @@ functional_classifier <- function(dt){
 }
 
 
-## ----gravel-scores, echo = FALSE-----------------------------------------
+## ----gravel-scores, echo = FALSE--------------------------------
 gravel_scores <- function(data, y_cols){
 
   gravel_style <- data[, restyle]
@@ -2393,8 +2415,8 @@ gravel_scores <- function(data, y_cols){
 
 
 
-## ----import-gravel, eval=TRUE--------------------------------------------
-import_it <-  FALSE
+## ----import-gravel, eval=TRUE-----------------------------------
+import_it <-  FALSE # make false when creating .R file below!
 
    classifier_cols <- c(
       "stack",
@@ -2415,8 +2437,20 @@ if(import_it != TRUE){
   geobike_sus <- readRDS(geobike_sus_path)
   my_fit <- readRDS(my_fit_path)
 }else{
+  
+  # currencies
+  get_currencies <- FALSE
+  if(get_currencies == TRUE){
+    euro_2_usd <- convert_currencies(1, "EUR", "USD")
+    gbp_2_usd <- convert_currencies(1, "GBP", "USD")
+  }else{
+    euro_2_usd <- 1.17 # 12 Sep 2025
+    gbp_2_usd <- 1.36 # 12 Sep 2025
+  }
+  currency_list <- list(eur = euro_2_usd, gbp = gbp_2_usd)
+
   # import from xlsx
-  geobike <- import_bike_list(style = "gravel")
+  geobike <- import_bike_list(style = "gravel", currency_list)
   geobike_import <- copy(geobike)
   # geobike <- geobike_import
   
@@ -2513,7 +2547,7 @@ if(import_it != TRUE){
 
 
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE-------------------------------------------------
 # convert_multi_files <- function(){
 # 
 #   spec_data_labels <- c(
@@ -2676,7 +2710,7 @@ if(import_it != TRUE){
 # }
 
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE-------------------------------------------------
 # convert_single_files <- function(){
 #   input_spec_data_labels <- c(
 #     "material",
@@ -2838,7 +2872,7 @@ if(import_it != TRUE){
 # }
 
 
-## ----add-bike-specs, eval=FALSE------------------------------------------
+## ----add-bike-specs, eval=FALSE---------------------------------
 # # this script adds 3 rows to specs and populates with style = gravel, handlebar = drop bar, fork = rigid
 # 
 # insert_after <- "spec_list"
@@ -2866,11 +2900,11 @@ if(import_it != TRUE){
 # 
 
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE-------------------------------------------------
 # "#56B4E9" "#E69F00" "#009E73"
 
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE-------------------------------------------------
 # 
 # frontcenter_cols <- c("reach", "head_tube_angle", "fork_offset_rake") #
 # frontcenter_y <- my_fit[, .SD, .SDcols = frontcenter_cols] |>
@@ -2882,7 +2916,7 @@ if(import_it != TRUE){
 # cor(classifier_y)
 
 
-## ----base-plot, echo = FALSE---------------------------------------------
+## ----base-plot, echo = FALSE------------------------------------
 base_plot <- function(data = geobike,
                       x_col = "reach",
                       y_col = "stack",
@@ -2981,7 +3015,7 @@ base_plot <- function(data = geobike,
 
 
 
-## ----annotate, echo = FALSE----------------------------------------------
+## ----annotate, echo = FALSE-------------------------------------
 annotate_model <- function(p,
                            data = geobike,
                            x_col = "reach",
@@ -3020,7 +3054,7 @@ annotate_model <- function(p,
 }
 
 
-## ----base-ternary-plot, echo=FALSE---------------------------------------
+## ----base-ternary-plot, echo=FALSE------------------------------
 base_ternary <- function(
     dt,
     axis_cols = c("racy","relaxed","rowdy"),
@@ -3138,7 +3172,7 @@ base_ternary <- function(
 }
 
 
-## ----scatter-fig-global, echo=FALSE--------------------------------------
+## ----scatter-fig-global, echo=FALSE-----------------------------
 scatter_fig_global <- function(data = geobike,
                                x_col = "reach", y_col = "stack", g_col = "model_size",
                                x_label = "Reach", y_label = "Stack",
@@ -3329,7 +3363,7 @@ scatter_fig_global <- function(data = geobike,
 }
 
 
-## ------------------------------------------------------------------------
+## ---------------------------------------------------------------
 scatter_fig <- function(shared_data = geobike_shared,
                         link_group = "2dsus",
                         x_col = "reach", y_col = "stack", g_col = "model_size",
@@ -3490,7 +3524,7 @@ scatter_fig <- function(shared_data = geobike_shared,
   return(fig)}
 
 
-## ----output-as-R-file----------------------------------------------------
+## ----output-as-R-file-------------------------------------------
 # highlight and run to put update into R folder
 write_it_as_R <- FALSE
 if(write_it_as_R == TRUE){

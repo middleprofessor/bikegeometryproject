@@ -1,0 +1,181 @@
+---
+title: "table with searchable pull down menu labels"
+author: "chat gpt"
+---
+
+```{r}
+#| results: asis
+library(htmltools)
+library(data.table)
+library(jsonlite)
+library(stringr)
+
+# ================================================================
+# 1. DATA PREP
+# ------------------------------------------------
+# You must provide your data in *long format* with 3 columns:
+#   - spec  (the feature name, e.g. "weight_kg")
+#   - model (the bike model name, e.g. "modelA")
+#   - value (the spec value for that model, e.g. "8.1")
+# ================================================================
+
+dt <- data.table(
+  spec  = rep(c("weight_kg", "tire_clearance_mm", "max_price_usd"), each = 6),
+  model = rep(paste0("model", LETTERS[1:6]), times = 3),
+  value = c("8.1","8.8","7.9","8.5","8.6","9.0",
+            "40","45","38","42","43","41",
+            "$2500","$3200","$2800","$3000","$3100","$2900")
+)
+
+# Make labels human-friendly for display
+dt[, spec_pretty := str_replace_all(spec, "_", " ")]
+dt[, spec_pretty := str_to_title(spec_pretty)]
+
+# ================================================================
+# 2. SETTINGS
+# ------------------------------------------------
+# ncols = how many side-by-side bikes to show
+# defaults = which models appear by default (first n unique models)
+# ================================================================
+ncols <- 3
+models <- unique(dt$model)
+defaults <- models[seq_len(ncols)]
+
+# Pass data to JS as JSON
+json_data <- toJSON(dt, dataframe = "rows", auto_unbox = TRUE)
+
+# ================================================================
+# 3. TABLE CONSTRUCTION
+# ------------------------------------------------
+# - Spec column shows the pretty label
+# - Each value cell has data attributes (spec, col, model)
+#   used later for JS lookup and swapping
+# - Dropdowns are added in table headers
+# ================================================================
+
+# Build header dropdown
+header_select <- function(i) {
+  opts <- lapply(models, function(m) {
+    if (i <= length(defaults) && identical(m, defaults[i])) {
+      tags$option(value = m, selected = "selected", m)
+    } else {
+      tags$option(value = m, m)
+    }
+  })
+  tags$select(
+    class = "form-select form-select-sm searchable",
+    style = "width:220px; margin:auto;",
+    onchange = sprintf("swapColumn(this, %d)", i),
+    `data-col-index` = i,
+    opts
+  )
+}
+
+# Build the table
+tbl <- tags$table(
+  class = "table table-striped table-hover align-middle",
+  style = "width:100%; border-collapse: collapse;",
+  tags$thead(
+    tags$tr(
+      tags$th("Spec", style="position: sticky; top: 0; background:#f8f9fa; z-index: 2;"),
+      lapply(seq_len(ncols), function(i) tags$th(header_select(i), style="position: sticky; top: 0; background:#f8f9fa; z-index: 2;"))
+    )
+  ),
+  tags$tbody(
+    lapply(unique(dt$spec), function(s) {
+      pretty_name <- dt[spec==s, spec_pretty][1]
+      tags$tr(
+        # Display pretty name, keep raw spec hidden for JS
+        tags$td(pretty_name, `data-spec` = s),
+        lapply(seq_len(ncols), function(c) {
+          default_model <- if (c <= length(defaults)) defaults[c] else defaults[1]
+          val <- dt[spec==s & model==default_model, value]
+          if (is.na(val) || identical(val, "NA")) val <- ""
+          tags$td(
+            `data-spec`  = s,
+            `data-col`   = c,
+            `data-model` = default_model,
+            val
+          )
+        })
+      )
+    })
+  )
+)
+
+# ================================================================
+# 4. JAVASCRIPT: COLUMN SWAPPING
+# ------------------------------------------------
+# Looks up new values from specsData when a dropdown changes.
+# Ensures NA/null become blank.
+# ================================================================
+js_lookup <- tags$script(HTML(sprintf("
+var specsData = %s;
+function swapColumn(selectElem, colIndex) {
+  var model = selectElem.value;
+  var table = selectElem.closest('table');
+  var rows = table.querySelectorAll('tbody tr');
+  rows.forEach(function(row) {
+    var spec = row.querySelector('td[data-spec]').getAttribute('data-spec');
+    var item = specsData.find(function(d){ return d.spec===spec && d.model===model; });
+    if(item){
+      var cell = row.querySelector('td[data-col=\"' + colIndex + '\"]');
+      if(cell){
+        cell.textContent = (item.value === null || item.value === 'NA') ? '' : item.value;
+        cell.setAttribute('data-model', model);
+      }
+    } else {
+      var cell = row.querySelector('td[data-col=\"' + colIndex + '\"]');
+      if(cell) cell.textContent = '';
+    }
+  });
+}
+", json_data)))
+
+# ================================================================
+# 5. SEARCHABLE DROPDOWNS (Choices.js)
+# ------------------------------------------------
+# Adds search bars to the column header menus.
+# ================================================================
+choices_assets <- tagList(
+  tags$link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"),
+  tags$script(src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"),
+  tags$script(HTML("
+document.addEventListener('DOMContentLoaded', function() {
+  var selects = document.querySelectorAll('select.searchable');
+  selects.forEach(function(sel) {
+    var colIndex = parseInt(sel.getAttribute('data-col-index'), 10);
+    new Choices(sel, {
+      searchEnabled: true,
+      shouldSort: true,
+      itemSelectText: '',
+      placeholderValue: 'Select model...'
+    });
+    sel.addEventListener('change', function() {
+      swapColumn(sel, colIndex);
+    });
+  });
+});
+"))
+)
+
+# ================================================================
+# 6. STYLE
+# ------------------------------------------------
+# - Zebra striping
+# - Hover highlighting
+# - Center alignment
+# ================================================================
+css <- tags$style(HTML("
+.table-striped tbody tr:nth-of-type(odd) {background-color: #f9f9f9;}
+.table-hover tbody tr:hover {background-color: #e0f7fa;}
+th {text-align: center;}
+select.form-select {text-align: center;}
+"))
+
+# ================================================================
+# 7. OUTPUT
+# ------------------------------------------------
+# Final assembly of styles, assets, table, and JS logic.
+# ================================================================
+cat(as.character(tagList(css, choices_assets, tbl, js_lookup)))
