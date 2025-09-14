@@ -1,0 +1,61 @@
+---
+title: "Gravel Bike Geometry Project"
+subtitle: "Not just another bike geometry comparison tool"
+---
+
+```{r setup-index, echo=FALSE, warning=FALSE, message=FALSE}
+source_path <- here::here("bike_geometry_project.R")
+source(source_path)
+```
+
+Current number of bike models in the database: `r length(unique(geobike[, model]))`!
+
+### A gravel bike finder tool
+
+This site is designed to find the set of bikes that match the specifications you want in a frame. The focus is frame geometry, but there are also filters for material, suspension correction, UDH compatibility, sliding dropout, handlebar (flat or drop), axle spacing, and maximum tire width.
+
+Two quick finder tools, with filters are:
+
+[A table of the classification of all gravel bike models in the database into Racy, Relaxed, and Rowdy categories](qmd/gravel_class.qmd).
+
+[A single plot that compares overall similarity of frame geometry](qmd/gravel_mds.qmd) among gravel bikes, color coded by style.
+
+### Gravel style
+
+This site classifies bikes into Racy, Relaxed, and Rowdy styles based on their frame geometry.
+
+* [Racy bikes are racy!](qmd/what_makes_a_racy_bike_racy.qmd)
+* [Relaxed bikes are relaxed!](qmd/what_makes_a_relaxed_bike_relaxed.qmd)
+* [Rowdy bikes are rowdy!](qmd/what_makes_a_rowdy_bike_rowdy.qmd)
+
+This is somewhat unique -- most websites or podcasts that I know of categorize gravel bikes as "more racy" or "more mountain bikey"
+
+Also...some hardtail mountain bikes are included because some hardtails make really good gravel bikes.
+
+### Which bikes are racy/relaxed/rowdy?
+
+[A table of the classification of all gravel bike models in the database into Racy, Relaxed, and Rowdy categories](qmd/gravel_class.qmd). This page has filters to view only bikes that match specific criteria, such as frame material or maximum tire width.
+
+[A single plot that compares overall similarity of frame geometry](qmd/gravel_mds.qmd) among gravel bikes, color coded by style.  This page has filters to view only bikes that match specific criteria, such as frame material or maximum tire width.
+
+### What makes a racy frame racy? Or relaxed frame relaxed? Or rowdy frame rowdy?
+
+What makes a [racy frame racy?](qmd/what_makes_a_racy_bike_racy.qmd), a [relaxed frame relaxed?](qmd/what_makes_a_relaxed_bike_relaxed.qmd), and a [rowdy frame rowdy?](qmd/what_makes_a_rowdy_bike_rowdy.qmd) - plots showing which frame measures are most correlated with a style, and which aren't.
+
+### A gallery of frame measures
+
+The [Gravel 2D](qmd/gravel_scatter.qmd) page contains interactive, 2D scatter plots of different pairs of frame geometry measures for all gravel bike models and frame sizes in the database.
+
+### How does my bike frame geometry change if I add suspension?
+
+See how your bike frame's [geometry changes with a suspension fork](qmd/gravel_sus_fork.qmd).
+
+See how your bike frame's [relative similarity to other bikes changes with a suspension fork]( qmd/gravel_scatter_sus.qmd).
+
+
+### A Tree Diagram of frame similarity
+
+The [Gravel Tree](qmd/gravel_tree.qmd) page contains a tree diagram showing the relative similarity in frame geometry among all gravel bikes in the database and the clustering of the models into three major styles.
+
+
+copyright 2022 Jeffrey A. Walker

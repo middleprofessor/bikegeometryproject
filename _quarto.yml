@@ -22,6 +22,13 @@ website:
           - qmd/what_makes_a_relaxed_bike_relaxed.qmd
           - qmd/what_makes_a_rowdy_bike_rowdy.qmd
           - qmd/gravel_tree.qmd
+      - text: "Gravel Finder"
+        menu:
+          - qmd/gravel_class.qmd
+          - qmd/gravel_mds.qmd
+      - text: "Gravel Compare"
+        menu:
+          - qmd/test_bike_comparison.qmd
       - text: "Gravel Geometry"
         menu:
           - qmd/gravel_scatter.qmd
@@ -29,9 +36,6 @@ website:
         menu:
           - qmd/gravel_sus_fork.qmd
           - qmd/gravel_scatter_sus.qmd
-      - text: "Gravel Compare"
-        menu:
-          - qmd/test_bike_comparison.qmd
 format:
   html:
     theme: cosmo

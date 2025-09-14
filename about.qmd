@@ -1,8 +1,7 @@
 ---
-title: "Racy•Relaxed•Rowdy"
+title: "A Gravel Bike Finder Tool"
 about:
   template: jolla
-  image: images/dirt_and_blood.jpg
   links:
     - icon: instagram
       text: instagram
@@ -10,13 +9,8 @@ about:
 
 ---
 
+This site is designed to find the set of bikes that match the specifications you want in a frame. The focus is frame geometry, but there are also filters for material, suspension correction, UDH compatibility, sliding dropout, handlebar (flat or drop), axle spacing, maximum tire width, cost, and more.
 
-```{r echo = FALSE}
-# I'm a Professor of Biology at the University of Southern Maine in Portland with a research program that has moved from geometric morphometrics to fish swimming biomechanics, to best practices in statistics for experimental bench biologists.
-# 
-# For recreation, I'm mostly a mountain runner but also XC skier, backcountry skier (mostly resort uphill), and gravel cyclist, and do most of these activities in the White Mountains of New Hampshire.
-# 
-# The bike geometry project combines my interests in biological shape, biomechanics, biostatistics, and outdoor recreation.
+This site classifies gravel bikes into Racy, Relaxed, and Rowdy styles based on their frame geometry. This is somewhat unique -- most websites or podcasts that I know of categorize gravel bikes as "more racy" or "more mountain bikey"
 
-```
-
+Also...some hardtail mountain bikes are included because some hardtails make really good gravel bikes.

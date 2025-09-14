@@ -120,6 +120,32 @@ ul.task-list li input[type="checkbox"] {
     </ul>
   </li>
   <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-gravel-finder" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Gravel Finder</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-gravel-finder">    
+        <li>
+    <a class="dropdown-item" href="../qmd/gravel_class.html">
+ <span class="dropdown-text">A table of gravel styles</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../qmd/gravel_mds.html">
+ <span class="dropdown-text">A plot of overall frame similarity</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-gravel-compare" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Gravel Compare</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-gravel-compare">    
+        <li>
+    <a class="dropdown-item" href="../qmd/test_bike_comparison.html">
+ <span class="dropdown-text">Specs Comparison Tool</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-gravel-geometry" role="link" data-bs-toggle="dropdown" aria-expanded="false">
  <span class="menu-text">Gravel Geometry</span>
     </a>
@@ -142,17 +168,6 @@ ul.task-list li input[type="checkbox"] {
         <li>
     <a class="dropdown-item" href="../qmd/gravel_scatter_sus.html">
  <span class="dropdown-text">How does a suspension fork change bike geometry – Plots of data</span></a>
-  </li>  
-    </ul>
-  </li>
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-gravel-compare" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Gravel Compare</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-gravel-compare">    
-        <li>
-    <a class="dropdown-item" href="../qmd/test_bike_comparison.html">
- <span class="dropdown-text">Specs Comparison Tool</span></a>
   </li>  
     </ul>
   </li>
@@ -198,6 +213,22 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<div class="callout callout-style-default callout-tip callout-titled" title="How to search for a specific model and size!">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+How to search for a specific model and size!
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Use the dropdown menu in a column header to search for a specific bike model and size.</li>
+<li>Simply start typing the model name and the menu list moves to what you have searched</li>
+</ol>
+</div>
+</div>
 <style>
 .table-striped tbody tr:nth-of-type(odd) {background-color: #f9f9f9;}
 .table-hover tbody tr:hover {background-color: #e0f7fa;}
@@ -211,24 +242,107 @@ thead th {
   background: #f8f9fa;
   z-index: 3;
 }
+
+/* Basic dropdown item styling */
+.choices__list--dropdown .choices__item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 8px 12px;
+}
+
+/* Tooltip on hover */
+.choices__list--dropdown .choices__item[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  left: 100%;
+  top: 0;
+  margin-left: 8px;
+  white-space: nowrap;
+  background: #333;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 9999;
+}
 </style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var selects = document.querySelectorAll('select.searchable');
   selects.forEach(function(sel) {
     var colIndex = parseInt(sel.getAttribute('data-col-index'), 10);
-    // Initialize Choices on the native select element
-    new Choices(sel, {
+
+    // Initialize Choices
+    var choicesInstance = new Choices(sel, {
       searchEnabled: true,
       shouldSort: true,
       itemSelectText: '',
       placeholderValue: 'Select model...'
     });
-    // Ensure change events trigger the existing onchange handler (swapColumn)
+
+    // Force scroll styles after Choices.js initialization
+    setTimeout(function() {
+      var dropdown = sel.parentNode.querySelector('.choices__list--dropdown');
+      if (dropdown) {
+        dropdown.style.maxHeight = '300px';
+        dropdown.style.overflowY = 'auto';
+        dropdown.style.overflowX = 'hidden';
+        
+        // Force scrollbar to be visible
+        dropdown.style.scrollbarWidth = 'thin'; // Firefox
+        dropdown.style.setProperty('scrollbar-width', 'thin', 'important'); // Firefox
+        
+        // Webkit scrollbar styles
+        var style = document.createElement('style');
+        style.textContent = `
+          .choices__list--dropdown::-webkit-scrollbar {
+            width: 12px !important;
+          }
+          .choices__list--dropdown::-webkit-scrollbar-track {
+            background: #f1f1f1 !important;
+          }
+          .choices__list--dropdown::-webkit-scrollbar-thumb {
+            background: #888 !important;
+            border-radius: 6px !important;
+          }
+          .choices__list--dropdown::-webkit-scrollbar-thumb:hover {
+            background: #555 !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }, 100);
+
+    // Set title attribute for hover tooltip and ensure scroll on dropdown open
+    sel.addEventListener('showDropdown', function() {
+      setTimeout(function() {
+        var dropdown = sel.parentNode.querySelector('.choices__list--dropdown');
+        if (dropdown) {
+          // Force scroll styles again when dropdown opens
+          dropdown.style.maxHeight = '300px';
+          dropdown.style.overflowY = 'auto';
+          dropdown.style.overflowX = 'hidden';
+          
+          // Add titles for tooltips
+          var dropdownItems = dropdown.querySelectorAll('.choices__item');
+          dropdownItems.forEach(function(item){
+            item.setAttribute('title', item.textContent);
+          });
+
+          // Scroll to selected item
+          var selectedValue = choicesInstance.getValue(true);
+          var highlighted = dropdown.querySelector('.choices__item[data-value="' + selectedValue + '"]');
+          if (highlighted) {
+            highlighted.scrollIntoView({ block: 'nearest' });
+          }
+        }
+      }, 50);
+    });
+
+    // Column swap functionality
     sel.addEventListener('change', function() {
-      // call swapColumn with select element and its column index
       swapColumn(sel, colIndex);
     });
   });
@@ -619,7 +733,6 @@ function swapColumn(selectElem, colIndex) {
         cell.setAttribute('data-model', model);
       }
     } else {
-      // if missing in JSON, clear cell
       var cell = row.querySelector('td[data-col="' + colIndex + '"]');
       if(cell) cell.textContent = '';
     }

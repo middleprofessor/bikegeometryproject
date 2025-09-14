@@ -1,63 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://middleprofessor.github.io/bikegeometryproject/about.html</loc>
-    <lastmod>2023-07-16T13:51:06.933Z</lastmod>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/index old.html</loc>
+    <lastmod>2025-09-05T14:40:43.265Z</lastmod>
   </url>
   <url>
-    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/test_bike_comparison.html</loc>
-    <lastmod>2025-09-13T12:11:06.949Z</lastmod>
-  </url>
-  <url>
-    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_sus_fork.html</loc>
-    <lastmod>2025-09-10T11:59:50.108Z</lastmod>
-  </url>
-  <url>
-    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_tree.html</loc>
-    <lastmod>2025-09-06T15:44:58.668Z</lastmod>
-  </url>
-  <url>
-    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_compare_table.html</loc>
-    <lastmod>2025-09-12T22:22:20.770Z</lastmod>
-  </url>
-  <url>
-    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_class.html</loc>
-    <lastmod>2025-09-10T12:51:20.847Z</lastmod>
-  </url>
-  <url>
-    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_style_plot.html</loc>
-    <lastmod>2025-08-04T11:39:35.351Z</lastmod>
-  </url>
-  <url>
-    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/what_makes_a_rowdy_bike_rowdy.html</loc>
-    <lastmod>2025-09-07T15:11:03.395Z</lastmod>
-  </url>
-  <url>
-    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_scatter_sus.html</loc>
-    <lastmod>2025-08-19T14:37:38.247Z</lastmod>
-  </url>
-  <url>
-    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_scatter_model.html</loc>
-    <lastmod>2025-08-03T22:41:56.419Z</lastmod>
-  </url>
-  <url>
-    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/what_makes_a_relaxed_bike_relaxed.html</loc>
-    <lastmod>2025-08-19T11:25:43.898Z</lastmod>
-  </url>
-  <url>
-    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_mds.html</loc>
-    <lastmod>2025-09-10T13:06:19.345Z</lastmod>
-  </url>
-  <url>
-    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/what_makes_a_racy_bike_racy.html</loc>
-    <lastmod>2025-08-19T11:24:43.394Z</lastmod>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/index.html</loc>
+    <lastmod>2025-09-14T12:46:09.314Z</lastmod>
   </url>
   <url>
     <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_scatter.html</loc>
     <lastmod>2025-09-01T17:58:13.381Z</lastmod>
   </url>
   <url>
-    <loc>https://middleprofessor.github.io/bikegeometryproject/index.html</loc>
-    <lastmod>2025-09-05T14:40:43.265Z</lastmod>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/what_makes_a_racy_bike_racy.html</loc>
+    <lastmod>2025-08-19T11:24:43.394Z</lastmod>
+  </url>
+  <url>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_mds.html</loc>
+    <lastmod>2025-09-10T13:06:19.345Z</lastmod>
+  </url>
+  <url>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/what_makes_a_relaxed_bike_relaxed.html</loc>
+    <lastmod>2025-08-19T11:25:43.898Z</lastmod>
+  </url>
+  <url>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_scatter_model.html</loc>
+    <lastmod>2025-08-03T22:41:56.419Z</lastmod>
+  </url>
+  <url>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_scatter_sus.html</loc>
+    <lastmod>2025-08-19T14:37:38.247Z</lastmod>
+  </url>
+  <url>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/what_makes_a_rowdy_bike_rowdy.html</loc>
+    <lastmod>2025-09-07T15:11:03.395Z</lastmod>
+  </url>
+  <url>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_style_plot.html</loc>
+    <lastmod>2025-08-04T11:39:35.351Z</lastmod>
+  </url>
+  <url>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_class.html</loc>
+    <lastmod>2025-09-10T12:51:20.847Z</lastmod>
+  </url>
+  <url>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_compare_table.html</loc>
+    <lastmod>2025-09-12T22:22:20.770Z</lastmod>
+  </url>
+  <url>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_tree.html</loc>
+    <lastmod>2025-09-06T15:44:58.668Z</lastmod>
+  </url>
+  <url>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/gravel_sus_fork.html</loc>
+    <lastmod>2025-09-10T11:59:50.108Z</lastmod>
+  </url>
+  <url>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/qmd/test_bike_comparison.html</loc>
+    <lastmod>2025-09-14T12:48:02.250Z</lastmod>
+  </url>
+  <url>
+    <loc>https://middleprofessor.github.io/bikegeometryproject/about.html</loc>
+    <lastmod>2025-09-14T12:36:42.214Z</lastmod>
   </url>
 </urlset>

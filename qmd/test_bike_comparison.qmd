@@ -3,6 +3,11 @@ title: "Specs Comparison Tool"
 format: html
 ---
 
+::: {.callout-tip title="How to search for a specific model and size!"}
+1. Use the dropdown menu in a column header to search for a specific bike model and size.
+2. Simply start typing the model name and the menu list moves to what you have searched
+:::
+
 ```{r setup-bike-comparison-tool, warning=FALSE, message=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
@@ -15,6 +20,14 @@ source(source_path)
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 #| results: asis
+
+dt <- data.table(
+  spec   = rep(c("Weight", "Tire clearance", "Price"), each = 4),
+  model  = rep(c("modelA", "modelB", "modelC", "modelD"), times = 3),
+  value  = c("8.1kg","8.8kg","7.9kg","8.5kg",
+             "40mm","45mm","38mm","42mm",
+             "$2500","$3200","$2800","$3000")
+)
 
 specs_cols <- c("kmeans_style", "material", "fork", "handlebar", "stack", "reach", "head_tube_angle", "seat_tube_angle","chainstay_length", "front_center", "bottom_bracket_drop", "trail", "trail_45", "udh", "seatpost_diameter", "tire_width_max_700c", "tire_width_max_650b", "fork_class", "axle_spacing", "dropout", "internal_storage", "fork_suspension", "stem_suspension", "rear_suspension", "base_build_usd", "frameset_usd")
 keep_cols <- c("model_size", specs_cols)
@@ -41,20 +54,19 @@ dt <- melt(specs_wide,
               value.name = "value")
 
 # Pretty spec names
+# Pretty spec names
 dt[, spec_pretty := str_replace_all(spec, "_", " ")]
 dt[, spec_pretty := str_to_title(spec_pretty)]
 
-# how many visible comparison columns
+# Number of visible comparison columns
 ncols <- 3
-
-# models and defaults for the visible columns
 models <- unique(dt$model)
 defaults <- models[seq_len(ncols)]
 
-# JSON data for client-side lookup (long format)
+# JSON data for client-side lookup
 json_data <- jsonlite::toJSON(dt, dataframe = "rows", auto_unbox = TRUE)
 
-# Build a searchable select for header; use proper 'selected' attribute
+# Header select dropdown
 header_select <- function(i) {
   opts <- lapply(models, function(m) {
     if (i <= length(defaults) && identical(m, defaults[i])) {
@@ -72,7 +84,7 @@ header_select <- function(i) {
   )
 }
 
-# Build visible table: pretty spec shown, raw spec stored in data-spec attr
+# Build table
 tbl <- tags$table(
   class = "table table-striped table-hover align-middle",
   style = "width:100%; border-collapse: collapse;",
@@ -86,7 +98,6 @@ tbl <- tags$table(
     lapply(unique(dt$spec), function(s) {
       pretty_name <- dt[spec==s, spec_pretty][1]
       tags$tr(
-        # display pretty name, store raw spec in data-spec on this cell for robust JS lookup
         tags$td(pretty_name, `data-spec` = s),
         lapply(seq_len(ncols), function(c) {
           default_model <- if (c <= length(defaults)) defaults[c] else defaults[1]
@@ -104,7 +115,7 @@ tbl <- tags$table(
   )
 )
 
-# JS: JSON lookup + swap function (makes NA/null blank)
+# JS: swap columns
 js_lookup <- tags$script(HTML(sprintf("
 var specsData = %s;
 function swapColumn(selectElem, colIndex) {
@@ -121,7 +132,6 @@ function swapColumn(selectElem, colIndex) {
         cell.setAttribute('data-model', model);
       }
     } else {
-      // if missing in JSON, clear cell
       var cell = row.querySelector('td[data-col=\"' + colIndex + '\"]');
       if(cell) cell.textContent = '';
     }
@@ -129,26 +139,85 @@ function swapColumn(selectElem, colIndex) {
 }
 ", json_data)))
 
-# Choices.js assets (no jQuery required)
+# Choices.js assets + initialize searchable selects + scroll to selected
 choices_assets <- tagList(
-  tags$link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"),
-  tags$script(src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"),
-  # initialize Choices on all .searchable selects and wire change -> swapColumn
-  tags$script(HTML("
+# Replace your Choices.js initialization JavaScript with this:
+
+tags$script(HTML("
 document.addEventListener('DOMContentLoaded', function() {
   var selects = document.querySelectorAll('select.searchable');
   selects.forEach(function(sel) {
     var colIndex = parseInt(sel.getAttribute('data-col-index'), 10);
-    // Initialize Choices on the native select element
-    new Choices(sel, {
+
+    // Initialize Choices
+    var choicesInstance = new Choices(sel, {
       searchEnabled: true,
       shouldSort: true,
       itemSelectText: '',
       placeholderValue: 'Select model...'
     });
-    // Ensure change events trigger the existing onchange handler (swapColumn)
+
+    // Force scroll styles after Choices.js initialization
+    setTimeout(function() {
+      var dropdown = sel.parentNode.querySelector('.choices__list--dropdown');
+      if (dropdown) {
+        dropdown.style.maxHeight = '300px';
+        dropdown.style.overflowY = 'auto';
+        dropdown.style.overflowX = 'hidden';
+        
+        // Force scrollbar to be visible
+        dropdown.style.scrollbarWidth = 'thin'; // Firefox
+        dropdown.style.setProperty('scrollbar-width', 'thin', 'important'); // Firefox
+        
+        // Webkit scrollbar styles
+        var style = document.createElement('style');
+        style.textContent = `
+          .choices__list--dropdown::-webkit-scrollbar {
+            width: 12px !important;
+          }
+          .choices__list--dropdown::-webkit-scrollbar-track {
+            background: #f1f1f1 !important;
+          }
+          .choices__list--dropdown::-webkit-scrollbar-thumb {
+            background: #888 !important;
+            border-radius: 6px !important;
+          }
+          .choices__list--dropdown::-webkit-scrollbar-thumb:hover {
+            background: #555 !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }, 100);
+
+    // Set title attribute for hover tooltip and ensure scroll on dropdown open
+    sel.addEventListener('showDropdown', function() {
+      setTimeout(function() {
+        var dropdown = sel.parentNode.querySelector('.choices__list--dropdown');
+        if (dropdown) {
+          // Force scroll styles again when dropdown opens
+          dropdown.style.maxHeight = '300px';
+          dropdown.style.overflowY = 'auto';
+          dropdown.style.overflowX = 'hidden';
+          
+          // Add titles for tooltips
+          var dropdownItems = dropdown.querySelectorAll('.choices__item');
+          dropdownItems.forEach(function(item){
+            item.setAttribute('title', item.textContent);
+          });
+
+          // Scroll to selected item
+          var selectedValue = choicesInstance.getValue(true);
+          var highlighted = dropdown.querySelector('.choices__item[data-value=\"' + selectedValue + '\"]');
+          if (highlighted) {
+            highlighted.scrollIntoView({ block: 'nearest' });
+          }
+        }
+      }, 50);
+    });
+
+    // Column swap functionality
     sel.addEventListener('change', function() {
-      // call swapColumn with select element and its column index
       swapColumn(sel, colIndex);
     });
   });
@@ -156,7 +225,9 @@ document.addEventListener('DOMContentLoaded', function() {
 "))
 )
 
-# --- CSS including sticky header ---
+# CSS: sticky header, scrollable dropdown, ellipsis, tooltip
+# Replace your CSS with this simplified version:
+
 css <- tags$style(HTML("
 .table-striped tbody tr:nth-of-type(odd) {background-color: #f9f9f9;}
 .table-hover tbody tr:hover {background-color: #e0f7fa;}
@@ -170,8 +241,33 @@ thead th {
   background: #f8f9fa;
   z-index: 3;
 }
-"))
 
+/* Basic dropdown item styling */
+.choices__list--dropdown .choices__item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 8px 12px;
+}
+
+/* Tooltip on hover */
+.choices__list--dropdown .choices__item[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  left: 100%;
+  top: 0;
+  margin-left: 8px;
+  white-space: nowrap;
+  background: #333;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 9999;
+}
+"))
+# Output everything
 cat(as.character(tagList(css, choices_assets, tbl, js_lookup)))
 
 ```
