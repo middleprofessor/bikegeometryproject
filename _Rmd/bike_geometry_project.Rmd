@@ -1491,7 +1491,7 @@ import_bikes_excel_multiple <- function(style = "gravel",
 ```
 
 ```{r}
-import_bikes_excel_single <- function(style_folder = "gravel", currencies){
+import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
   # bike_list_file = paste0(paste0(style_folder, "/"), style_folder, "_list.txt")
   # bike_list_path <- here(data_folder, bike_list_file)
   # bike_list <- fread(bike_list_path, sep = "\t", header = FALSE)
@@ -1500,9 +1500,9 @@ import_bikes_excel_single <- function(style_folder = "gravel", currencies){
   bike_list <- list.files(filelist_path, pattern = "\\.xlsx$", full.names = FALSE)
   bike_list <- bike_list[!grepl("^~\\$", basename(bike_list))] # delete excel hidden
 
-  # currencies
-  euro_2_usd <- currencies$eur
-  gbp_2_usd <- currencies$gbp
+  # exchange_rates
+  euro_2_usd <- exchange_rates$eur
+  gbp_2_usd <- exchange_rates$gbp
 
   geobike <- data.table(NULL)
   for(i in 1:length(bike_list)){
@@ -1583,21 +1583,25 @@ import_bikes_excel_single <- function(style_folder = "gravel", currencies){
     # Cane Creek = Fox TC
     # 50 mm travel
     # Fox: 445 - .2*50 = 435
+    # 60 mm travel
+    # MRP Baxter: 456 - .2*60 = 444
     min_0 <- 411 # 30 mm
     min_1 <- 415 # 30 mm
     min_2 <- 423 # (419 + 427)/2 # 40 mm
     min_3 <- 431 # (427 + 435)/2 # 50 mm
-    min_4 <- 439
+    min_4 <- 439.5 # (435 + 444)/2 # 60 mm
+    min_5 <- 460 # 
     bike_i[fork == "rigid" & axle_crown < min_0, fork_class := "0 mm"]
     bike_i[fork == "rigid" & axle_crown >= min_0 & axle_crown < min_1, fork_class := "20 mm"]
     bike_i[fork == "rigid" & axle_crown >= min_1 & axle_crown < min_2, fork_class := "30 mm"]
     bike_i[fork == "rigid" & axle_crown >= min_2 & axle_crown < min_3, fork_class := "40 mm"]
     bike_i[fork == "rigid" & axle_crown >= min_3 & axle_crown < min_4, fork_class := "50 mm"]
+    bike_i[fork == "rigid" & axle_crown >= min_4 & axle_crown < min_5, fork_class := "60 mm"]
     bike_i[fork == "rigid" & axle_crown >= 471 & axle_crown < 489, fork_class := "100 mm"]
     bike_i[fork == "rigid" & axle_crown >= 489 & axle_crown < 507, fork_class := "120 mm"]
     bike_i[fork == "suspension", fork_class := paste(suspension_corrected, "mm")]
     # make a factor and order
-    fork_classes <- c("0 mm", "20 mm", "30 mm", "40 mm", "50 mm", "100 mm", "120 mm")
+    fork_classes <- c("0 mm", "20 mm", "30 mm", "40 mm", "50 mm", "60 mm", "100 mm", "120 mm")
     bike_i[, fork_class := factor(fork_class, levels = fork_classes)]
     
     # axle spacing
@@ -1612,12 +1616,11 @@ import_bikes_excel_single <- function(style_folder = "gravel", currencies){
 ```
 
 ```{r import-bike-list, echo=FALSE}
-import_bike_list <- function(style = "gravel", currencies){
+import_bike_list <- function(style = "gravel", exchange_rates){
   
   geobike <- rbind(
-    import_bikes_excel_single("gravel", currencies),
-    import_bikes_excel_single("gravel incomplete", currencies),
-    import_bikes_excel_single("hardtail", currencies)
+    import_bikes_excel_single("gravel", exchange_rates),
+    import_bikes_excel_single("gravel incomplete", exchange_rates)
   )
   geobike[, id := .I]
 
@@ -2530,19 +2533,19 @@ if(import_it != TRUE){
   my_fit <- readRDS(my_fit_path)
 }else{
   
-  # currencies
-  get_currencies <- FALSE
-  if(get_currencies == TRUE){
+  # exchange_rates
+  get_exchange_rates <- FALSE
+  if(get_exchange_rates == TRUE){
     euro_2_usd <- convert_currencies(1, "EUR", "USD")
     gbp_2_usd <- convert_currencies(1, "GBP", "USD")
   }else{
     euro_2_usd <- 1.17 # 12 Sep 2025
     gbp_2_usd <- 1.36 # 12 Sep 2025
   }
-  currency_list <- list(eur = euro_2_usd, gbp = gbp_2_usd)
+  exchange_rates <- list(eur = euro_2_usd, gbp = gbp_2_usd)
 
   # import from xlsx
-  geobike <- import_bike_list(style = "gravel", currency_list)
+  geobike <- import_bike_list(style = "gravel", exchange_rates)
   geobike_import <- copy(geobike)
   # geobike <- geobike_import
   
