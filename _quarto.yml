@@ -4,7 +4,7 @@ project:
   resources: googlef06d37c17cf410a9.html
 
 website:
-  title: "Gravel Bike Geometry Project"
+  title: "racyrowdyrelaxed.bike"
   description: "Not just another bike geometry comparison tool"
   site-url: https://middleprofessor.github.io/bikegeometryproject
   navbar:

@@ -1,5 +1,5 @@
 ---
-title: "Gravel Bike Geometry Project"
+title: "Racy • Relaxed • Rowdy"
 subtitle: "Not just another bike geometry comparison tool"
 ---
 
@@ -26,7 +26,7 @@ A table to [compare up to three bikes on key frame geometry measures and frame s
 
 ### Gravel style rabbit hole
 
-Plots to show which frame measures make
+Plots to show which frame measures make...
 
 [Racy bikes racy!](qmd/what_makes_a_racy_bike_racy.qmd)
 
