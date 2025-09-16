@@ -10,21 +10,21 @@ source(source_path)
 
 Current number of bike models in the database: `r length(unique(geobike[, model]))`!
 
-### Gravel Bike Finder Tools
+### Gravel Style
 
-These tools have filters for material, suspension correction, UDH compatibility, sliding dropout, handlebar (flat or drop), axle spacing, and maximum tire width.
+These pages have filters for material, suspension correction, UDH compatibility, sliding dropout, handlebar (flat or drop), axle spacing, and maximum tire width.
 
 A table of the [classification of all gravel bike models in the database into Racy, Relaxed, and Rowdy categories](qmd/gravel_class.qmd) 
 
 A single plot that [compares overall similarity of frame geometry among gravel bikes](qmd/gravel_mds.qmd), color coded by style
 
-[Plots of specific frame measures](qmd/gravel_scatter.qmd) for all gravel bike models and frame sizes in the database.
-
-### Gravel Bike Specs Comparison Tools
+### Gravel Bike Comparison Tools
 
 A table to [compare up to three bikes on key frame geometry measures and frame specs](qmd/test_bike_comparison.qmd) 
 
-### Gravel style tools
+[Plots of specific frame measures](qmd/gravel_scatter.qmd) for all gravel bike models and frame sizes in the database.
+
+### Gravel style rabbit hole
 
 Plots to show which frame measures make
 
@@ -45,4 +45,4 @@ See [how your bike frame's relative similarity to other bikes changes with a sus
 The [Gravel Tree](qmd/gravel_tree.qmd) page contains a tree diagram showing the relative similarity in frame geometry among all gravel bikes in the database and the clustering of the models into three major styles.
 
 
-copyright 2022 Jeffrey A. Walker
+copyright 2022-2025
