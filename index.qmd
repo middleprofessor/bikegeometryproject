@@ -18,6 +18,8 @@ A table of the [classification of all gravel bike models in the database into Ra
 
 A single plot that [compares overall similarity of frame geometry among gravel bikes](qmd/gravel_mds.qmd), color coded by style
 
+[Plots of specific frame measures](qmd/gravel_scatter.qmd) for all gravel bike models and frame sizes in the database.
+
 ### Gravel Bike Specs Comparison Tools
 
 A table to [compare up to three bikes on key frame geometry measures and frame specs](qmd/test_bike_comparison.qmd) 
@@ -31,10 +33,6 @@ Plots to show which frame measures make
 [Relaxed bikes relaxed!](qmd/what_makes_a_relaxed_bike_relaxed.qmd)
 
 [Rowdy bikes rowdy!](qmd/what_makes_a_rowdy_bike_rowdy.qmd)
-
-### A gallery of frame measures
-
-[Plots of different pairs of frame geometry measures](qmd/gravel_scatter.qmd) for all gravel bike models and frame sizes in the database.
 
 ### How does my bike frame geometry change if I add suspension?
 

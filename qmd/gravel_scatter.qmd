@@ -12,6 +12,11 @@ format:
 4. Click on popup icon-bar over legend to zoom in/out and pan.
 :::
 
+::: {.callout-tip title="Tips for size boxes"}
+1. Use the Small/Medium/Large box to see only a single size per model
+2. Use the Rider Height boxes to see all model sizes that fit you
+:::
+
 ::: {.callout-tip title="More notes!"}
 More notes at the bottom!
 :::
