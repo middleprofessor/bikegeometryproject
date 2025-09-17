@@ -1542,7 +1542,8 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     bike_i[, udh := ifelse(is.na(udh), "no", udh)]
     bike_i[, udh := toupper(udh)]
     
-    bike_i[, dropout := ifelse(is.na(dropout), "fixed", dropout)]
+    bike_i[is.na(dropout), dropout := "fixed"]
+    bike_i[dropout == "0", dropout := "fixed"]
     bike_i[, base_build := as.numeric(base_build)]
     bike_i[, frameset := as.numeric(frameset)]
 
