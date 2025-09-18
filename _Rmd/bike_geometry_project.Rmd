@@ -413,6 +413,9 @@ compute_effective_top_tube_length <- function(bike){
                                     seat_h + reach)
   return(effective_top_tube_length)
 }
+
+compute_bottom_bracket_drop <- function(bike){
+}
 ```
 
 ```{r}
