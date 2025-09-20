@@ -941,7 +941,12 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
 
   # axle crown
   bike[, axle_crown_est := estimate_axle_crown(bike)]
-  axle_crown_mean <- mean(bike[, axle_crown_est])
+#  axle_crown_mean <- mean(bike[, axle_crown_est])
+  if(diff(range(bike[, axle_crown_est])) < 3){
+    axle_crown_mean <- mean(bike[, axle_crown_est])
+  }else{
+    axle_crown_mean <- bike[, axle_crown_est]
+  }
   bike[is.na(axle_crown), axle_crown := axle_crown_mean]
   
   # more stuff
