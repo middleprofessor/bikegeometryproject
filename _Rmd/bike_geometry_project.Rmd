@@ -1417,7 +1417,11 @@ frame_size_num_hi <- c(48.5, 49.5, 51, 52.5, 53.5, 54.5, 55.75, 57.25, 59, 60.75
 # then do frame_size_char
 for(i in 1:nrow(geobike)){
   if(is.na(geobike[i, frame_size_std_fine]) & !is.na(geobike[i, frame_size_letters])){
-    j <- which(frame_size_char == geobike[i, frame_size_letters])
+    if(geobike[i, frame_size_letters] == "XXXL"){
+      j <- length(rider_size)
+    }else{
+      j <- which(frame_size_char == geobike[i, frame_size_letters])
+    }
     geobike[i, frame_size_std_fine := rider_size[j]]
   }
 }
@@ -2296,7 +2300,8 @@ tree_classifier <- function(
       "head_tube_angle",
       "seat_tube_angle",
       "trail_45"),
-    method = "ward.D2"
+    method = "ward.D2",
+    scores = FALSE
 ){
   
   # dt should be my_fit
@@ -2309,6 +2314,7 @@ tree_classifier <- function(
   
   d_matrix <- dist(Y, method = "euclidean")
   tree_result <- hclust(d_matrix, method = method)
+  k = 4
   labclust  <-  cutree(tree_result, k)
 
   tree_class <- data.table(
@@ -2316,17 +2322,21 @@ tree_classifier <- function(
     init_cluster = labclust
   )
   
-  tree_scores <- d_scores(Y, tree_class,
-                            cluster_col = "init_cluster",
-                            prefix = "tree")
+  # tree_scores <- d_scores(Y, tree_class,
+  #                           cluster_col = "init_cluster",
+  #                           prefix = "tree")
   
   # save colored tree
-  tree_v2_color <- dendro_data_k(tree_result, k = 3)
+  tree_v2_color <- dendro_data_k(tree_result, k)
   # use and save tree from all variables
   tree_path <- here("rds", "tree.Rds")
   saveRDS(tree_v2_color, tree_path)
 
-  return(tree_scores)
+  if(scores == TRUE){
+    return(tree_scores)
+  }else{
+    return()
+  }
 
 }
 
@@ -2606,15 +2616,16 @@ if(import_it != TRUE){
   tree_classes <- tree_classifier(
     geobike[my_fit == TRUE],
     k = 3,
-    method = "ward.D2"
+    method = "ward.D2",
+    scores = FALSE
   )
-  tree_classes[is.na(tree_style), tree_style := "rowdy"]
-  geobike <- merge(geobike,
-                   tree_classes[, .SD, .SDcols = c("model", "tree_style")],
-                   by = c("model"), all.x = TRUE)
-  geobike <- merge(geobike,
-                   tree_classes[, .SD, .SDcols = c("model", "frame_size", paste0("tree_", style_levels))],
-                   by = c("model", "frame_size"), all.x = TRUE)
+  # tree_classes[is.na(tree_style), tree_style := "rowdy"]
+  # geobike <- merge(geobike,
+  #                  tree_classes[, .SD, .SDcols = c("model", "tree_style")],
+  #                  by = c("model"), all.x = TRUE)
+  # geobike <- merge(geobike,
+  #                  tree_classes[, .SD, .SDcols = c("model", "frame_size", paste0("tree_", style_levels))],
+  #                  by = c("model", "frame_size"), all.x = TRUE)
 
   # functional class
   functional_classes <- functional_classifier(
@@ -2630,7 +2641,7 @@ if(import_it != TRUE){
 
   geobike[, color := pal_okabe_ito_3[as.integer(kmeans_style)]]
   geobike[, color_kmeans := pal_okabe_ito_3[as.integer(kmeans_style)]]
-  geobike[, color_tree := pal_okabe_ito_3[as.integer(tree_style)]]
+#  geobike[, color_tree := pal_okabe_ito_3[as.integer(tree_style)]]
 #  geobike[, color_function := pal_okabe_ito_3[as.integer(functional_style)]]
   geobike[, highlight_text := model_size]
 

@@ -27,7 +27,8 @@ tree_v2_color <- readRDS(tree_path)
 gg <- plot_ggdendro(tree_v2_color,
                       direction   = "lr",
                       expand.y    = 0.4,
-                      scale.color = pal_okabe_ito_3[c(1,3,2)])
+ #                     scale.color = pal_okabe_ito_3[c(1,3,2)])
+                      scale.color = pal_okabe_ito_4)
  
 gg
 ```
