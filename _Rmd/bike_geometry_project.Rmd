@@ -1564,6 +1564,9 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
       bike_i[is.na(tire_width_max_700c) & (wheel_size == 700 | wheel_size == 29),
            tire_width_max_700c := as.integer(tire_width_max)]
     bike_i[, tire_width_max_650b := as.numeric(tire_width_max_650b)]
+    # if units is mm then convert to in
+    bike_i[tire_width_max_650b > 6, tire_width_max_650b := round(tire_width_max_650b/25.4, 1)]
+
       # also temporary?
      # bike_i[tire_width_max_650b > 30, tire_width_max_650b := round(tire_width_max_650b / 25.4, 2)]
     bike_i[, front_axle := as.integer(front_axle)]
@@ -1937,6 +1940,75 @@ kmeans_classifier <- function(dt,
   kmeans_scores[, mds2 := mds_coords[, 2]]
 
   return(kmeans_scores)
+
+}
+```
+
+```{r kmeans-classifier}
+kmeans_classifier_4 <- function(dt,
+                              k = 4,
+                              classifier_cols = c(
+                                "stack",
+                                "reach",
+                                "front_center",
+                                "rear_center",
+                                "head_tube_angle",
+                                "seat_tube_angle",
+                                "trail_45"
+                              )){
+  # dt should be my_fit
+  dt_info <- dt[, .SD,.SDcols = c("model", "frame_size")]
+  model <- dt_info[, model]
+  Y <- dt[my_fit == TRUE, .SD, .SDcols = classifier_cols] |>
+    scale()
+  row.names(Y) <- model
+
+  kmeans_result <- kmeans(Y, centers = k)
+  okm_result <- okm(Y, centers = k) # overlapping kmeans
+  rkm_result <- ktaucenters(Y, k)
+  explore_table <- data.table(
+    dt_info,
+    km_cluster = kmeans_result$cluster,
+    rkm_cluster = rkm_result$cluster
+  )
+
+  kmeans_class <- data.table(
+    dt_info,
+    init_cluster = rkm_result$cluster
+  )
+  
+  # scores
+  kmeans_scores <- d_scores(Y, kmeans_class,
+                            cluster_col = "init_cluster",
+                            prefix = "kmeans")
+  kmeans_scores[is.na(kmeans_style), kmeans_style := "group_4"]
+  
+    # multidimensional scaling
+  # these are scores but I'm using the d-scores below
+  # Step 2: Classical MDS (k=2 for 2D plot)
+  D <- dist(Y, method = "euclidean")
+  mds_coords <- cmdscale(D, k = 3) # two dimensions for three groups
+  # kmeans_scores[, c("mds1", "mds2") := mds_coords[, 1:2]]
+  kmeans_scores[, mds1 := mds_coords[, 1]]
+  kmeans_scores[, mds2 := mds_coords[, 2]]
+  kmeans_scores[, mds3 := mds_coords[, 3]]
+  
+  gg1 <- ggplot(data = kmeans_scores,
+               aes(x = mds1, y = mds2, color = kmeans_style)) +
+    geom_point()
+  gg2 <- ggplot(data = kmeans_scores,
+               aes(x = mds1, y = mds3, color = kmeans_style)) +
+    geom_point()
+  gg3 <- ggplot(data = kmeans_scores,
+               aes(x = mds2, y = mds3, color = kmeans_style)) +
+    geom_point()
+  plot_grid(gg1, gg2, gg3)
+  cor(c(kmeans_scores[,mds3]), Y)
+  kmeans_scores[mds3 < -1 & (kmeans_style == "racy" | kmeans_style == "relaxed"), model]
+  kmeans_scores[mds3 > 1 & (kmeans_style == "racy" | kmeans_style == "relaxed"), model]
+
+  return(kmeans_scores)
+  
 
 }
 ```
