@@ -365,7 +365,7 @@ compute_wheelbase <- function(bike){
 # the fork used to spec wheelbase
 head_tube_length <- function(bike){
   offset_h <- compute_offset_h(bike)
-  fork_angle <- compute_fork_angle(bike)
+  fork_angle <- compute_fork_angle(bike) # beta
 }
 
 # Vagabond Genesis does not specify chainstay length.
