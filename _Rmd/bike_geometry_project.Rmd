@@ -892,8 +892,10 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
   rider_min_vec <- bike[2:n_sizes, rider_min]
   rider_max_vec <- bike[1:(n_sizes-1), rider_max]
   rider_size <- (rider_min_vec + rider_max_vec)/2
-  bike[2:n_sizes, rider_min := rider_size]
-  bike[1:(n_sizes-1), rider_max := rider_size]
+  if(n_sizes > 1){
+    bike[2:n_sizes, rider_min := rider_size]
+    bike[1:(n_sizes-1), rider_max := rider_size]
+  }
 
   # clean frame size
   bike <- clean_frame_size(bike)
@@ -1283,6 +1285,10 @@ assign_std_size <- function(geobike){
     }
   }
   
+  # exceptions
+  geobike[model == "Stooge Dirt Tracker 2025", frame_size_std := 175]
+  
+  # assign s/m/l classes
   model_list_all <- unique(geobike[, model])
   geobike[, frame_size_std_s := ifelse(frame_size_std == 167, TRUE, NA)]
   geobike[, frame_size_std_m := ifelse(frame_size_std == 175, TRUE, NA)]
@@ -1576,11 +1582,11 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     bike_i[, frameset_usd := frameset]
     bike_i[, base_build_usd := base_build]
     currency <- bike_i[1, currency]
-    if(!is.na(currency) & currency == "euro"){
+    if(!is.na(currency) & (currency == "euro" | currency == "EUR")){
       bike_i[!is.na(frameset), frameset_usd := euro_2_usd * frameset]
       bike_i[!is.na(base_build), base_build_usd := euro_2_usd * base_build]
     }
-    if(!is.na(currency) & currency == "pound"){
+    if(!is.na(currency) & (currency == "pound" | currency == "GBP")){
       bike_i[!is.na(frameset), frameset_usd := gbp_2_usd * frameset]
       bike_i[!is.na(base_build), base_build_usd := gbp_2_usd * base_build]
    }
