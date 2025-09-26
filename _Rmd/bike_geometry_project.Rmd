@@ -883,6 +883,9 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
   bike <- bike[, .SD, .SDcols = keep_names]
   
   # clean tire_width_max
+  bike[tire_width_spec < 6, tire_width_spec := tire_width_spec * 25.4]
+  bike[tire_width_max < 6, tire_width_max := tire_width_max * 25.4]
+  bike[, tire_width_spec := round(tire_width_spec, 0)]
   bike[, tire_width_max := round(tire_width_max, 0)]
   
   # clean rider_spec
@@ -1565,18 +1568,23 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     bike_i[, base_build := as.numeric(base_build)]
     bike_i[, frameset := as.numeric(frameset)]
 
+    # this should be temporary with only the old style where tire width is taken from geometry chart
+    bike_i[is.na(tire_width_max_700c) & (wheel_size == 700 | wheel_size == 29), tire_width_max_700c := tire_width_max]
+    bike_i[is.na(tire_width_max_650b) & (wheel_size == 650), tire_width_max_650b := tire_width_max]
+    
+    # process 700c and convert in to mm
+    bike_i[, tire_width_max_700c := as.numeric(tire_width_max_700c)]
+    bike_i[tire_width_max_700c < 6, tire_width_max_700c := tire_width_max_700c * 25.4]
     bike_i[, tire_width_max_700c := as.integer(tire_width_max_700c)]
-    # this should be temporary
-      bike_i[is.na(tire_width_max_700c) & (wheel_size == 700 | wheel_size == 29),
-           tire_width_max_700c := as.integer(tire_width_max)]
+    
+    # process 650b and convert mm to in
     bike_i[, tire_width_max_650b := as.numeric(tire_width_max_650b)]
-    # if units is mm then convert to in
     bike_i[tire_width_max_650b > 6, tire_width_max_650b := round(tire_width_max_650b/25.4, 1)]
 
-      # also temporary?
-     # bike_i[tire_width_max_650b > 30, tire_width_max_650b := round(tire_width_max_650b / 25.4, 2)]
-    bike_i[, front_axle := as.integer(front_axle)]
-    bike_i[, rear_axle := as.integer(rear_axle)]
+    # also temporary?
+    # these should remain string
+    # bike_i[, front_axle := as.integer(front_axle)]
+    # bike_i[, rear_axle := as.integer(rear_axle)]
     
     # price data
     bike_i[, frameset_usd := frameset]
@@ -1628,7 +1636,8 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     
     # axle spacing
     bike_i[, axle_spacing := "non-boost"]
-    bike_i[rear_axle == 148, axle_spacing := "boost"]
+    bike_i[rear_axle == "148", axle_spacing := "boost"]
+    bike_i[rear_axle == "142/148", axle_spacing := "both"]
   
     # bind it
     geobike <- rbind(geobike, bike_i)
