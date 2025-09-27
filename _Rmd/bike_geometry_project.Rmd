@@ -1775,21 +1775,17 @@ d_scores <- function(Y, class_dt, cluster_col = "init_cluster", prefix = "kmeans
   # projections onto axis through cluster centroid. Y is the matrix of data
   # and must be centered at the origin. The results are exactly the same as
   # r_scores, which computes the axes from the correlations between cluster and variable.
-  
+  k <- max(class_dt$init_cluster)
   centroids <- get_centroids(Y, class_dt[, get(cluster_col)]) # axis is row, measure is col
-  E <- matrix(
-    c(centroids[1,]/sqrt(sum(centroids[1,]^2)),
-      centroids[2,]/sqrt(sum(centroids[2,]^2)),
-      centroids[3,]/sqrt(sum(centroids[3,]^2))),
-    ncol = 3
-  )
-  E <- matrix(
-    c(centroids[1,]/sqrt(sum(centroids[1,]^2)),
-      centroids[2,]/sqrt(sum(centroids[2,]^2)),
-      centroids[3,]/sqrt(sum(centroids[3,]^2)),
-      centroids[4,]/sqrt(sum(centroids[4,]^2))),
-    ncol = 4
-  )
+  E_raw <- centroids |> t()
+  E <- apply(E_raw, 2, FUN = function(x) x/sqrt(sum(x^2)))
+  # E <- matrix(
+  #   c(centroids[1,]/sqrt(sum(centroids[1,]^2)),
+  #     centroids[2,]/sqrt(sum(centroids[2,]^2)),
+  #     centroids[3,]/sqrt(sum(centroids[3,]^2))),
+  #   ncol = 3
+  # )
+
   
   # apply(E, 2, function(x) sum(x^2)) check!
   # sum(axis1^2) # check!
@@ -1798,34 +1794,41 @@ d_scores <- function(Y, class_dt, cluster_col = "init_cluster", prefix = "kmeans
   loadings <- cor(Y, scores) # this is precisely the loadings using r_scores
 
   scores_scaled <- apply(scores, 2, function(x) (x - min(x))/(max(x) - min(x))) * 100
-  colnames(scores_scaled) <- paste("clust", 1:3)
+  colnames(scores_scaled) <- paste("clust", 1:k)
   # apply(scores_scaled, 2, min) # check!
   # apply(scores_scaled, 2, max) # check!
 
   # assign style to axes
-  style_levels <- c("racy", "relaxed", "rowdy")
+  style_levels <- c("racy", "relaxed", "rowdy", "allroad")[1:k]
   relaxed <- which.max(loadings[rownames(loadings) == "rear_center"])
-  relaxed <- class_dt[model == "Tumbleweed Stargazer 2025", init_cluster]
+#  relaxed <- class_dt[model == "Tumbleweed Stargazer 2025", init_cluster]
   colnames(scores_scaled)[relaxed] <- "relaxed"
-  rowdy <- which.max(loadings[rownames(loadings) == "reach"])
-  rowdy <- class_dt[model == "Specialized Chisel 2022", init_cluster]
+  rowdy <- which.max(loadings[rownames(loadings) == "front_center"])
+#  rowdy <- class_dt[model == "Specialized Chisel 2022", init_cluster]
   colnames(scores_scaled)[rowdy] <- "rowdy"
   racy <- which.max(loadings[rownames(loadings) == "head_tube_angle"])
-  racy <- class_dt[model == "Cervelo Aspero 2024", init_cluster]
+#  racy <- class_dt[model == "Cervelo Aspero 2024", init_cluster]
   colnames(scores_scaled)[racy] <- "racy"
-  scores_scaled <- data.table(scores_scaled)
-
+  if(k==4){
+    allroad <- setdiff(1:4, c(racy, relaxed, rowdy))
+    colnames(scores_scaled)[allroad] <- "allroad"
+  }
+    scores_scaled <- data.table(scores_scaled)
+  
   class_dt[get(cluster_col) == racy, style := "racy"]
   class_dt[get(cluster_col) == relaxed, style := "relaxed"]
   class_dt[get(cluster_col) == rowdy, style := "rowdy"]
-
+  if(k==4){
+    class_dt[get(cluster_col) == allroad, style := "allroad"]
+  }
+  
   scores_out <- data.table(
     class_dt[, .SD, .SDcols = c("model", "frame_size", "style")],
     scores_scaled[, .SD, .SDcols = style_levels]
   )
   scores_out[, style := factor(style, style_levels)]
   
-  old_labels <- c("style", "racy", "relaxed", "rowdy")
+  old_labels <- c("style", style_levels)
   setnames(scores_out,
           old = old_labels,
           new = paste0(prefix, "_", old_labels))
@@ -1974,7 +1977,7 @@ kmeans_classifier <- function(dt,
 
 ```{r kmeans-classifier}
 kmeans_classifier_4 <- function(dt,
-                              k = 4,
+                              k = 3,
                               classifier_cols = c(
                                 "stack",
                                 "reach",
@@ -2674,12 +2677,13 @@ if(import_it != TRUE){
   # group 2 into two groups because there is good support for this.
   # then combines into 3 clusters
   # classify bikes
-  style_levels <- c("racy", "relaxed", "rowdy")
+  k <= 3
+  style_levels <- c("racy", "relaxed", "rowdy", "allroad")[1:k]
   
   # kmeans
   kmeans_classes <- kmeans_classifier(
     geobike[my_fit == TRUE],
-    k = 3,
+    k = k,
     method = "rkm" # km or rkm where rkm is robust
   )
   geobike <- merge(geobike,
@@ -2736,10 +2740,10 @@ if(import_it != TRUE){
                    functional_classes[, .SD, .SDcols = c("model", "functional_style")],
                    by = c("model"), all.x = TRUE)
   geobike <- merge(geobike,
-                   functional_classes[, .SD, .SDcols = c("model", "frame_size", paste0("functional_", style_levels))],
+                   functional_classes[, .SD, .SDcols = c("model", "frame_size", paste0("functional_", style_levels[1:3]))],
                    by = c("model", "frame_size"), all.x = TRUE)
   
-  geobike[, color_kmeans := pal_okabe_ito_3[as.integer(kmeans_style)]]
+  geobike[, color_kmeans := pal_okabe_ito_4[as.integer(kmeans_style)]]
 #  geobike[, color_tree := pal_okabe_ito_3[as.integer(tree_style)]]
   geobike[, color_function := pal_okabe_ito_3[as.integer(functional_style)]]
   geobike[, color := color_kmeans]
