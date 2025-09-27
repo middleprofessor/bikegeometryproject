@@ -892,10 +892,10 @@ read_bike <- function(bike_label = "Alchemy Lycos 2023",
   bike[, rider_min_spec := rider_min]
   bike[, rider_max_spec := rider_max]
   n_sizes <- nrow(bike)
-  rider_min_vec <- bike[2:n_sizes, rider_min]
-  rider_max_vec <- bike[1:(n_sizes-1), rider_max]
-  rider_size <- (rider_min_vec + rider_max_vec)/2
   if(n_sizes > 1){
+    rider_min_vec <- bike[2:n_sizes, rider_min]
+    rider_max_vec <- bike[1:(n_sizes-1), rider_max]
+    rider_size <- (rider_min_vec + rider_max_vec)/2
     bike[2:n_sizes, rider_min := rider_size]
     bike[1:(n_sizes-1), rider_max := rider_size]
   }
@@ -1776,13 +1776,21 @@ d_scores <- function(Y, class_dt, cluster_col = "init_cluster", prefix = "kmeans
   # and must be centered at the origin. The results are exactly the same as
   # r_scores, which computes the axes from the correlations between cluster and variable.
   
-  centroids <- get_centroids(Y, class_dt[, get(cluster_col)])
+  centroids <- get_centroids(Y, class_dt[, get(cluster_col)]) # axis is row, measure is col
   E <- matrix(
     c(centroids[1,]/sqrt(sum(centroids[1,]^2)),
       centroids[2,]/sqrt(sum(centroids[2,]^2)),
       centroids[3,]/sqrt(sum(centroids[3,]^2))),
     ncol = 3
   )
+  E <- matrix(
+    c(centroids[1,]/sqrt(sum(centroids[1,]^2)),
+      centroids[2,]/sqrt(sum(centroids[2,]^2)),
+      centroids[3,]/sqrt(sum(centroids[3,]^2)),
+      centroids[4,]/sqrt(sum(centroids[4,]^2))),
+    ncol = 4
+  )
+  
   # apply(E, 2, function(x) sum(x^2)) check!
   # sum(axis1^2) # check!
   # t(E) %*% E # check!
@@ -1910,6 +1918,7 @@ mclust_classifier <- function(dt,
 ```{r kmeans-classifier}
 kmeans_classifier <- function(dt,
                               k = 3,
+                              method = "rkm",
                               classifier_cols = c(
                                 "stack",
                                 "reach",
@@ -1935,13 +1944,17 @@ kmeans_classifier <- function(dt,
     rkm_cluster = rkm_result$cluster
   )
 
+
   kmeans_class <- data.table(
     dt_info,
-    init_cluster = rkm_result$cluster
-  )
-  
+    init_cluster = kmeans_result$cluster)
+  if(method == "rkm"){
+    kmeans_class[, init_cluster := rkm_result$cluster]
+  }
+
   # scores
-  kmeans_scores <- d_scores(Y, kmeans_class,
+  kmeans_scores <- d_scores(Y,
+                            kmeans_class,
                             cluster_col = "init_cluster",
                             prefix = "kmeans")
   
@@ -2666,7 +2679,8 @@ if(import_it != TRUE){
   # kmeans
   kmeans_classes <- kmeans_classifier(
     geobike[my_fit == TRUE],
-    k = 3
+    k = 3,
+    method = "rkm" # km or rkm where rkm is robust
   )
   geobike <- merge(geobike,
                    kmeans_classes[, .SD, .SDcols = c("model", "kmeans_style")],
@@ -2718,18 +2732,17 @@ if(import_it != TRUE){
   functional_classes <- functional_classifier(
     geobike[my_fit == TRUE]
   )
-  # geobike <- merge(geobike,
-  #                  functional_classes[, .SD, .SDcols = c("model", "functional_style")],
-  #                  by = c("model"), all.x = TRUE)
-  # geobike <- merge(geobike,
-  #                  functional_classes[, .SD, .SDcols = c("model", "frame_size", paste0("functional_", style_levels))],
-  #                  by = c("model", "frame_size"), all.x = TRUE)
+  geobike <- merge(geobike,
+                   functional_classes[, .SD, .SDcols = c("model", "functional_style")],
+                   by = c("model"), all.x = TRUE)
+  geobike <- merge(geobike,
+                   functional_classes[, .SD, .SDcols = c("model", "frame_size", paste0("functional_", style_levels))],
+                   by = c("model", "frame_size"), all.x = TRUE)
   
-
-  geobike[, color := pal_okabe_ito_3[as.integer(kmeans_style)]]
   geobike[, color_kmeans := pal_okabe_ito_3[as.integer(kmeans_style)]]
 #  geobike[, color_tree := pal_okabe_ito_3[as.integer(tree_style)]]
-#  geobike[, color_function := pal_okabe_ito_3[as.integer(functional_style)]]
+  geobike[, color_function := pal_okabe_ito_3[as.integer(functional_style)]]
+  geobike[, color := color_kmeans]
   geobike[, highlight_text := model_size]
 
   # my_fit
