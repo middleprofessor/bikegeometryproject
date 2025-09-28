@@ -57,9 +57,11 @@ dt <- melt(specs_wide,
 # Pretty spec names
 dt[, spec_pretty := str_replace_all(spec, "_", " ")]
 dt[, spec_pretty := str_to_title(spec_pretty)]
+dt[, spec_pretty := str_replace(spec_pretty, "Udh", "UDH")]
+dt[, spec_pretty := str_replace(spec_pretty, "Usd", "USD")]
 
 # Number of visible comparison columns
-ncols <- 3
+ncols <- 4
 models <- unique(dt$model)
 defaults <- models[seq_len(ncols)]
 
