@@ -2677,7 +2677,7 @@ if(import_it != TRUE){
   # group 2 into two groups because there is good support for this.
   # then combines into 3 clusters
   # classify bikes
-  k <= 3
+  k <- 3
   style_levels <- c("racy", "relaxed", "rowdy", "allroad")[1:k]
   
   # kmeans
