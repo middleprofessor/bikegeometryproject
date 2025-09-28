@@ -1615,6 +1615,7 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     # Fox: 445 - .2*50 = 435
     # 60 mm travel
     # MRP Baxter: 456 - .2*60 = 444
+    # Rockshox 60 mm on trek
     min_0 <- 411 # 30 mm
     min_1 <- 415 # 30 mm
     min_2 <- 423 # (419 + 427)/2 # 40 mm
@@ -1975,7 +1976,7 @@ kmeans_classifier <- function(dt,
 }
 ```
 
-```{r kmeans-classifier}
+```{r kmeans-classifier-4}
 kmeans_classifier_4 <- function(dt,
                               k = 3,
                               classifier_cols = c(
