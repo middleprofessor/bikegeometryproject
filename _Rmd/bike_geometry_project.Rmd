@@ -1936,7 +1936,9 @@ kmeans_classifier <- function(dt,
                                 "head_tube_angle",
                                 "seat_tube_angle",
                                 "trail_45"
-                              )){
+                              ),
+                              nested = FALSE
+                              ){
   # dt should be my_fit
   dt_info <- dt[, .SD,.SDcols = c("model", "frame_size")]
   model <- dt_info[, model]
@@ -1967,7 +1969,7 @@ kmeans_classifier <- function(dt,
                             cluster_col = "init_cluster",
                             prefix = "kmeans")
   
-    # multidimensional scaling
+  # multidimensional scaling
   # these are scores but I'm using the d-scores below
   # Step 2: Classical MDS (k=2 for 2D plot)
   D <- dist(Y, method = "euclidean")
@@ -1976,6 +1978,47 @@ kmeans_classifier <- function(dt,
   kmeans_scores[, mds1 := mds_coords[, 1]]
   kmeans_scores[, mds2 := mds_coords[, 2]]
 
+  if(nested == TRUE){
+  # dt should be my_fit
+    reclassifier_cols <- c("stack_reach", "chainstay_length")
+    subset_rows <- which(kmeans_scores$kmeans_style == "relaxed")
+    dt_sub <- dt[subset_rows]
+    dt_info <- dt_sub[, .SD,.SDcols = c("model", "frame_size")]
+    model <- dt_info[, model]
+    Y <- dt_sub[, .SD, .SDcols = reclassifier_cols] |>
+      scale()
+    row.names(Y) <- model
+    
+    kmeans_result <- kmeans(Y, centers = 2)
+    rkm_result <- ktaucenters(Y, 2)
+    explore_table <- data.table(
+      dt_info,
+      km_cluster = kmeans_result$cluster,
+      rkm_cluster = rkm_result$cluster
+    )
+    # cor(cbind(explore_table$km_cluster, explore_table$rkm_cluster, Y))
+    relaxed <- explore_table[model == "Tumbleweed Stargazer Gen 2 2025", rkm_cluster]
+    explore_table[, kmeans_restyle := ifelse(rkm_cluster == relaxed, "relaxed", "rowdy")]
+    old_scores <- kmeans_scores
+    kmeans_scores[kmeans_style == "rowdy", kmeans_style := "xtra_rowdy"]
+    kmeans_scores <- merge(old_scores, 
+                            explore_table[, .SD, .SDcol = c("model", "frame_size", "kmeans_restyle")], 
+                            by = c("model", "frame_size"),
+                            all.x = TRUE)
+    kmeans_scores[kmeans_style == "relaxed", kmeans_style := kmeans_restyle]
+  }
+  
+  # make kmeans_scores = mds scores
+  min1 <- min(kmeans_scores$mds1)
+  max1 <- max(kmeans_scores$mds1)
+  min2 <- min(kmeans_scores$mds2)
+  max2 <- max(kmeans_scores$mds2)
+  range1 <- max1 - min1
+  range2 <- max2 - min2
+  kmeans_scores[, kmeans_racy := 1-(mds1 - min1)/range1]
+  kmeans_scores[, kmeans_rowdy := (mds1 - min1)/range1]
+  kmeans_scores[, kmeans_relaxed := (mds2 - min2)/range2]
+  
   return(kmeans_scores)
 
 }
@@ -2691,7 +2734,8 @@ if(import_it != TRUE){
   kmeans_classes <- kmeans_classifier(
     geobike[my_fit == TRUE],
     k = k,
-    method = "rkm" # km or rkm where rkm is robust
+    method = "rkm", # km or rkm where rkm is robust
+    nested = TRUE
   )
   geobike <- merge(geobike,
                    kmeans_classes[, .SD, .SDcols = c("model", "kmeans_style")],
