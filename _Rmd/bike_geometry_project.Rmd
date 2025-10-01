@@ -1524,6 +1524,7 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
   # exchange_rates
   euro_2_usd <- exchange_rates$eur
   gbp_2_usd <- exchange_rates$gbp
+  dkk_2_usd <- exchange_rates$dkk
 
   geobike <- data.table(NULL)
   for(i in 1:length(bike_list)){
@@ -1597,6 +1598,10 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     if(!is.na(currency) & (currency == "pound" | currency == "GBP")){
       bike_i[!is.na(frameset), frameset_usd := gbp_2_usd * frameset]
       bike_i[!is.na(base_build), base_build_usd := gbp_2_usd * base_build]
+   }
+    if(!is.na(currency) & (currency == "dkk" | currency == "DKK")){
+      bike_i[!is.na(frameset), frameset_usd := dkk_2_usd * frameset]
+      bike_i[!is.na(base_build), base_build_usd := dkk_2_usd * base_build]
    }
     
     # Stuff for filters
@@ -2662,10 +2667,11 @@ if(import_it != TRUE){
     euro_2_usd <- convert_currencies(1, "EUR", "USD")
     gbp_2_usd <- convert_currencies(1, "GBP", "USD")
   }else{
-    euro_2_usd <- 1.17 # 12 Sep 2025
-    gbp_2_usd <- 1.36 # 12 Sep 2025
+    euro_2_usd <- 1.17 # 1 Oct 2025
+    gbp_2_usd <- 1.35 # 1 Oct 2025
+    dkk_2_usd <- 0.16 # 1 Oct 2025
   }
-  exchange_rates <- list(eur = euro_2_usd, gbp = gbp_2_usd)
+  exchange_rates <- list(eur = euro_2_usd, gbp = gbp_2_usd, dkk = dkk_2_usd)
 
   # import from xlsx
   geobike <- import_bike_list(style = "gravel", exchange_rates)
