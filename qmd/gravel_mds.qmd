@@ -27,7 +27,8 @@ p1 <- scatter_fig(shared_data = geobike_mds_shared,
                   x_col = "mds1", y_col = "mds2",
                   x_label = "Rowdiness", y_label = "Relaxedness",
                   g_col = "model_size",
-                  digits = 1)
+                  digits = 1,
+                  hover_info = "filters")
 
 filters <- list(
   filter_checkbox("material", "Frame material", geobike_mds_shared, ~material, inline = TRUE),

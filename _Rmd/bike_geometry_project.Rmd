@@ -2000,7 +2000,7 @@ kmeans_classifier <- function(dt,
     relaxed <- explore_table[model == "Tumbleweed Stargazer Gen 2 2025", rkm_cluster]
     explore_table[, kmeans_restyle := ifelse(rkm_cluster == relaxed, "relaxed", "rowdy")]
     old_scores <- kmeans_scores
-    kmeans_scores[kmeans_style == "rowdy", kmeans_style := "xtra_rowdy"]
+    kmeans_scores[kmeans_style == "rowdy", kmeans_style := "xtra rowdy"]
     kmeans_scores <- merge(old_scores, 
                             explore_table[, .SD, .SDcol = c("model", "frame_size", "kmeans_restyle")], 
                             by = c("model", "frame_size"),
@@ -2496,7 +2496,7 @@ tree_classifier <- function(
 ```
 
 
-```{r tree-classifier-old, echo=FALSE, eval=FALSe}
+```{r tree-classifier-old, echo=FALSE, eval=FALSE}
 tree_classifier_old <- function(
     dt,
     k = 3,
@@ -3655,6 +3655,7 @@ scatter_fig <- function(shared_data = geobike_shared,
                         filter_keep = NULL, # keep rows with these values
                         x_label = "Reach", y_label = "Stack",
                         x_info = NULL, y_info = NULL,
+                        hover_info = NULL,
                         xtra_info = NULL, # added to highlighted name
                         highlight_col = "highlight_text", # column for highlight info
                         label_col = NULL,
@@ -3685,6 +3686,26 @@ scatter_fig <- function(shared_data = geobike_shared,
     }
     grp_shared <- SharedData$new(grp_data, key = ~get(g_col), group = link_group)
     
+    # set hover text
+    if(is.null(hover_info)){
+      grp_hovertext <- paste(grp_shared$origData()[, model_size],
+                      "<br>Cat:", grp_shared$origData()[, get(color_col)],
+                      paste0("<br>", x_info, ":"), round(grp_shared$origData()[, get(x_col)], digits),
+                      paste0("<br>", y_info, ":"), round(grp_shared$origData()[, get(y_col)], digits))
+    }else{
+      if(hover_info == "filters"){
+        grp_hovertext <- paste(grp_shared$origData()[, model_size],
+                               "<br>Cat:", grp_shared$origData()[, get(color_col)],
+                               paste0("<br>Material:"), grp_shared$origData()[, material],
+                               paste0("<br>Handlebar:"), grp_shared$origData()[, handlebar],
+                               paste0("<br>Spacing:"), grp_shared$origData()[, axle_spacing],
+                               paste0("<br>UDH:"), grp_shared$origData()[, udh],
+                               paste0("<br>Suspension Correction:"), grp_shared$origData()[, fork_class],
+                               paste0("<br>Max 700c:"), grp_shared$origData()[, tire_width_max_700c],
+                               paste0("<br>Max 650b:"), grp_shared$origData()[, tire_width_max_650b])
+      }
+    }
+    
     # First trace: markers only, always visible
     fig <- fig |>
       add_trace(
@@ -3695,10 +3716,11 @@ scatter_fig <- function(shared_data = geobike_shared,
         y = ~get(y_col),
         marker = list(size = 10, opacity = 0.2, color = ~color),
         hoverinfo = "text",
-        hovertext = ~paste(model_size,
-                      "<br>Cat:", kmeans_style,
-                      paste0("<br>", x_info, ":"), round(get(x_col), digits),
-                      paste0("<br>", y_info, ":"), round(get(y_col), digits)),
+        hovertext = grp_hovertext,
+        # hovertext = ~paste(model_size,
+        #               "<br>Cat:", kmeans_style,
+        #               paste0("<br>", x_info, ":"), round(get(x_col), digits),
+        #               paste0("<br>", y_info, ":"), round(get(y_col), digits)),
         showlegend = FALSE
         # name = NULL
       )
@@ -3710,6 +3732,21 @@ scatter_fig <- function(shared_data = geobike_shared,
     grp_data <- shared_data$data(withKey = FALSE) %>% filter(get(g_col) == grp)
     grp_shared <- SharedData$new(grp_data, key = ~get(g_col), group = link_group)
     
+    # set hover text
+    if(is.null(hover_info)){
+      grp_hovertext <- paste(grp_shared$origData()[, model_size],
+                      "<br>Cat:", grp_shared$origData()[, get(color_col)],
+                      paste0("<br>", x_info, ":"), round(grp_shared$origData()[, get(x_col)], digits),
+                      paste0("<br>", y_info, ":"), round(grp_shared$origData()[, get(y_col)], digits))
+    }else{
+      if(hover_info == "filters"){
+        grp_hovertext <- paste(grp_shared$origData()[, model_size],
+                               "<br>Cat:", grp_shared$origData()[, get(color_col)],
+                               paste0("<br>material:"), grp_shared$origData()[, material],
+                               paste0("<br>max 700c:"), grp_shared$origData()[, tire_width_max_700c])
+      }
+    }
+    
     if(link_group == "2dsus"){
       text_col <- label_col
       hover_text <- ~paste(model_size,
@@ -3719,10 +3756,11 @@ scatter_fig <- function(shared_data = geobike_shared,
                            paste0("<br>Fork:", get(highlight_col)))
     }else{
       text_col <- g_col
-      hover_text <- ~paste(model_size,
-                           "<br>Cat:", kmeans_style,
-                           paste0("<br>", x_info, ":"), round(get(x_col), digits),
-                           paste0("<br>", y_info, ":"), round(get(y_col), digits))
+      hover_text <- grp_hovertext
+      # hover_text <- ~paste(model_size,
+      #                      "<br>Cat:", kmeans_style,
+      #                      paste0("<br>", x_info, ":"), round(get(x_col), digits),
+      #                      paste0("<br>", y_info, ":"), round(get(y_col), digits))
     }
     
     

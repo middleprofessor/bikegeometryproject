@@ -35,10 +35,14 @@ relaxed <- style_table[style == "relaxed"]
 setnames(relaxed, old = "model", new = "Relaxed")
 rowdy <- style_table[style == "rowdy"]
 setnames(rowdy, old = "model", new = "Rowdy")
+xtra_rowdy <- style_table[style == "xtra_rowdy"]
+setnames(xtra_rowdy, old = "model", new = "xtra_Rowdy")
+
 # 2) Three pre-filtered SharedData objects (same group/key)
 racy_shared    <- SharedData$new(racy,    key = ~id, group = "style_table")
 relaxed_shard <- SharedData$new(relaxed, key = ~id, group = "style_table")
 rowdy_shared   <- SharedData$new(rowdy,   key = ~id, group = "style_table")
+xtra_rowdy_shared   <- SharedData$new(xtra_rowdy,   key = ~id, group = "style_table")
 
 ncm1 <- ncol(style_table) - 1
 racy_col <- datatable(racy_shared,
@@ -52,6 +56,11 @@ relaxed_col <- datatable(relaxed_shard,
       columnDefs = list(list(targets = 1:ncm1, visible = FALSE)),
       pageLength = 100))
 rowdy_col <- datatable(rowdy_shared,
+                 rownames = FALSE,
+                 options = list(
+      columnDefs = list(list(targets = 1:ncm1, visible = FALSE)),
+      pageLength = 100))
+xtra_rowdy_col <- datatable(xtra_rowdy_shared,
                  rownames = FALSE,
                  options = list(
       columnDefs = list(list(targets = 1:ncm1, visible = FALSE)),
@@ -73,13 +82,14 @@ filters <- list(
 
 # Layout: filters on the left, three linked tables on the right
 bscols(
-  widths = c(3, 9),
+  widths = c(2, 10),
   filters,
   bscols(
-    widths = c(4, 4, 4),
+    widths = c(3, 3, 3, 3),
     racy_col,
     relaxed_col,
-    rowdy_col
+    rowdy_col,
+    xtra_rowdy_col
   )
 )
 ```
