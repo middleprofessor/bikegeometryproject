@@ -1575,11 +1575,13 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     
     # process 700c and convert in to mm
     bike_i[, tire_width_max_700c := as.numeric(tire_width_max_700c)]
+    bike_i[is.na(tire_width_max_700c), tire_width_max_700c := 0.0]
     bike_i[tire_width_max_700c < 6, tire_width_max_700c := tire_width_max_700c * 25.4]
     bike_i[, tire_width_max_700c := as.integer(tire_width_max_700c)]
     
     # process 650b and convert mm to in
     bike_i[, tire_width_max_650b := as.numeric(tire_width_max_650b)]
+    bike_i[is.na(tire_width_max_650b), tire_width_max_650b := 0.0]
     bike_i[tire_width_max_650b > 6, tire_width_max_650b := round(tire_width_max_650b/25.4, 1)]
 
     # also temporary?
@@ -1641,9 +1643,10 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     bike_i[, fork_class := factor(fork_class, levels = fork_classes)]
     
     # axle spacing
-    bike_i[, axle_spacing := "non-boost"]
+    bike_i[, axle_spacing := "road"]
     bike_i[rear_axle == "148", axle_spacing := "boost"]
-    bike_i[rear_axle == "142/148", axle_spacing := "both"]
+    bike_i[rear_axle == "142/148", axle_spacing := "gnot boost"]
+    bike_i[rear_axle == "135/141", axle_spacing := "gnot boost"]
   
     # bind it
     geobike <- rbind(geobike, bike_i)

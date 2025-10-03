@@ -35,7 +35,7 @@ relaxed <- style_table[style == "relaxed"]
 setnames(relaxed, old = "model", new = "Relaxed")
 rowdy <- style_table[style == "rowdy"]
 setnames(rowdy, old = "model", new = "Rowdy")
-xtra_rowdy <- style_table[style == "xtra_rowdy"]
+xtra_rowdy <- style_table[style == "xtra rowdy"]
 setnames(xtra_rowdy, old = "model", new = "xtra_Rowdy")
 
 # 2) Three pre-filtered SharedData objects (same group/key)
