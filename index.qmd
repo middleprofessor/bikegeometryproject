@@ -10,39 +10,37 @@ source(source_path)
 
 Current number of bike models in the database: `r length(unique(geobike[, model]))`!
 
-### Gravel Style
+### I want a gravel bike for my local gravel races, or riding long days on unmaintained roads and trail, or underbiking singletrack. How do I begin?
+
+Use these pages first
+
+1. A table of the [classification of all gravel bike models in the database into Racy, Relaxed, and Rowdy categories](qmd/gravel_class.qmd)
+2. A plot that [compares overall similarity of frame geometry among gravel bikes](qmd/gravel_mds.qmd).
 
 These pages have filters for material, suspension correction, UDH compatibility, sliding dropout, handlebar (flat or drop), axle spacing, and maximum tire width.
 
-A table of the [classification of all gravel bike models in the database into Racy, Relaxed, and Rowdy categories](qmd/gravel_class.qmd) 
+Use the filters to narrow down the `r length(unique(geobike[, model]))` models to the short list of bikes that check all the boxes.
 
-A single plot that [compares overall similarity of frame geometry among gravel bikes](qmd/gravel_mds.qmd), color coded by style
+### Okay, what's the next step?
 
-### Gravel Bike Comparison Tools
+1. A table to [compare up to four bikes on key frame specs and frame geometry measures ](qmd/test_bike_comparison.qmd) 
+2. [Plots of specific frame measures](qmd/gravel_scatter.qmd) for all gravel bike models and frame sizes in the database.
 
-A table to [compare up to three bikes on key frame geometry measures and frame specs](qmd/test_bike_comparison.qmd) 
+### Sweet! Now I want to know what makes racy bikes racy, relaxed bikes relaxed, and rowdy bikes rowdy.
 
-[Plots of specific frame measures](qmd/gravel_scatter.qmd) for all gravel bike models and frame sizes in the database.
+[What makes Racy bikes racy!](qmd/what_makes_a_racy_bike_racy.qmd)
 
-### Gravel style rabbit hole
+[What makes Relaxed bikes relaxed!](qmd/what_makes_a_relaxed_bike_relaxed.qmd)
 
-Plots to show which frame measures make...
+[What makes Rowdy bikes rowdy!](qmd/what_makes_a_rowdy_bike_rowdy.qmd)
 
-[Racy bikes racy!](qmd/what_makes_a_racy_bike_racy.qmd)
+### What if I want to add suspension to the bikes on my shortlist?
 
-[Relaxed bikes relaxed!](qmd/what_makes_a_relaxed_bike_relaxed.qmd)
-
-[Rowdy bikes rowdy!](qmd/what_makes_a_rowdy_bike_rowdy.qmd)
-
-### How does my bike frame geometry change if I add suspension?
+First, make sure the manufacturer does not warn against a suspension fork. Then
 
 See [how your bike frame's geometry changes with a suspension fork](qmd/gravel_sus_fork.qmd).
 
 See [how your bike frame's relative similarity to other bikes changes with a suspension fork](qmd/gravel_scatter_sus.qmd).
-
-### A Tree Diagram of frame similarity
-
-The [Gravel Tree](qmd/gravel_tree.qmd) page contains a tree diagram showing the relative similarity in frame geometry among all gravel bikes in the database and the clustering of the models into three major styles.
 
 
 copyright 2022-2025
