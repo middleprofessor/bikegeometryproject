@@ -15,12 +15,9 @@ source(source_path)
 
 ```{r mds-plot, echo=FALSE, out.width = "100%", out.height = "100%"}
 
-med_fit <- geobike[my_fit == TRUE]
-med_fit[is.na(tire_width_max_700c), tire_width_max_700c := 0]
-med_fit[is.na(tire_width_max_650b), tire_width_max_650b := 0]
-#med_fit[, fit_650b := ifelse(is.na(tire_max_650b), "All")]
-  
-geobike_mds_shared <- SharedData$new(med_fit, key = ~model_size, group = "mds")
+medium_fit <- geobike[my_fit == TRUE]
+
+geobike_mds_shared <- SharedData$new(medium_fit, key = ~model_size, group = "mds")
 
 p1 <- scatter_fig(shared_data = geobike_mds_shared,
                   link_group = "mds",
@@ -32,11 +29,13 @@ p1 <- scatter_fig(shared_data = geobike_mds_shared,
 
 filters <- list(
   filter_checkbox("material", "Frame material", geobike_mds_shared, ~material, inline = TRUE),
-  filter_checkbox("fork", "Suspension correction (mm)", geobike_mds_shared, ~fork_class, inline = TRUE),
-  filter_checkbox("udh", "UDH", geobike_mds_shared, ~udh, inline = TRUE),
-  filter_checkbox("sliding", "Sliding dropout (mm)", geobike_mds_shared, ~dropout, inline = TRUE),
-  filter_checkbox("axle", "Axle spacing", geobike_mds_shared, ~axle_spacing, inline = TRUE),
   filter_checkbox("handlebar", "Handlebar", geobike_mds_shared, ~handlebar, inline = TRUE),
+  filter_checkbox("axle", "Axle spacing", geobike_mds_shared, ~axle_spacing, inline = TRUE),
+  filter_checkbox("udh", "UDH", geobike_mds_shared, ~udh, inline = TRUE),
+  filter_checkbox("dropper", "Stealth dropper", geobike_mds_shared, ~stealth_dropper, inline = TRUE),
+  filter_checkbox("max_chainring", "Max 1X chainring", geobike_mds_shared, ~max_chainring_1x, inline = TRUE),
+  filter_checkbox("fork", "Suspension correction (mm)", geobike_mds_shared, ~fork_class, inline = TRUE),
+  filter_checkbox("sliding", "Sliding dropout (mm)", geobike_mds_shared, ~dropout, inline = TRUE),
   filter_slider("tire_700", "Max 700c tire width (mm)", geobike_mds_shared, ~tire_width_max_700c, step = 1),
   filter_slider("tire_650", "Max 650b tire width (in)", geobike_mds_shared, ~tire_width_max_650b, step = 0.05),
   filter_slider("frameset", "Frameset ($)", geobike_mds_shared, ~frameset_usd),

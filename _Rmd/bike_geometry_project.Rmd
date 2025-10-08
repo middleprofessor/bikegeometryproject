@@ -903,8 +903,21 @@ clean_and_compute <- function(bike){
   bike[, udh := ifelse(is.na(udh), "no", udh)]
   bike[, udh := toupper(udh)]
   
+  # axle spacing
+  bike[, axle_spacing := rear_axle]
+  bike[axle_spacing == "148", axle_spacing := "148 (boost)"]
+  bike[axle_spacing == "142", axle_spacing := "142 (road)"]
+
+  # dropper
+  # bike[, stealth_dropper := as.character(NA)]
+  bike[!is.na(routing_dropper) & routing_dropper == "internal", stealth_dropper := "stealth"]
+  bike[!is.na(routing_dropper) & routing_dropper == "yes", stealth_dropper := "stealth"]
+
+  # dropout
   bike[is.na(dropout), dropout := "fixed"]
   bike[dropout == "0", dropout := "fixed"]
+  
+  # suspension
   bike[, suspension_corrected := ifelse(!is.na(suspension_corrected), as.numeric(suspension_corrected), 0.0)]
   bike[, fork_suspension := ifelse(!is.na(fork_suspension), as.numeric(fork_suspension), 0.0)]
   
@@ -2031,12 +2044,6 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     fork_classes <- c("0 mm", "20 mm", "30 mm", "40 mm", "50 mm", "60 mm", "100 mm", "120 mm")
     bike_i[, fork_class := factor(fork_class, levels = fork_classes)]
     
-    # axle spacing
-    bike_i[, axle_spacing := "road"]
-    bike_i[rear_axle == "148", axle_spacing := "boost"]
-    bike_i[rear_axle == "142/148", axle_spacing := "gnot boost"]
-    bike_i[rear_axle == "135/141", axle_spacing := "gnot boost"]
-  
     # bind it
     geobike <- rbind(geobike, bike_i)
   }
