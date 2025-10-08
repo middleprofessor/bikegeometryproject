@@ -1282,6 +1282,12 @@ clean_and_compute <- function(bike){
 
 ```
 
+```{r}
+standardize_geometry_with_suspension <- function(){
+  geobike[my_fit == TRUE & fork == "suspension" & fork_suspension == 0, model]
+}
+```
+
 ```{r read-bike-function, echo=FALSE}
 # data_path <- here(data_folder, "ghost_grappler.txt")
 # dt <- fread(data_path)
