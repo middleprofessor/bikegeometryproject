@@ -908,6 +908,10 @@ clean_and_compute <- function(bike){
   bike[axle_spacing == "148", axle_spacing := "148 (boost)"]
   bike[axle_spacing == "142", axle_spacing := "142 (road)"]
 
+  # max 1x chainring
+  bike[, max_chainring_1x := ifelse(!is.na(max_chainring_1x),
+                                    as.numeric(max_chainring_1x), 0.0)]
+
   # dropper
   # bike[, stealth_dropper := as.character(NA)]
   bike[!is.na(routing_dropper) & routing_dropper == "internal", stealth_dropper := "stealth"]

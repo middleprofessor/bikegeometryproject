@@ -33,11 +33,11 @@ filters <- list(
   filter_checkbox("axle", "Axle spacing", geobike_mds_shared, ~axle_spacing, inline = TRUE),
   filter_checkbox("udh", "UDH", geobike_mds_shared, ~udh, inline = TRUE),
   filter_checkbox("dropper", "Stealth dropper", geobike_mds_shared, ~stealth_dropper, inline = TRUE),
-  filter_checkbox("max_chainring", "Max 1X chainring", geobike_mds_shared, ~max_chainring_1x, inline = TRUE),
   filter_checkbox("fork", "Suspension correction (mm)", geobike_mds_shared, ~fork_class, inline = TRUE),
   filter_checkbox("sliding", "Sliding dropout (mm)", geobike_mds_shared, ~dropout, inline = TRUE),
   filter_slider("tire_700", "Max 700c tire width (mm)", geobike_mds_shared, ~tire_width_max_700c, step = 1),
   filter_slider("tire_650", "Max 650b tire width (in)", geobike_mds_shared, ~tire_width_max_650b, step = 0.05),
+  filter_slider("max_chainring", "Max 1X chainring", geobike_mds_shared, ~max_chainring_1x),
   filter_slider("frameset", "Frameset ($)", geobike_mds_shared, ~frameset_usd),
   filter_slider("base_build", "Base Build ($)", geobike_mds_shared, ~base_build_usd)
   )
