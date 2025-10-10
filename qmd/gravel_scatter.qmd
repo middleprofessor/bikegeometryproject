@@ -5,6 +5,8 @@ format:
   html:
     toc: false
 ---
+## This page takes a while to load -- be patient
+
 ::: {.callout-tip title="Tips for navigating"}
 1. Hover over data for model and frame size identification.
 2. Scroll legend and click on items to identify specific model and frame size combinations.
@@ -162,19 +164,39 @@ p9 <- scatter_fig(shared_data = geobike_shared,
   height_boxes <- filter_checkbox("rider_height", "Rider Height", geobike_shared, ~frame_size_std_fine, inline = FALSE)
 
 
-#  bscols(widths = c(8,1,1,1,1), p1, sm_box, med_box, lg_box, height_boxes)
-  bscols(p1,
-         list(sm_box, med_box, lg_box),
-         height_boxes,
-         widths = c(8, 2, 2))
-  bscols(widths = c(8,4), p2)
-  bscols(widths = c(8,4), p3)
-  bscols(widths = c(8,4), p4)
-  bscols(widths = c(8,4), p5)
-  bscols(widths = c(8,4), p6)
-  bscols(widths = c(8,4), p7)
-  bscols(widths = c(8,4), p8)
-  bscols(widths = c(8,4), p9)
+  f1 <- filter_checkbox("material", "Frame material", geobike_shared, ~material, inline = TRUE)
+  f2 <- filter_checkbox("handlebar", "Handlebar", geobike_shared, ~handlebar, inline = TRUE)
+  f3 <- filter_checkbox("axle", "Axle spacing", geobike_shared, ~axle_spacing, inline = TRUE)
+  f4 <- filter_checkbox("udh", "UDH", geobike_shared, ~udh, inline = TRUE)
+  f5 <- filter_checkbox("dropper", "Stealth dropper", geobike_shared, ~stealth_dropper, inline = TRUE)
+  f6 <- filter_checkbox("fork", "Suspension correction (mm)", geobike_shared, ~fork_class, inline = TRUE)
+  f7 <- filter_checkbox("sliding", "Sliding dropout (mm)", geobike_shared, ~dropout, inline = TRUE)
+  f8 <- filter_slider("tire_700", "Max 700c tire width (mm)", geobike_shared, ~tire_width_max_700c, step = 1)
+  f9 <- filter_slider("tire_650", "Max 650b tire width (in)", geobike_shared, ~tire_width_max_650b, step = 0.05)
+  f10 <- filter_slider("max_chainring", "Max 1X chainring", geobike_shared, ~max_chainring_1x)
+  f11 <- filter_slider("frameset", "Frameset ($)", geobike_shared, ~frameset_usd)
+  f12 <- filter_slider("base_build", "Base Build ($)", geobike_shared, ~base_build_usd)
+  
+    
+  
+  bscols(
+  widths = c(8, 4),
+  # LEFT: plots stacked
+  tags$div(style="display:flex; flex-direction:column; gap:20px;", p1, p2, p3, p4,
+           p5, p6, p7, p8, p9),
+
+  # RIGHT: filters — top row has 2 side-by-side, then the rest stacked
+  tagList(
+    # row with two inline filters
+    bscols(widths = c(6,6), list(sm_box, med_box, lg_box), height_boxes),
+    # stacked filters
+    tags$div(style="display:flex; flex-direction:column; gap:12px;",
+      f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12
+    )
+  )
+)
+  
+
 
 ```
 
