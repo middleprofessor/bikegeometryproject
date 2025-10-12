@@ -25,7 +25,8 @@ p1 <- scatter_fig(shared_data = geobike_mds_shared,
                   x_label = "Rowdiness", y_label = "Relaxedness",
                   g_col = "model_size",
                   digits = 1,
-                  hover_info = "filters")
+                  hover_info = "filters",
+                  title = "Overall Frame Geometry Similarity")
 
 filters <- list(
   filter_checkbox("material", "Frame material", geobike_mds_shared, ~material, inline = TRUE),

@@ -1777,7 +1777,7 @@ assign_std_size <- function(geobike){
   
   # exceptions
   geobike[model == "Stooge Dirt Tracker 2025", frame_size_std := 175]
-  
+
   # assign s/m/l classes
   model_list_all <- unique(geobike[, model])
   geobike[, frame_size_std_s := ifelse(frame_size_std == 167, TRUE, NA)]
@@ -1799,6 +1799,8 @@ assign_std_size <- function(geobike){
               frame_size_numbers <= 54.5, frame_size_std_m := TRUE]
     
   }
+  geobike[model == "Binary Groler (short) 2025" & frame_size_numbers == 53.5, frame_size_std_m := NA]
+
   # grab bigger
   model_list_med <- unique(geobike[frame_size_std_m == TRUE, model])
   model_list_diff <- setdiff(model_list_all, model_list_med)
@@ -4070,7 +4072,8 @@ scatter_fig <- function(shared_data = geobike_shared,
                         dot_opacity = 0.3,
                         same_xy_scale = FALSE,
                         set_autorange = TRUE,
-                        add_regression = FALSE){
+                        add_regression = FALSE,
+                        title = NULL){
   
   if(is.null(x_info)){x_info <- x_label}
   if(is.null(y_info)){y_info <- y_label}
@@ -4192,6 +4195,10 @@ scatter_fig <- function(shared_data = geobike_shared,
       )
   }
   
+  if(is.null(title)){
+    title <- paste(y_label, "vs.", x_label)
+  }
+  
   fig <- fig |>
     layout(xaxis = list(title = x_label,
                         tickfont = list(size = 12), titlefont = list(size = 12),
@@ -4204,7 +4211,7 @@ scatter_fig <- function(shared_data = geobike_shared,
     ),
     legend = list(font = list(size = 10),
                   itemsizing = "constant"),
-    title = list(text = paste(y_label, "vs.", x_label),
+    title = list(text = title,
                  x = 0.5,
                  xanchor = "center"),
     # autosize = F, width = 7*96, height = 5*96,
