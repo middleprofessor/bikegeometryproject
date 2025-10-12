@@ -26,7 +26,7 @@ website:
           - qmd/gravel_tree.qmd
       - text: "Gravel Compare"
         menu:
-          - qmd/test_bike_comparison.qmd
+          - qmd/gravel_compare_table.qmd
       - text: "Gravel Geometry"
         menu:
           - qmd/gravel_scatter.qmd

@@ -48,23 +48,23 @@ xtra_rowdy_shared   <- SharedData$new(xtra_rowdy,   key = ~id, group = "style_ta
 ncm1 <- ncol(style_table) - 1
 racy_col <- datatable(racy_shared,
                  rownames = FALSE,
-                 options = list(
-      columnDefs = list(list(targets = 1:ncm1, visible = FALSE)),
+                 options = list(searching = FALSE,
+      columnDefs = list(list(targets = 1:ncm1, visible = FALSE, searching = FALSE)),
       pageLength = 100))
 relaxed_col <- datatable(relaxed_shared,
                  rownames = FALSE,
-                 options = list(
+                 options = list(searching = FALSE,
       columnDefs = list(list(targets = 1:ncm1, visible = FALSE)),
       pageLength = 100))
 rowdy_col <- datatable(rowdy_shared,
                  rownames = FALSE,
-                 options = list(
-      columnDefs = list(list(targets = 1:ncm1, visible = FALSE)),
+                 options = list(searching = FALSE,
+      columnDefs = list(list(targets = 1:ncm1, visible = FALSE, searching = FALSE)),
       pageLength = 100))
 xtra_rowdy_col <- datatable(xtra_rowdy_shared,
                  rownames = FALSE,
-                 options = list(
-      columnDefs = list(list(targets = 1:ncm1, visible = FALSE)),
+                 options = list(searching = FALSE,
+      columnDefs = list(list(targets = 1:ncm1, visible = FALSE, searching = FALSE)),
       pageLength = 100))
 
 # filters
