@@ -6,7 +6,7 @@ project:
     - CNAME
 
 website:
-  title: "RacyRelaxedRowdy.bike"
+  title: "TheGravelBikeGeometryProject"
   description: "Not just another bike geometry comparison tool"
   site-url: https://middleprofessor.github.io/bikegeometryproject
   navbar:
