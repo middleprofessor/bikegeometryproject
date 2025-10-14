@@ -18,18 +18,10 @@ source(source_path)
 
 ```
 
-```{r echo=FALSE, warning=FALSE, message=FALSE}
+```{r echo=FALSE, warning=FALSE, message=FALSE, eval=FALSE}
 #| results: asis
 
-dt <- data.table(
-  spec   = rep(c("Weight", "Tire clearance", "Price"), each = 4),
-  model  = rep(c("modelA", "modelB", "modelC", "modelD"), times = 3),
-  value  = c("8.1kg","8.8kg","7.9kg","8.5kg",
-             "40mm","45mm","38mm","42mm",
-             "$2500","$3200","$2800","$3000")
-)
-
-specs_cols <- c("kmeans_style", "material", "fork", "handlebar", "stack", "reach", "head_tube_angle", "seat_tube_angle","chainstay_length", "front_center", "bottom_bracket_drop", "trail", "trail_45", "udh", "tire_width_max_700c", "tire_width_max_650b", "fork_class", "axle_spacing", "routing_dropper", "seatpost_diameter", "max_chainring_1x", "dropout", "internal_storage", "base_build_usd", "frameset_usd")
+specs_cols <- c("kmeans_style", "material", "fork", "handlebar", "stack", "reach", "head_tube_angle", "seat_tube_angle","chainstay_length", "front_center", "bottom_bracket_drop", "trail", "trail_45", "udh", "tire_width_max_700c", "tire_width_max_650b", "fork_class", "axle_spacing", "stealth_dropper", "seatpost_diameter", "max_chainring_1x", "dropout", "internal_storage", "base_build_usd", "frameset_usd")
 keep_cols <- c("model_size", specs_cols)
 specs_wide <- geobike[, .SD, .SDcols = keep_cols]
 setnames(specs_wide, 
@@ -273,3 +265,313 @@ thead th {
 cat(as.character(tagList(css, choices_assets, tbl, js_lookup)))
 
 ```
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+#| results: asis
+
+specs_cols <- c("kmeans_style", "material", "fork", "handlebar", "stack", "reach", "head_tube_angle", "seat_tube_angle","chainstay_length", "front_center", "bottom_bracket_drop", "trail", "trail_45", "udh", "tire_width_max_700c", "tire_width_max_650b", "fork_class", "axle_spacing", "routing_dropper", "seatpost_diameter", "max_chainring_1x", "dropout", "internal_storage", "base_build_usd", "frameset_usd")
+keep_cols <- c("model_size", specs_cols)
+specs_wide <- geobike[, .SD, .SDcols = keep_cols]
+setnames(specs_wide, 
+         old = c("model_size", "kmeans_style", "fork_class"),
+         new = c("model", "style", "suspension_correction"))
+specs_wide[, front_center := round(front_center, 0)]
+specs_wide[, trail := round(trail, 0)]
+specs_wide[, trail_45 := round(trail_45, 0)]
+specs_wide[, frameset_usd := ifelse(is.na(frameset_usd), frameset_usd, paste0("$", frameset_usd))]
+specs_wide[, base_build_usd := ifelse(is.na(base_build_usd), base_build_usd, paste0("$", base_build_usd))]
+
+# specs_wide[!is.na(frameset_usd), frameset_usd := paste0("$", frameset_usd)]
+# specs_wide[!is.na(base_build_usd), base_build_usd := paste0("$", base_build_usd)]
+
+specs_cols[1] <- "style"
+specs_cols[which(specs_cols == "fork_class")] <- "suspension_correction"
+
+dt <- melt(specs_wide,
+              id.vars = "model",
+              measure.vars = specs_cols,
+              variable.name = "spec",
+              value.name = "value")
+
+# Pretty spec names
+dt[, spec_pretty := str_replace_all(spec, "_", " ")]
+dt[, spec_pretty := str_to_title(spec_pretty)]
+dt[, spec_pretty := str_replace(spec_pretty, "Udh", "UDH")]
+dt[, spec_pretty := str_replace(spec_pretty, "Usd", "USD")]
+
+# add image row
+img_dt <- unique(geobike[, .(model = model_size, spec = "image", value = image_url)])
+
+# existing dt from your code...
+# dt <- melt(specs_wide, ...)
+
+# 1) Prepend the image spec row
+dt <- rbind(
+  img_dt,
+  dt,
+  fill = TRUE
+)
+
+# 2) Pretty name for the image row and keep your existing prettifiers
+dt[spec == "image", spec_pretty := "Image"]
+dt[spec != "image", spec_pretty := spec_pretty]  # unchanged for others
+
+
+# Number of visible comparison columns
+ncols <- 4
+models <- unique(dt$model)
+defaults <- models[seq_len(ncols)]
+
+# JSON data for client-side lookup
+json_data <- jsonlite::toJSON(dt, dataframe = "rows", auto_unbox = TRUE)
+
+# Header select dropdown
+header_select <- function(i) {
+  opts <- lapply(models, function(m) {
+    if (i <= length(defaults) && identical(m, defaults[i])) {
+      tags$option(value = m, selected = "selected", m)
+    } else {
+      tags$option(value = m, m)
+    }
+  })
+  tags$select(
+    class = "form-select form-select-sm searchable",
+    style = "width:220px; margin:auto;",
+    onchange = sprintf("swapColumn(this, %d)", i),
+    `data-col-index` = i,
+    opts
+  )
+}
+
+# Build table
+tbl <- tags$table(
+  class = "table table-striped table-hover align-middle",
+  style = "width:100%; border-collapse: collapse;",
+  tags$thead(
+    tags$tr(
+      tags$th("Spec", style="position: sticky; top: 0; background:#f8f9fa; z-index: 2;"),
+      lapply(seq_len(ncols), function(i) tags$th(header_select(i), style="position: sticky; top: 0; background:#f8f9fa; z-index: 2;"))
+    )
+  ),
+  tags$tbody(
+    lapply(unique(dt$spec), function(s) {
+      pretty_name <- dt[spec==s, spec_pretty][1]
+      tags$tr(
+        tags$td(pretty_name, `data-spec` = s),
+        lapply(seq_len(ncols), function(c) {
+          default_model <- if (c <= length(defaults)) defaults[c] else defaults[1]
+          val <- dt[spec==s & model==default_model, value]
+          if (is.na(val) || identical(val, "NA")) val <- ""
+          
+          # If this is the image row, render an <img>; else plain text
+          if (s == "image" && nzchar(val)) {
+            cell_html <- sprintf(
+              '<a href="%1$s" target="_blank" rel="noopener">
+           <img src="%1$s" alt="Bike photo" style="height:120px; max-width:180px; object-fit:cover; border-radius:8px; display:block; margin:auto;" />
+         </a>', val)
+            tags$td(
+              `data-spec`  = s,
+              `data-col`   = c,
+              `data-model` = default_model,
+              HTML(cell_html)
+            )
+          } else {
+            tags$td(
+              `data-spec`  = s,
+              `data-col`   = c,
+              `data-model` = default_model,
+              val
+            )
+          }
+        })
+      )
+    })
+  )
+)
+
+# --- JS: swap columns (image-safe) ---
+js_lookup <- tags$script(HTML(sprintf("
+var specsData = %s;
+
+function imageHTML(url){
+  if(!url) return '';
+  return (
+    '<a href=\"' + url + '\" target=\"_blank\" rel=\"noopener\">' +
+      '<img src=\"' + url + '\" alt=\"Bike photo\" ' +
+      'style=\"height:120px; max-width:180px; object-fit:cover; border-radius:8px; display:block; margin:auto;\" />' +
+    '</a>'
+  );
+}
+
+function swapColumn(selectElem, colIndex) {
+  var model = selectElem.value;
+  var table = selectElem.closest('table');
+  var rows = table.querySelectorAll('tbody tr');
+
+  rows.forEach(function(row) {
+    var specCell = row.querySelector('td[data-spec]');
+    if(!specCell) return;
+    var spec = specCell.getAttribute('data-spec');
+
+    var item = specsData.find(function(d){ return d.spec===spec && d.model===model; });
+    var cell = row.querySelector('td[data-col=\"' + colIndex + '\"]');
+    if(!cell) return;
+
+    if(item){
+      var v = (item.value === null || item.value === 'NA') ? '' : item.value;
+      if (spec === 'image') {
+        cell.innerHTML = imageHTML(v);
+      } else {
+        cell.textContent = v;
+      }
+      cell.setAttribute('data-model', model);
+    } else {
+      if (spec === 'image') {
+        cell.innerHTML = '';
+      } else {
+        cell.textContent = '';
+      }
+    }
+  });
+}
+", json_data)))
+
+# Choices.js assets + initialize searchable selects + scroll to selected
+choices_assets <- tagList(
+# Replace your Choices.js initialization JavaScript with this:
+
+tags$script(HTML("
+document.addEventListener('DOMContentLoaded', function() {
+  var selects = document.querySelectorAll('select.searchable');
+  selects.forEach(function(sel) {
+    var colIndex = parseInt(sel.getAttribute('data-col-index'), 10);
+
+    // Initialize Choices
+    var choicesInstance = new Choices(sel, {
+      searchEnabled: true,
+      shouldSort: true,
+      itemSelectText: '',
+      placeholderValue: 'Select model...'
+    });
+
+    // Force scroll styles after Choices.js initialization
+    setTimeout(function() {
+      var dropdown = sel.parentNode.querySelector('.choices__list--dropdown');
+      if (dropdown) {
+        dropdown.style.maxHeight = '300px';
+        dropdown.style.overflowY = 'auto';
+        dropdown.style.overflowX = 'hidden';
+        
+        // Force scrollbar to be visible
+        dropdown.style.scrollbarWidth = 'thin'; // Firefox
+        dropdown.style.setProperty('scrollbar-width', 'thin', 'important'); // Firefox
+        
+        // Webkit scrollbar styles
+        var style = document.createElement('style');
+        style.textContent = `
+          .choices__list--dropdown::-webkit-scrollbar {
+            width: 12px !important;
+          }
+          .choices__list--dropdown::-webkit-scrollbar-track {
+            background: #f1f1f1 !important;
+          }
+          .choices__list--dropdown::-webkit-scrollbar-thumb {
+            background: #888 !important;
+            border-radius: 6px !important;
+          }
+          .choices__list--dropdown::-webkit-scrollbar-thumb:hover {
+            background: #555 !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }, 100);
+
+    // Set title attribute for hover tooltip and ensure scroll on dropdown open
+    sel.addEventListener('showDropdown', function() {
+      setTimeout(function() {
+        var dropdown = sel.parentNode.querySelector('.choices__list--dropdown');
+        if (dropdown) {
+          // Force scroll styles again when dropdown opens
+          dropdown.style.maxHeight = '300px';
+          dropdown.style.overflowY = 'auto';
+          dropdown.style.overflowX = 'hidden';
+          
+          // Add titles for tooltips
+          var dropdownItems = dropdown.querySelectorAll('.choices__item');
+          dropdownItems.forEach(function(item){
+            item.setAttribute('title', item.textContent);
+          });
+
+          // Scroll to selected item
+          var selectedValue = choicesInstance.getValue(true);
+          var highlighted = dropdown.querySelector('.choices__item[data-value=\"' + selectedValue + '\"]');
+          if (highlighted) {
+            highlighted.scrollIntoView({ block: 'nearest' });
+          }
+        }
+      }, 50);
+    });
+
+    // Column swap functionality
+    sel.addEventListener('change', function() {
+      swapColumn(sel, colIndex);
+    });
+  });
+});
+"))
+)
+
+# CSS: sticky header, scrollable dropdown, ellipsis, tooltip
+# Replace your CSS with this simplified version:
+
+css <- tags$style(HTML("
+.table-striped tbody tr:nth-of-type(odd) {background-color: #f9f9f9;}
+.table-hover tbody tr:hover {background-color: #e0f7fa;}
+th {text-align: center;}
+select.form-select {text-align: center;}
+
+/* Sticky header row */
+thead th {
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+  z-index: 3;
+}
+
+/* Basic dropdown item styling */
+.choices__list--dropdown .choices__item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 8px 12px;
+}
+
+/* Tooltip on hover */
+.choices__list--dropdown .choices__item[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  left: 100%;
+  top: 0;
+  margin-left: 8px;
+  white-space: nowrap;
+  background: #333;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 9999;
+}
+td[data-spec='image'] { text-align: center; vertical-align: middle; background: #fafafa; }
+"))
+# Output everything
+cat(as.character(tagList(css, choices_assets, tbl, js_lookup)))
+
+```
+
+
+```{r}
+
+```
+

@@ -1,5 +1,6 @@
 ---
-title: "A plot of overall frame similarity"
+title: "The Gravelverse"
+subtitle: "(A plot of overall frame similarity)"
 ---
 ::: {.callout-tip title="Tips for navigating"}
 1. Hover over data for model and frame size identification.

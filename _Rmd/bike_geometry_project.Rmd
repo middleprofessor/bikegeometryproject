@@ -1960,10 +1960,10 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     bike_file = bike_list[i]
     print(bike_file)
     bike_path <- here(data_folder, style_folder, bike_file)
-    model_data <- read_excel(bike_path, range = "A1:B5", col_names = FALSE,
+    model_data <- read_excel(bike_path, range = "A1:B6", col_names = FALSE,
                           .name_repair = "unique_quiet") |>
       data.table()
-    
+
     # geometry range
     geom_range <- read_excel(bike_path, range = "B7:B7", col_names = FALSE,
                           .name_repair = "unique_quiet") |> as.character()
@@ -1992,6 +1992,7 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     #                     data_file = paste0(style_folder,"/", bike_file),
     #                     material = frame_material)
     bike_i[, url := model_data[5,2]]
+    bike_i[, image_url := model_data[6,2]]
     bike_i[, my_fit := NA]
     
     # price data
