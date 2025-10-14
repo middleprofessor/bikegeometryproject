@@ -71,7 +71,7 @@ xtra_rowdy_col <- datatable(xtra_rowdy_shared,
 filters <- list(
   filter_checkbox("material", "Frame material", style_table_shared, ~material, inline = TRUE),
   filter_checkbox("handlebar", "Handlebar", style_table_shared, ~handlebar, inline = TRUE),
-  filter_checkbox("axle", "Axle spacing", style_table_shared, ~axle_spacing, inline = TRUE),
+  filter_checkbox("axle", "Hub spacing", style_table_shared, ~axle_spacing, inline = TRUE),
   filter_checkbox("udh", "UDH", style_table_shared, ~udh, inline = TRUE),
   filter_checkbox("dropper", "Stealth dropper", style_table_shared, ~stealth_dropper, inline = TRUE),
   filter_checkbox("fork", "Suspension correction (mm)", style_table_shared, ~fork_class, inline = TRUE),

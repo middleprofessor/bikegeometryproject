@@ -32,7 +32,7 @@ p1 <- scatter_fig(shared_data = geobike_mds_shared,
 filters <- list(
   filter_checkbox("material", "Frame material", geobike_mds_shared, ~material, inline = TRUE),
   filter_checkbox("handlebar", "Handlebar", geobike_mds_shared, ~handlebar, inline = TRUE),
-  filter_checkbox("axle", "Axle spacing", geobike_mds_shared, ~axle_spacing, inline = TRUE),
+  filter_checkbox("axle", "Hub spacing", geobike_mds_shared, ~axle_spacing, inline = TRUE),
   filter_checkbox("udh", "UDH", geobike_mds_shared, ~udh, inline = TRUE),
   filter_checkbox("dropper", "Stealth dropper", geobike_mds_shared, ~stealth_dropper, inline = TRUE),
   filter_checkbox("fork", "Suspension correction (mm)", geobike_mds_shared, ~fork_class, inline = TRUE),
