@@ -1167,41 +1167,19 @@ function onSizeChange(selectElem, colIndex){
 document.addEventListener('DOMContentLoaded', function() {
   var modelSelects = document.querySelectorAll('select.searchable.model-select');
 
-  var choicesInstance = new Choices(sel, {
-    searchEnabled: true,     // <-- must be true for single-select on iOS
-    searchChoices: true,     // <-- ensure it filters choices, not just items
-    shouldSort: false,
-    itemSelectText: '',
-    placeholderValue: 'Select model...',
-    searchPlaceholderValue: 'Search models…' // shows in the input
+  modelSelects.forEach(function(sel) {
+    var colIndex = parseInt(sel.getAttribute('data-col-index'), 10);
+    var choicesInstance = new Choices(sel, {
+      searchEnabled: true,
+      shouldSort: true,
+      itemSelectText: '',
+      placeholderValue: 'Select model...'
+    });
+    sel.addEventListener('change', function(){
+      onModelChange(sel, colIndex);
+    });
   });
-
-  // Keep your change handler
-  sel.addEventListener('change', function(){
-    onModelChange(sel, colIndex);
-  });
-
-  // 👇 iOS: when dropdown opens, force the search input to show & focus
-  sel.addEventListener('showDropdown', function() {
-    setTimeout(function() {
-      var dropdown = sel.parentNode.querySelector('.choices__list--dropdown');
-      if (!dropdown) return;
-
-      // the search <input> inside the dropdown
-      var input = dropdown.querySelector('.choices__input');
-      if (input) {
-        input.style.display = 'block';       // in case CSS hid it
-        input.style.fontSize = '16px';       // prevent iOS zoom-on-focus
-        input.setAttribute('placeholder', 'Search models…');
-        input.focus({ preventScroll: false }); // bring up keyboard
-      }
-
-      // make sure list is scrollable/visible
-      dropdown.style.maxHeight = '70vh';
-      dropdown.style.overflowY = 'auto';
-    }, 0);
-  });
-});  
+  
 
   // Apply initial defaults once
   defaults.forEach(function(d){
