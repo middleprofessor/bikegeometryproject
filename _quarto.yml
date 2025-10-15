@@ -8,7 +8,7 @@ project:
 website:
   title: "TheGravelBikeGeometryProject"
   description: "Not just another bike geometry comparison tool"
-  site-url: https://middleprofessor.github.io/bikegeometryproject
+  site-url: https://thegravelbikegeometryproject.com
   navbar:
     background: primary
     search: true
