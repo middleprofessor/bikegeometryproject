@@ -23,7 +23,7 @@ Use the filters to narrow down the `r length(unique(geobike[, model]))` models t
 
 ### Okay, what's the next step?
 
-1. A table to [compare up to four bikes on key frame specs and frame geometry measures ](qmd/test_bike_comparison.qmd) 
+1. A table to [compare up to four bikes on key frame specs and frame geometry measures ](qmd/gravel_compare_table.qmd) 
 2. [Plots of specific frame measures](qmd/gravel_scatter.qmd) for all gravel bike models and frame sizes in the database.
 
 ### Sweet! Now I want to know what makes racy bikes racy, relaxed bikes relaxed, and rowdy bikes rowdy.
