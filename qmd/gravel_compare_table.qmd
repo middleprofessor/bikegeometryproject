@@ -266,7 +266,7 @@ cat(as.character(tagList(css, choices_assets, tbl, js_lookup)))
 
 ```
 
-```{r echo=FALSE, warning=FALSE, message=FALSE}
+```{r echo=FALSE, warning=FALSE, message=FALSE, eval=TRUE}
 #| results: asis
 
 specs_cols <- c("kmeans_style", "material", "fork", "handlebar", "stack", "reach", "head_tube_angle", "seat_tube_angle","chainstay_length", "front_center", "bottom_bracket_drop", "trail", "trail_45", "udh", "tire_width_max_700c", "tire_width_max_650b", "fork_class", "axle_spacing", "routing_dropper", "seatpost_diameter", "max_chainring_1x", "dropout", "internal_storage", "base_build_usd", "frameset_usd")
@@ -316,10 +316,10 @@ dt <- rbind(
 dt[spec == "image", spec_pretty := "Image"]
 dt[spec != "image", spec_pretty := spec_pretty]  # unchanged for others
 
-
 # Number of visible comparison columns
 ncols <- 4
-models <- unique(dt$model)
+#models <- unique(dt$model)
+models <- unique(specs_wide$model)
 defaults <- models[seq_len(ncols)]
 
 # JSON data for client-side lookup
@@ -566,12 +566,22 @@ thead th {
 td[data-spec='image'] { text-align: center; vertical-align: middle; background: #fafafa; }
 "))
 # Output everything
-cat(as.character(tagList(css, choices_assets, tbl, js_lookup)))
+out <- tagList(css, choices_assets, tbl, js_lookup)
+cat(as.character(htmltools::htmlPreserve(out)))
+#cat(as.character(tagList(css, choices_assets, tbl, js_lookup)))
 
 ```
-
 
 ```{r}
-
+validate_images <- function(dt_img) {
+  dt_img[, status := fifelse(is.na(value), "NA",
+                      fifelse(trimws(value) == "", "empty",
+                      fifelse(!grepl("^https?://", value), "non-http", "ok")))]
+  dt_img[, .N, by = status][order(match(status, c("ok","non-http","empty","NA")))]
+}
+validate_images(img_dt)
 ```
+
+
+
 
