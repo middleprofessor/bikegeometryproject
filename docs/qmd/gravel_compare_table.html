@@ -209,8 +209,9 @@ How to search for a specific model and size!
 </div>
 <div class="callout-body-container callout-body">
 <ol type="1">
-<li>Use the dropdown menu in a column header to search for a specific bike model and size.</li>
-<li>Simply start typing the model name and the menu list moves to what you have searched</li>
+<li>Searching a model! Start typing the model name in a menu header and the menu list moves to what you have searched</li>
+<li>See the bike! Click on the image to get a bigger picture of the bike.</li>
+<li>On a phone? Swipe left to see more columns.</li>
 </ol>
 </div>
 </div>
@@ -512,18 +513,41 @@ function onSizeChange(selectElem, colIndex){
 document.addEventListener('DOMContentLoaded', function() {
   var modelSelects = document.querySelectorAll('select.searchable.model-select');
 
-  modelSelects.forEach(function(sel) {
-    var colIndex = parseInt(sel.getAttribute('data-col-index'), 10);
-    var choicesInstance = new Choices(sel, {
-      searchEnabled: true,
-      shouldSort: true,
-      itemSelectText: '',
-      placeholderValue: 'Select model...'
-    });
-    sel.addEventListener('change', function(){
-      onModelChange(sel, colIndex);
-    });
+  var choicesInstance = new Choices(sel, {
+    searchEnabled: true,     // <-- must be true for single-select on iOS
+    searchChoices: true,     // <-- ensure it filters choices, not just items
+    shouldSort: false,
+    itemSelectText: '',
+    placeholderValue: 'Select model...',
+    searchPlaceholderValue: 'Search models…' // shows in the input
   });
+
+  // Keep your change handler
+  sel.addEventListener('change', function(){
+    onModelChange(sel, colIndex);
+  });
+
+  // 👇 iOS: when dropdown opens, force the search input to show & focus
+  sel.addEventListener('showDropdown', function() {
+    setTimeout(function() {
+      var dropdown = sel.parentNode.querySelector('.choices__list--dropdown');
+      if (!dropdown) return;
+
+      // the search <input> inside the dropdown
+      var input = dropdown.querySelector('.choices__input');
+      if (input) {
+        input.style.display = 'block';       // in case CSS hid it
+        input.style.fontSize = '16px';       // prevent iOS zoom-on-focus
+        input.setAttribute('placeholder', 'Search models…');
+        input.focus({ preventScroll: false }); // bring up keyboard
+      }
+
+      // make sure list is scrollable/visible
+      dropdown.style.maxHeight = '70vh';
+      dropdown.style.overflowY = 'auto';
+    }, 0);
+  });
+});  
 
   // Apply initial defaults once
   defaults.forEach(function(d){
@@ -627,7 +651,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/middleprofessor\.github\.io\/bikegeometryproject");
+      var filterRegex = new RegExp("https:\/\/thegravelbikegeometryproject\.com");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
