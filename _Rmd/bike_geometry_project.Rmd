@@ -717,7 +717,8 @@ get_frame_size_letters <- function(frame_size){
   frame_size_letters <- str_replace(frame_size_letters, "LRG", "L")
   frame_size_letters <- str_replace(frame_size_letters, "EXTRA", "X")
   frame_size_letters <- str_replace(frame_size_letters, "XM", "ML")
-  
+  frame_size_letters <- str_replace(frame_size_letters, "LA", "L")
+ 
   # something like "SmallMedium" maps to small but should map to "SM"
   # I think this can be deleted
   if(frame_size == "Small/Medium"){frame_size_letters <- "SM"}
@@ -908,14 +909,15 @@ clean_and_compute <- function(bike){
   bike[axle_spacing == "148", axle_spacing := "148 (boost)"]
   bike[axle_spacing == "142", axle_spacing := "142 (road)"]
 
-  # max 1x chainring
+  # max 1x chainring -- keep this NA if blank
   bike[, max_chainring_1x := ifelse(!is.na(max_chainring_1x),
-                                    as.numeric(max_chainring_1x), 0.0)]
+                                    as.numeric(max_chainring_1x), NA_real_)]
 
   # dropper
   # bike[, stealth_dropper := as.character(NA)]
-  bike[!is.na(routing_dropper) & routing_dropper == "internal", stealth_dropper := "stealth"]
-  bike[!is.na(routing_dropper) & routing_dropper == "yes", stealth_dropper := "stealth"]
+  bike[, stealth_dropper := "NO"]
+  bike[!is.na(routing_dropper) & routing_dropper == "internal", stealth_dropper := "YES"]
+  bike[!is.na(routing_dropper) & routing_dropper == "yes", stealth_dropper := "YES"]
 
   # dropout
   bike[is.na(dropout), dropout := "fixed"]
