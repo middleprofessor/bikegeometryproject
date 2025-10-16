@@ -766,13 +766,20 @@ clean_frame_size <- function(bike){
   
   # preprocess specific models
   
-  # Norco seach
+  # Norco search
   bike[frame_size == "S1", frame_size := "XS"]
   bike[frame_size == "S2", frame_size := "S"]
   bike[frame_size == "S3", frame_size := "M"]
   bike[frame_size == "S4", frame_size := "L"]
   bike[frame_size == "S5", frame_size := "XL"]
 
+  # Pilot SCRAM
+  bike[frame_size == "P1", frame_size := "XS"]
+  bike[frame_size == "P2", frame_size := "S"]
+  bike[frame_size == "P3", frame_size := "M"]
+  bike[frame_size == "P4", frame_size := "L"]
+  bike[frame_size == "P5", frame_size := "XL"]
+  
   # Light Blue Darwin
   bike[frame_size == "Small/Medium", frame_size := "SMMD"] # this will convert to SM
   
@@ -863,6 +870,9 @@ read_geometry <- function(bike_label = "Alchemy Lycos 2023",
               make.names = 1)
   )
 
+  if(!("frame_weight" %in% colnames(bike))){
+    bike[, frame_weight := as.numeric(NA)]
+  }
   if(!("rider_min" %in% colnames(bike))){
     bike[, rider_min := as.numeric(NA)]
     bike[, rider_max := as.numeric(NA)]
@@ -881,7 +891,7 @@ read_geometry <- function(bike_label = "Alchemy Lycos 2023",
   keep_names <- c("model", "year", "frame_size",
                   "stack", "reach", "seat_tube_length", "top_tube_effective_length",
                   "head_tube_length", "seat_tube_angle", "head_tube_angle",
-                  "chainstay_length", "wheelbase", "bottom_bracket_drop",
+                  "chainstay_length", "wheelbase", "bottom_bracket_drop", "frame_weight",
                   "fork_offset_rake", "axle_crown_in_data", "axle_crown", "trail",
                   "standover", "stem_length", "handlebar_width", "crank_length",
                   "wheel_size", "tire_width_spec", "tire_width_max",
@@ -1307,423 +1317,7 @@ standardize_geometry_with_suspension <- function(){
 }
 ```
 
-```{r read-bike-function, echo=FALSE}
-# data_path <- here(data_folder, "ghost_grappler.txt")
-# dt <- fread(data_path)
-# bike_label = "Tumbleweed Stargazer 2022"
-# bike_range = "b1:h21"
 
-read_bike <- function(bike_label = "Alchemy Lycos 2023",
-                      bike_range = "a1:h23",
-                      data_file = "gravel.xlsx",
-                      sheet = "Sheet1",
-                      material = "carbon"){
-  data_path <- here(data_folder, data_file)
-  bike_wide <- read_excel(data_path,
-                          sheet = sheet,
-                          range = bike_range) |>
-    data.table()
-  # re-read with coltype = numeric
-  # col_type_list <- c("text", "text", rep("numeric", ncol(bike_wide)-2))
-  # bike_wide <- read_excel(data_path,
-  #                         sheet = bike_label,
-  #                         range = bike_range,
-  #                         col_types = col_type_list) %>%
-  #   data.table
-  
-  
-  bike_model <- substr(bike_label, 1, nchar(bike_label) - 5)
-  model_year <- substr(bike_label,
-                       nchar(bike_label) - 3,
-                       nchar(bike_label))
-  bike_wide <- bike_wide[, -2]
-  bike <- data.table(
-    model = paste(bike_model, model_year),
-    year = model_year,
-    transpose(bike_wide,
-              keep.names = "frame_size",
-              make.names = 1)
-  )
-
-  if(!("rider_min" %in% colnames(bike))){
-    bike[, rider_min := as.numeric(NA)]
-    bike[, rider_max := as.numeric(NA)]
-  }
-  if(!("trail" %in% colnames(bike))){
-    bike[, trail := as.numeric(NA)]
-  }
-  if("axle_to_crown" %in% colnames(bike)){
-    setnames(bike, old = "axle_to_crown", new = "axle_crown")
-  }
-  if(!("axle_crown" %in% colnames(bike))){
-    bike[, axle_crown := as.numeric(NA)]
-  }
-  bike[, axle_crown_in_data := ifelse(!is.na(axle_crown), TRUE, FALSE)]
-
-  keep_names <- c("model", "year", "frame_size",
-                  "stack", "reach", "seat_tube_length", "top_tube_effective_length",
-                  "head_tube_length", "seat_tube_angle", "head_tube_angle",
-                  "chainstay_length", "wheelbase", "bottom_bracket_drop",
-                  "fork_offset_rake", "axle_crown_in_data", "axle_crown", "trail",
-                  "standover", "stem_length", "handlebar_width", "crank_length",
-                  "wheel_size", "tire_width_spec", "tire_width_max",
-                  "rider_min", "rider_max"
-  )
-  bike <- bike[, .SD, .SDcols = keep_names]
-  
-  # clean tire_width_max
-  bike[tire_width_spec < 6, tire_width_spec := tire_width_spec * 25.4]
-  bike[tire_width_max < 6, tire_width_max := tire_width_max * 25.4]
-  bike[, tire_width_spec := round(tire_width_spec, 0)]
-  bike[, tire_width_max := round(tire_width_max, 0)]
-  
-  # clean rider_spec
-  bike[, rider_min_spec := rider_min]
-  bike[, rider_max_spec := rider_max]
-  n_sizes <- nrow(bike)
-  if(n_sizes > 1){
-    rider_min_vec <- bike[2:n_sizes, rider_min]
-    rider_max_vec <- bike[1:(n_sizes-1), rider_max]
-    rider_size <- (rider_min_vec + rider_max_vec)/2
-    bike[2:n_sizes, rider_min := rider_size]
-    bike[1:(n_sizes-1), rider_max := rider_size]
-  }
-
-  # clean frame size
-  bike <- clean_frame_size(bike)
-  bike[!is.na(frame_size_numbers) & !is.na(frame_size_letters),
-       frame_size := paste0(frame_size_numbers, frame_size_letters)]
-  bike[!is.na(frame_size_numbers) & is.na(frame_size_letters),
-       frame_size := frame_size_numbers |> as.character()]
-  bike[is.na(frame_size_numbers) & !is.na(frame_size_letters),
-       frame_size := frame_size_letters]
-
-  # decompositions
-  # need this
-  bike[, rear_center := sqrt(chainstay_length^2 - bottom_bracket_drop^2)] # horizontal
-  
-
-  # seat_tube_v and seat_tube_h are decomp of seat tube
-  bike[, seat_tube_v := seat_tube_length *
-         sin(deg_2_rad(seat_tube_angle))]
-  bike[, seat_tube_h := seat_tube_length *
-         cos(deg_2_rad(seat_tube_angle))]
-  # seat_v and seat_h are decomp of seat positioned at stack height
-  # tan(STA) = seat_h/seat_v
-  bike[, seat_v := stack]
-  bike[, seat_h := stack /
-         tan(deg_2_rad(seat_tube_angle))]
-  # head_v and head_h are decomp of head tube
-  bike[, head_v := head_tube_length * sin(deg_2_rad(head_tube_angle))]
-  bike[, head_h := head_tube_length * cos(deg_2_rad(head_tube_angle))]
-
-  # fill in missing
-  # add axle crown if it and wheelbase are missing
-  bike[is.na(wheelbase) & is.na(axle_crown), axle_crown := 395]
-
-  # wheelbase
-  bike[is.na(wheelbase), wheelbase := compute_wheelbase(bike[is.na(wheelbase)])]
-
-  # chainstay_length
-  bike[is.na(chainstay_length), chainstay_length := compute_chainstay_length(bike)]
-
-  # fork_offset_rake
-  bike[is.na(fork_offset_rake), fork_offset_rake := compute_fork_offset(bike)]
-
-  # top_tube_effective_length
-  bike[is.na(top_tube_effective_length), top_tube_effective_length := compute_effective_top_tube_length(bike)]
-
-  # axle crown
-  bike[, axle_crown_est := estimate_axle_crown(bike, material)]
-#  axle_crown_mean <- mean(bike[, axle_crown_est])
-  if(diff(range(bike[, axle_crown_est])) < 5){
-    axle_crown_mean <- median(bike[, axle_crown_est])
-  }else{
-    axle_crown_mean <- bike[, axle_crown_est]
-  }
-  bike[is.na(axle_crown), axle_crown := axle_crown_mean]
-  
-  # more stuff
-
-  # effective seat post length
-  bike[, seat_tube_effective_length := stack/sin(seat_tube_angle*pi/180)]
-  
-  # top tube angle
-  bike[, seat_post_length := seat_tube_effective_length - seat_tube_length]
-  bike[, top_tube_length := 
-         sqrt(top_tube_effective_length^2 +
-         seat_post_length^2 -
-         2 * top_tube_effective_length * seat_post_length *
-         cos(seat_tube_angle*pi/180))]
-  bike[, top_tube_angle := 
-         acos(
-           -(seat_post_length^2 - 
-              top_tube_length^2 - 
-              top_tube_effective_length^2)/ 
-             (2*top_tube_length*top_tube_effective_length)) * 180/pi]
-  
-  # constructed measures
-  ## trail
-  radius <- (ifelse(bike$wheel_size == 700 | bike$wheel_size == 29, 622, 584) + bike$tire_width_spec*2)/2
-  # offset <- bike[, fork_offset_rake]
-  # offset_h <- compute_offset_h(bike)
-  # hta_r <- bike[, head_tube_angle] * pi/180
-  # trail_est1 <- radius/tan(hta_r) - offset_h
-  # trail_est2 <- (radius*cos(hta_r) - offset)/sin(hta_r)
-  # trail_table <- data.table(
-  #   radius = radius,
-  #   offset = offset,
-  #   offset_h = offset_h,
-  #   hta = hta_r*180/pi,
-  #   trail1 = trail_est1,
-  #   trail2 = trail_est2
-  # )
-  
-  # bike[, trail_est := radius/tan(head_tube_angle*pi/180) - 
-  #        compute_offset_h(bike)]
-  bike[, trail_est := (radius * cos(head_tube_angle*pi/180) - fork_offset_rake) /
-         sin(head_tube_angle * pi / 180)]
-  bike[is.na(trail), trail := trail_est]
-  
-  # trail_45 -- the trail that would occur with a 45 mmm tire on a 700c wheel
-  radius_45 <- (622 + 45*2)/2
-  bike[, trail_45 := (radius_45 * cos(head_tube_angle*pi/180) - fork_offset_rake) /
-         sin(head_tube_angle * pi / 180)]
-  
-  ## bb height
-  bike[, bb_height := radius - bottom_bracket_drop]
-
-  
-  bike[, model_size := paste(model, frame_size)]
-  bike[, front_center := wheelbase - rear_center] # horizontal distance from bb to front axle
-  bike[, front_end := front_center - reach] # horizontal distance from head tube to front axle
-  bike[, seat_center := stack/tan(deg_2_rad(seat_tube_angle))]
-  
-  # ratios
-  bike[, stack_reach := stack/reach]
-  bike[, front_rear := front_center/rear_center]
-  bike[, front_reach := front_end/reach]
-  bike[, rear_wheelbase := rear_center/wheelbase]
-  bike[, front_wheelbase := front_center/wheelbase]
-  bike[, sta_hta := seat_tube_angle/head_tube_angle]
-
-  
-  bike[, effective_frame_reach := reach + seat_tube_h]
-  bike[, effective_reach := reach + seat_tube_h + stem_length]
-
-  # landmarks with rear axle as origin
-  bike[, x1 := 0] # rear axle
-  bike[, y1 := 0]
-  bike[, x2 := rear_center - seat_h] # seat at stack height
-  bike[, y2 := stack - bottom_bracket_drop]
-  bike[, x3 := rear_center + reach] # head tube top
-  bike[, y3 := stack - bottom_bracket_drop]
-  bike[, x4 := x3 + head_h] # head tube base
-  bike[, y4 := y3 - head_v]
-  bike[, x5 := wheelbase] # front axle
-  bike[, y5 := 0]
-  bike[, x6 := rear_center] # bottom bracket
-  bike[, y6 := -bottom_bracket_drop]
-  bike[, x7 := rear_center - seat_tube_h] # seat tube
-  bike[, y7 := seat_tube_v]
-  
-  # landmarks_named
-  bike[, rear_x := x1]
-  bike[, rear_y := y1]
-  bike[, seat_x := x2]
-  bike[, seat_y := y2]
-  bike[, head_x := x3]
-  bike[, head_y := y3]
-  bike[, crown_x := x4]
-  bike[, crown_y := y4]
-  bike[, front_x := x5]
-  bike[, front_y := y5]
-  bike[, bottom_x := x6]
-  bike[, bottom_y := y6]
-  bike[, seattube_x := x7]
-  bike[, seattube_y := y7]
-  
-  # geometry_with_sus_fork <- function(frame,
-  #                                  sus_length = 425,
-  #                                  sus_travel = 30,
-  #                                  sus_rake = 45,
-  #                                  headset_stack = 12){
-
-  for(row_i in 1:nrow(bike)){
-    # 5 % sag forks (Rudy)
-    
-    # 20% Sag forks (Fox, CC, Lauf)
-    sus_length = 425
-    sus_travel = 30
-    sus_rake = 45
-    sus_sag = 0.2
-    headset_stack = 0
-    sus_specs = paste(sus_travel, sus_rake)
-    sus_measures <- geometry_with_sus_fork(
-      bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
-    bike[row_i, (paste("axle_crown", sus_specs)) :=
-           sus_measures["axle_crown_sag"]]
-    bike[row_i, (paste("wheelbase", sus_specs)) :=
-           sus_measures["wheelbase"]]
-    bike[row_i, (paste("stack", sus_specs)) :=
-           sus_measures["stack"]]
-    bike[row_i, (paste("reach", sus_specs)) :=
-           sus_measures["reach"]]
-    bike[row_i, (paste("head_tube_angle", sus_specs)) :=
-           sus_measures["hta"]]
-    bike[row_i, (paste("seat_tube_angle", sus_specs)) :=
-           sus_measures["sta"]]
-    bike[row_i, (paste("bottom_bracket_drop", sus_specs)) :=
-           sus_measures["bb_drop"]]
-    bike[row_i, (paste("rear_center", sus_specs)) :=
-           sus_measures["rc"]]
-    bike[row_i, (paste("front_center", sus_specs)) :=
-           sus_measures["fc"]]
-    bike[row_i, (paste("trail_45", sus_specs)) :=
-           sus_measures["trail_45"]]
-
-    sus_length = 435
-    sus_travel = 40
-    sus_rake = 45
-    sus_specs = paste(sus_travel, sus_rake)
-    sus_measures <- geometry_with_sus_fork(
-      bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
-    bike[row_i, (paste("axle_crown", sus_specs)) :=
-           sus_measures["axle_crown_sag"]]
-    bike[row_i, (paste("wheelbase", sus_specs)) :=
-           sus_measures["wheelbase"]]
-    bike[row_i, (paste("stack", sus_specs)) :=
-           sus_measures["stack"]]
-    bike[row_i, (paste("reach", sus_specs)) :=
-           sus_measures["reach"]]
-    bike[row_i, (paste("head_tube_angle", sus_specs)) :=
-           sus_measures["hta"]]
-    bike[row_i, (paste("seat_tube_angle", sus_specs)) :=
-           sus_measures["sta"]]
-    bike[row_i, (paste("bottom_bracket_drop", sus_specs)) :=
-           sus_measures["bb_drop"]]
-    bike[row_i, (paste("rear_center", sus_specs)) :=
-           sus_measures["rc"]]
-    bike[row_i, (paste("front_center", sus_specs)) :=
-           sus_measures["fc"]]
-    bike[row_i, (paste("trail_45", sus_specs)) :=
-           sus_measures["trail_45"]]
-
-    sus_length = 425
-    sus_travel = 30
-    sus_rake = 51
-    sus_specs = paste(sus_travel, sus_rake)
-    sus_measures <- geometry_with_sus_fork(
-      bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
-    bike[row_i, (paste("axle_crown", sus_specs)) :=
-           sus_measures["axle_crown_sag"]]
-    bike[row_i, (paste("wheelbase", sus_specs)) :=
-           sus_measures["wheelbase"]]
-    bike[row_i, (paste("stack", sus_specs)) :=
-           sus_measures["stack"]]
-    bike[row_i, (paste("reach", sus_specs)) :=
-           sus_measures["reach"]]
-    bike[row_i, (paste("head_tube_angle", sus_specs)) :=
-           sus_measures["hta"]]
-    bike[row_i, (paste("seat_tube_angle", sus_specs)) :=
-           sus_measures["sta"]]
-    bike[row_i, (paste("bottom_bracket_drop", sus_specs)) :=
-           sus_measures["bb_drop"]]
-    bike[row_i, (paste("rear_center", sus_specs)) :=
-           sus_measures["rc"]]
-    bike[row_i, (paste("front_center", sus_specs)) :=
-           sus_measures["fc"]]
-    bike[row_i, (paste("trail_45", sus_specs)) :=
-           sus_measures["trail_45"]]
-
-    sus_length = 435
-    sus_travel = 40
-    sus_rake = 51
-    sus_specs = paste(sus_travel, sus_rake)
-    sus_measures <- geometry_with_sus_fork(
-      bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
-    bike[row_i, (paste("axle_crown", sus_specs)) :=
-           sus_measures["axle_crown_sag"]]
-    bike[row_i, (paste("wheelbase", sus_specs)) :=
-           sus_measures["wheelbase"]]
-    bike[row_i, (paste("stack", sus_specs)) :=
-           sus_measures["stack"]]
-    bike[row_i, (paste("reach", sus_specs)) :=
-           sus_measures["reach"]]
-    bike[row_i, (paste("head_tube_angle", sus_specs)) :=
-           sus_measures["hta"]]
-    bike[row_i, (paste("seat_tube_angle", sus_specs)) :=
-           sus_measures["sta"]]
-    bike[row_i, (paste("bottom_bracket_drop", sus_specs)) :=
-           sus_measures["bb_drop"]]
-    bike[row_i, (paste("rear_center", sus_specs)) :=
-           sus_measures["rc"]]
-    bike[row_i, (paste("front_center", sus_specs)) :=
-           sus_measures["fc"]]
-    bike[row_i, (paste("trail_45", sus_specs)) :=
-           sus_measures["trail_45"]]
-
-    sus_length = 445
-    sus_travel = 50
-    sus_rake = 45
-    sus_specs = paste(sus_travel, sus_rake)
-    sus_measures <- geometry_with_sus_fork(
-      bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
-    bike[row_i, (paste("axle_crown", sus_specs)) :=
-           sus_measures["axle_crown_sag"]]
-    bike[row_i, (paste("wheelbase", sus_specs)) :=
-           sus_measures["wheelbase"]]
-    bike[row_i, (paste("stack", sus_specs)) :=
-           sus_measures["stack"]]
-    bike[row_i, (paste("reach", sus_specs)) :=
-           sus_measures["reach"]]
-    bike[row_i, (paste("head_tube_angle", sus_specs)) :=
-           sus_measures["hta"]]
-    bike[row_i, (paste("seat_tube_angle", sus_specs)) :=
-           sus_measures["sta"]]
-    bike[row_i, (paste("bottom_bracket_drop", sus_specs)) :=
-           sus_measures["bb_drop"]]
-    bike[row_i, (paste("rear_center", sus_specs)) :=
-           sus_measures["rc"]]
-    bike[row_i, (paste("front_center", sus_specs)) :=
-           sus_measures["fc"]]
-    bike[row_i, (paste("trail_45", sus_specs)) :=
-           sus_measures["trail_45"]]
-    
-    sus_length = 445
-    sus_travel = 50
-    sus_rake = 50
-    sus_specs = paste(sus_travel, sus_rake)
-    sus_measures <- geometry_with_sus_fork(
-      bike[row_i], sus_length, sus_travel, sus_rake, sus_sag, headset_stack)
-    bike[row_i, (paste("axle_crown", sus_specs)) :=
-           sus_measures["axle_crown_sag"]]
-    bike[row_i, (paste("wheelbase", sus_specs)) :=
-           sus_measures["wheelbase"]]
-    bike[row_i, (paste("stack", sus_specs)) :=
-           sus_measures["stack"]]
-    bike[row_i, (paste("reach", sus_specs)) :=
-           sus_measures["reach"]]
-    bike[row_i, (paste("head_tube_angle", sus_specs)) :=
-           sus_measures["hta"]]
-    bike[row_i, (paste("seat_tube_angle", sus_specs)) :=
-           sus_measures["sta"]]
-    bike[row_i, (paste("bottom_bracket_drop", sus_specs)) :=
-           sus_measures["bb_drop"]]
-    bike[row_i, (paste("rear_center", sus_specs)) :=
-           sus_measures["rc"]]
-    bike[row_i, (paste("front_center", sus_specs)) :=
-           sus_measures["fc"]]
-    bike[row_i, (paste("trail_45", sus_specs)) :=
-           sus_measures["trail_45"]]
-
-    
-  }
-  
-  return(bike)
-}
-
-```
 
 
 ```{r size-classes}
@@ -4258,7 +3852,10 @@ scatter_fig <- function(shared_data = geobike_shared,
   return(fig)}
 ```
 
-
+```{r}
+t <- geobike[material == "aluminum" & frame_weight < 2000, .SD, .SD = c("model", "frame_size", "frame_weight")]
+t |> knitr::kable(digits = c(0,0,0)) |> kableExtra::kable_styling()
+```
 
 ```{r output-as-R-file}
 # highlight and run to put update into R folder
