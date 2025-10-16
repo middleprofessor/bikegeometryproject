@@ -49,36 +49,38 @@ relaxed_shared <- SharedData$new(relaxed, key = ~id, group = "style_table")
 rowdy_shared   <- SharedData$new(rowdy,   key = ~id, group = "style_table")
 xtra_rowdy_shared   <- SharedData$new(xtra_rowdy,   key = ~id, group = "style_table")
 
-ncm1 <- ncol(style_table) - 1
-racy_col <- datatable(racy_shared,
-                 rownames = FALSE,
-                 options = list(searching = TRUE,
-      columnDefs = list(list(targets = 1:ncm1, visible = FALSE, searching = FALSE)),
-      pageLength = 100))
-relaxed_col <- datatable(relaxed_shared,
-                 rownames = FALSE,
-                 options = list(searching = TRUE,
-      columnDefs = list(list(targets = 1:ncm1, visible = FALSE, searching = FALSE)),
-      pageLength = 100))
-rowdy_col <- datatable(rowdy_shared,
-                 rownames = FALSE,
-                 options = list(searching = TRUE,
-      columnDefs = list(list(targets = 1:ncm1, visible = FALSE, searching = FALSE)),
-      pageLength = 100))
-xtra_rowdy_col <- datatable(xtra_rowdy_shared,
-                 rownames = FALSE,
-                 options = list(searching = TRUE,
-      columnDefs = list(list(targets = 1:ncm1, visible = FALSE, searching = FALSE)),
-      pageLength = 100))
+# Hide every column except the first (index 0). 0-based for DataTables:
+hide_cols <- 1:(ncol(style_table) - 1)   # same as your ncm1
+
+mk_dt <- function(sd_obj) {
+  datatable(
+    sd_obj,
+    rownames = FALSE,
+    selection = "none",
+    options = list(
+      searching  = TRUE,  # remove global search box
+      dom        = "lrtip",       # remove the 'f' (filter box) from the toolbar
+      pageLength = 100,
+      columnDefs = list(
+        list(targets = hide_cols, visible = FALSE, searchable = FALSE)  # <- note 'searchable'
+      )
+    )
+  )
+}
+
+racy_col       <- mk_dt(racy_shared)
+relaxed_col    <- mk_dt(relaxed_shared)
+rowdy_col      <- mk_dt(rowdy_shared)
+xtra_rowdy_col <- mk_dt(xtra_rowdy_shared)
 
 # filters
 filters <- list(
-  filter_checkbox("material", "Frame material", style_table_shared, ~material, inline = TRUE),
-  filter_checkbox("handlebar", "Handlebar", style_table_shared, ~handlebar, inline = TRUE),
-  filter_checkbox("axle", "Hub spacing", style_table_shared, ~axle_spacing, inline = TRUE),
+  filter_checkbox("material", "Frame material", style_table_shared, ~material, inline = FALSE),
+  filter_checkbox("handlebar", "Handlebar", style_table_shared, ~handlebar, inline = FALSE),
+  filter_checkbox("axle", "Hub spacing", style_table_shared, ~axle_spacing, inline = FALSE),
   filter_checkbox("udh", "UDH", style_table_shared, ~udh, inline = TRUE),
   filter_checkbox("dropper", "Stealth dropper", style_table_shared, ~stealth_dropper, inline = TRUE),
-  filter_checkbox("fork", "Suspension correction (mm)", style_table_shared, ~fork_class, inline = TRUE),
+  filter_checkbox("fork", "Suspension correction (mm)", style_table_shared, ~fork_class, inline = FALSE),
   filter_checkbox("sliding", "Sliding dropout (mm)", style_table_shared, ~dropout, inline = TRUE),
   filter_slider("tire_700", "Max 700c tire width (mm)", style_table_shared, ~tire_width_max_700c, step = 1),
   filter_slider("tire_650", "Max 650b tire width (in)", style_table_shared, ~tire_width_max_650b, step = 0.05),
@@ -100,76 +102,4 @@ bscols(
 
 ```
 
-```{r playing}
-#| echo: false
-#| eval: false
-
-keep_cols <- c("model", "kmeans_style", "material", "fork_class", "udh", "dropout", "axle_spacing",
-               "max_chainring_1x", "stealth_dropper",
-               "handlebar", "tire_width_max_700c", "tire_width_max_650b", "base_build_usd", "frameset_usd")
-style_table <- geobike[my_fit == TRUE, .SD, .SDcols = keep_cols]
-setnames(style_table, old = "kmeans_style", new = "style")
-style_table[, id := .I]
-# Put the data into a SharedData object for crosstalk
-#shared <- SharedData$new(dt)
-
-style_table_shared <- SharedData$new(style_table, key = ~id, group = "style_table")
-
-racy        <- copy(style_table[style=="racy"]);       setnames(racy, "model", "Racy")
-relaxed     <- copy(style_table[style=="relaxed"]);    setnames(relaxed, "model", "Relaxed")
-rowdy       <- copy(style_table[style=="rowdy"]);      setnames(rowdy, "model", "Rowdy")
-xtra_rowdy  <- copy(style_table[style=="xtra rowdy"]); setnames(xtra_rowdy, "model", "xtra_Rowdy")
-
-racy_shared        <- SharedData$new(racy,        key = ~id, group = "style_table")
-relaxed_shared     <- SharedData$new(relaxed,     key = ~id, group = "style_table")
-rowdy_shared       <- SharedData$new(rowdy,       key = ~id, group = "style_table")
-xtra_rowdy_shared  <- SharedData$new(xtra_rowdy,  key = ~id, group = "style_table")
-
-ncm1 <- ncol(style_table) - 1
-
-mk_dt <- function(sd_obj){
-  datatable(sd_obj, rownames = FALSE, selection = "none",
-    options = list(
-      searching = FALSE,                        # no DT search box
-      columnDefs = list(list(targets = 1:ncm1, visible = FALSE, searchable = FALSE)),
-      pageLength = 100
-    )
-  )
-}
-
-racy_col       <- mk_dt(racy_shared)
-relaxed_col    <- mk_dt(relaxed_shared)
-rowdy_col      <- mk_dt(rowdy_shared)
-xtra_rowdy_col <- mk_dt(xtra_rowdy_shared)
-
-filters <- list(
-  filter_checkbox("material", "Frame material", style_table_shared, ~material, inline = TRUE),
-  filter_checkbox("handlebar", "Handlebar", style_table_shared, ~handlebar, inline = TRUE),
-  filter_checkbox("axle", "Hub spacing", style_table_shared, ~axle_spacing, inline = TRUE),
-  filter_checkbox("udh", "UDH", style_table_shared, ~udh, inline = TRUE),
-  filter_checkbox("dropper", "Stealth dropper", style_table_shared, ~stealth_dropper, inline = TRUE),
-  filter_checkbox("fork", "Suspension correction (mm)", style_table_shared, ~fork_class, inline = TRUE),
-  filter_checkbox("sliding", "Sliding dropout (mm)", style_table_shared, ~dropout, inline = TRUE),
-  filter_slider("tire_700", "Max 700c tire width (mm)", style_table_shared, ~tire_width_max_700c, step = 1),
-  filter_slider("tire_650", "Max 650b tire width (in)", style_table_shared, ~tire_width_max_650b, step = 0.05),
-  filter_slider("max_chainring", "Max 1X chainring", style_table_shared, ~max_chainring_1x),
-  filter_slider("frameset", "Frameset ($)", style_table_shared, ~frameset_usd),
-  filter_slider("base_build", "Base Build ($)", style_table_shared, ~base_build_usd)
-)
-
-controls <- tagList(filters)
-
-browsable(tagList(
-  crosstalk::crosstalkLibs(),
-  bscols(
-    widths = c(2, 10),
-    controls,
-    bscols(widths = c(3, 3, 3, 3),
-      racy_col, relaxed_col, rowdy_col, xtra_rowdy_col
-    )
-  )
-))
-
-
-```
 
