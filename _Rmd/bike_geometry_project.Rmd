@@ -1582,6 +1582,9 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
                         bike_range = geom_range,
                         data_file = paste0(style_folder,"/", bike_file))
     bike_i <- cbind(bike_geo, bike_specs_t )
+    if(!"location" %in% names(bike_i)){
+      bike_i[, location := NA]
+    }
     bike_i <- clean_and_compute(bike_i)
     # bike_i <- read_bike(bike_label = bike_label,
     #                     bike_range = geom_range,
