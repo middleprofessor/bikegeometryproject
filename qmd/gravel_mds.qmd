@@ -41,7 +41,8 @@ filters <- list(
   filter_slider("tire_650", "Max 650b tire width (in)", geobike_mds_shared, ~tire_width_max_650b, step = 0.05),
   filter_slider("max_chainring", "Max 1X chainring", geobike_mds_shared, ~max_chainring_1x),
   filter_slider("frameset", "Frameset ($)", geobike_mds_shared, ~frameset_usd),
-  filter_slider("base_build", "Base Build ($)", geobike_mds_shared, ~base_build_usd)
+  filter_slider("base_build", "Base Build ($)", geobike_mds_shared, ~base_build_usd),
+  filter_checkbox("country", "Location", geobike_mds_shared, ~country, inline = TRUE)
   )
 
 bscols( widths = c(3, 9), filters, p1)

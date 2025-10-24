@@ -112,6 +112,15 @@ deg_2_rad <- function(x){
   
 ```
 
+```{r}
+extract_country <- function(x) {
+  # split once from the right; take last field
+  parts <- tstrsplit(x, ",", fixed = TRUE)
+  # `parts` is a list; the last element is the country
+  trimws(parts[[length(parts)]])
+}
+```
+
 ## Dendrogram
 
 ```{r ggdendro-extensions}
@@ -977,6 +986,14 @@ clean_and_compute <- function(bike){
        frame_size := frame_size_numbers |> as.character()]
   bike[is.na(frame_size_numbers) & !is.na(frame_size_letters),
        frame_size := frame_size_letters]
+  
+  # make country
+  bike[, country := extract_country(location)]
+  bike[country == "England", country := "United Kingdom"]
+  bike[country == "Scotland", country := "United Kingdom"]
+  bike[country == "Northern Ireland", country := "United Kingdom"]
+  bike[country == "Wales", country := "United Kingdom"]
+  bike[country == "UK", country := "United Kingdom"]
 
   # decompositions
   # need this
@@ -1889,6 +1906,14 @@ rider_range <- function(geobike){
       mids <- (rider_height[2:q] + rider_height[1:(q-1)])/2
       geobike[model == models[i], rider_min_pred := mids[1:p]]
       geobike[model == models[i], rider_max_pred := mids[2:(p+1)]]
+      geobike[model == models[i] & !is.na(rider_min), 
+              specified_rider_height := 
+                paste0(round(rider_min, 0), "cm - ", round(rider_max, 0), "cm")]
+      geobike[model == models[i] & is.na(rider_min), 
+              specified_rider_height := NA]
+      geobike[model == models[i], 
+              estimated_rider_height := 
+                paste0(round(rider_min_pred, 0), "cm - ", round(rider_max_pred, 0), "cm")]
     }
   }
   return(geobike)

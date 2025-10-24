@@ -26,7 +26,7 @@ source(source_path)
 
 keep_cols <- c("model", "kmeans_style", "material", "fork_class", "udh", "dropout", "axle_spacing",
                "max_chainring_1x", "stealth_dropper",
-               "handlebar", "tire_width_max_700c", "tire_width_max_650b", "base_build_usd", "frameset_usd")
+               "handlebar", "tire_width_max_700c", "tire_width_max_650b", "base_build_usd", "frameset_usd", "country")
 style_table <- geobike[my_fit == TRUE, .SD, .SDcols = keep_cols]
 setnames(style_table, old = "kmeans_style", new = "style")
 style_table[, id := .I]
@@ -86,7 +86,8 @@ filters <- list(
   filter_slider("tire_650", "Max 650b tire width (in)", style_table_shared, ~tire_width_max_650b, step = 0.05),
   filter_slider("max_chainring", "Max 1X chainring", style_table_shared, ~max_chainring_1x),
   filter_slider("frameset", "Frameset ($)", style_table_shared, ~frameset_usd),
-  filter_slider("base_build", "Base Build ($)", style_table_shared, ~base_build_usd)
+  filter_slider("base_build", "Base Build ($)", style_table_shared, ~base_build_usd),
+  filter_checkbox("country", "Location", style_table_shared, ~country, inline = TRUE)
   )
 
 controls <- tagList(filters)   # <— turn the list into real UI elements

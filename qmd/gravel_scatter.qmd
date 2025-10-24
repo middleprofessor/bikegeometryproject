@@ -176,7 +176,7 @@ p9 <- scatter_fig(shared_data = geobike_shared,
   f10 <- filter_slider("max_chainring", "Max 1X chainring", geobike_shared, ~max_chainring_1x)
   f11 <- filter_slider("frameset", "Frameset ($)", geobike_shared, ~frameset_usd)
   f12 <- filter_slider("base_build", "Base Build ($)", geobike_shared, ~base_build_usd)
-  
+  f13 <- filter_checkbox("country", "Location", geobike_shared, ~country, inline = TRUE)
     
   
   bscols(
@@ -191,7 +191,7 @@ p9 <- scatter_fig(shared_data = geobike_shared,
     bscols(widths = c(6,6), list(sm_box, med_box, lg_box), height_boxes),
     # stacked filters
     tags$div(style="display:flex; flex-direction:column; gap:12px;",
-      f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12
+      f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13
     )
   )
 )
