@@ -879,7 +879,6 @@ read_geometry <- function(bike_label = "Alchemy Lycos 2023",
     bike[, rider_min := as.numeric(NA)]
     bike[, rider_max := as.numeric(NA)]
   }
-  bike[, rider_height := (rider_min + rider_max)/2]
   if(!("trail" %in% colnames(bike))){
     bike[, trail := as.numeric(NA)]
   }
@@ -898,7 +897,7 @@ read_geometry <- function(bike_label = "Alchemy Lycos 2023",
                   "fork_offset_rake", "axle_crown_in_data", "axle_crown", "trail",
                   "standover", "stem_length", "handlebar_width", "crank_length",
                   "wheel_size", "tire_width_spec", "tire_width_max",
-                  "rider_min", "rider_max", "rider_height"
+                  "rider_min", "rider_max"
   )
   bike <- bike[, .SD, .SDcols = keep_names]
   return(bike)
@@ -977,6 +976,7 @@ clean_and_compute <- function(bike){
     bike[2:n_sizes, rider_min := rider_size]
     bike[1:(n_sizes-1), rider_max := rider_size]
   }
+  bike[, rider_height := (rider_min + rider_max)/2]
 
   # clean frame size
   bike <- clean_frame_size(bike)
@@ -1598,108 +1598,6 @@ return(geobike)
 }
 ```
 
-```{r seattube-size}
-seattube_size <- function(bike){
-
-    
-  median_sizes <- c(
-    # XS
-    (median(geobike[frame_size_letters == "XS", rider_min], na.rm=TRUE) +
-      median(geobike[frame_size_letters == "XS", rider_max], na.rm=TRUE))/2,
-    # S
-    (median(geobike[frame_size_letters == "S", rider_min], na.rm=TRUE) +
-      median(geobike[frame_size_letters == "S", rider_max], na.rm=TRUE))/2,
-    # M
-    (median(geobike[frame_size_letters == "M", rider_min], na.rm=TRUE) +
-      median(geobike[frame_size_letters == "M", rider_max], na.rm=TRUE))/2,
-    # L
-    (median(geobike[frame_size_letters == "L", rider_min], na.rm=TRUE) +
-      median(geobike[frame_size_letters == "L", rider_max], na.rm=TRUE))/2,
-    # XL
-    (median(geobike[frame_size_letters == "XL", rider_min], na.rm=TRUE) +
-      median(geobike[frame_size_letters == "XL", rider_max], na.rm=TRUE))/2
-  ) |> round(0)
-  
-median_seat_tube <- c(
-  xs = median(geobike[frame_size_letters == "XS", seat_tube_effective_length], na.rm=TRUE),
-  s = median(geobike[frame_size_letters == "S", seat_tube_effective_length], na.rm=TRUE),
-  m = median(geobike[frame_size_letters == "M", seat_tube_effective_length], na.rm=TRUE),
-  l = median(geobike[frame_size_letters == "L", seat_tube_effective_length], na.rm=TRUE),
-  xl = median(geobike[frame_size_letters == "XL", seat_tube_effective_length], na.rm=TRUE)
-  
-)
-size_dt <- data.table(
-  rider_size = median_sizes,
-  eff_seat_tube = median_seat_tube
-)
-
-# ggplot(data = size_dt,
-#        aes(x = eff_seat_tube,
-#            y = rider_size)) +
-#   geom_point()
-
-m1 <- lm(rider_size ~ eff_seat_tube, data = size_dt)
-b <- coef(m1)
-geobike[, rider_height := b[1] + b[2] * seat_tube_effective_length]
-
-geobike[model == "Trek Checkmate 2025", .SD, .SDcols = c("frame_size", "rider_min", "rider_max", "rider_height")]
-geobike[model == "Sklar SuperSomething 2025", .SD, .SDcols = c("frame_size", "rider_min", "rider_max", "rider_height")]
-geobike[model == "Santa Cruz Stigmata CC 2025", .SD, .SDcols = c("frame_size", "rider_min", "rider_max", "rider_height")]
-
-  # size midpoints
-geobike[, rider_height := (rider_min + rider_max)/2]
-m1 <- lm(rider_mid ~ seat_tube_effective_length +
-           seat_tube_angle +
-           head_tube_angle +
-           stack_reach +
-           chainstay_length,
-         data = geobike, na.action=na.exclude)
-
-ggplot(data = geobike,
-       aes(x = seat_tube_effective_length,
-           y = rider_mid,
-           color = kmeans_style)) +
-  geom_point()
-
-b <- coef(m1)
-geobike[, rider_height := b[1] +
-          b[2] * seat_tube_effective_length +
-          b[3] * seat_tube_angle +
-          b[4] * head_tube_angle]
-geobike[model == "Trek Checkmate 2025", .SD, .SDcols = c("frame_size", "seat_tube_effective_length", "rider_mid", "rider_height")]
-geobike[model == "Sklar SuperSomething 2025", .SD, .SDcols = c("frame_size", "seat_tube_effective_length", "rider_mid", "rider_height")]
-geobike[model == "Santa Cruz Stigmata CC 2025", .SD, .SDcols = c("frame_size", "seat_tube_effective_length", "rider_mid", "rider_height")]
-geobike[model == "Fairlight Holt 2.0 2025", .SD, .SDcols = c("frame_size", "seat_tube_effective_length", "rider_mid", "rider_height")]
-
-geobike[, m1_resid := residuals(m1)]
-ggplot(data = geobike,
-       aes(x = rider_mid,
-           y = m1_resid)) + 
-  geom_point()
-}
-
-models <- unique(geobike[, model])
-for(i in 1:length(models)){
-  sizes <- geobike[model == models[i], frame_size]
-  p <- length(sizes)
-  if(p > 1){
-    rider_height <- geobike[model == models[i], rider_height]
-    rider_height <- c(rider_height[1] - (rider_height[2] - rider_height[1]),
-                      rider_height,
-                      rider_height[p] + (rider_height[p] - rider_height[p-1]))
-    q <- length(rider_height)
-    mids <- (rider_height[2:q] + rider_height[1:(q-1)])/2
-    geobike[model == models[i], rider_min_est := mids[1:p]]
-    geobike[model == models[i], rider_max_est := mids[2:(p+1)]]
-  }
-}
-
-geobike[my_fit == TRUE, .SD, .SDcols = c("rider_min", "rider_min_est", "rider_max", "rider_max_est")]
-geobike[rider_min_est <= 175 & rider_max_est > 175, std_size := "M"]
-x <- geobike[my_fit == TRUE | std_size == "M", .SD, .SDcols = c("model", "frame_size", "my_fit", "std_size")]
-
-```
-
 ```{r forest-boost-size-predictor}
 set.seed(123)
 
@@ -1904,8 +1802,12 @@ test_geobike <- geobike[, .SD, .SDcols = c("model_size", "rider_height_residual"
 setorder(test_geobike, rider_height_residual)
 test_geobike[, abs_resid := abs(rider_height_residual)]
 View(test_geobike[!is.na(rider_height_residual)])
-bike_i <- geobike[model == "Ventum GS1 2025", .SD, .SDcols = c("model", "frame_size", "rider_height", "rider_height_pred")]
+a <- "Breezer Radar X 2025"
+a <- "Ventum GS1 2025"
+bike_i <- geobike[model == "Breezer Radar X 2025", .SD, .SDcols = c("model", "frame_size", "rider_min", "rider_max", "rider_height", "rider_height_pred")]
 setorder(bike_i, rider_height)
+bike_i[, dev_low := rider_min - rider_height]
+bike_i[, dev_hi := rider_max - rider_height]
 bike_i
 ```
 
