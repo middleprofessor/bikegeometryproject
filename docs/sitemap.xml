@@ -1,63 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://thegravelbikegeometryproject.com/index old.html</loc>
-    <lastmod>2025-09-05T14:40:43.265Z</lastmod>
-  </url>
-  <url>
-    <loc>https://thegravelbikegeometryproject.com/index.html</loc>
-    <lastmod>2025-10-15T14:28:20.748Z</lastmod>
-  </url>
-  <url>
-    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_sus_fork.html</loc>
-    <lastmod>2025-09-10T11:59:50.108Z</lastmod>
-  </url>
-  <url>
-    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_tree.html</loc>
-    <lastmod>2025-09-22T00:54:32.740Z</lastmod>
-  </url>
-  <url>
-    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_compare_table.html</loc>
-    <lastmod>2025-10-24T13:02:44.565Z</lastmod>
-  </url>
-  <url>
-    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_class.html</loc>
-    <lastmod>2025-10-24T14:03:12.843Z</lastmod>
-  </url>
-  <url>
-    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_style_plot.html</loc>
-    <lastmod>2025-08-04T11:39:35.351Z</lastmod>
-  </url>
-  <url>
-    <loc>https://thegravelbikegeometryproject.com/qmd/what_makes_a_rowdy_bike_rowdy.html</loc>
-    <lastmod>2025-09-07T15:11:03.395Z</lastmod>
-  </url>
-  <url>
-    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_scatter_sus.html</loc>
-    <lastmod>2025-08-19T14:37:38.247Z</lastmod>
-  </url>
-  <url>
-    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_scatter_model.html</loc>
-    <lastmod>2025-08-03T22:41:56.419Z</lastmod>
-  </url>
-  <url>
-    <loc>https://thegravelbikegeometryproject.com/qmd/what_makes_a_relaxed_bike_relaxed.html</loc>
-    <lastmod>2025-08-19T11:25:43.898Z</lastmod>
-  </url>
-  <url>
-    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_mds.html</loc>
-    <lastmod>2025-10-24T14:04:44.414Z</lastmod>
-  </url>
-  <url>
-    <loc>https://thegravelbikegeometryproject.com/qmd/what_makes_a_racy_bike_racy.html</loc>
-    <lastmod>2025-08-19T11:24:43.394Z</lastmod>
+    <loc>https://thegravelbikegeometryproject.com/about.html</loc>
+    <lastmod>2025-09-14T12:36:42.214Z</lastmod>
   </url>
   <url>
     <loc>https://thegravelbikegeometryproject.com/qmd/gravel_scatter.html</loc>
     <lastmod>2025-10-24T15:07:54.996Z</lastmod>
   </url>
   <url>
-    <loc>https://thegravelbikegeometryproject.com/about.html</loc>
-    <lastmod>2025-09-14T12:36:42.214Z</lastmod>
+    <loc>https://thegravelbikegeometryproject.com/qmd/what_makes_a_racy_bike_racy.html</loc>
+    <lastmod>2025-08-19T11:24:43.394Z</lastmod>
+  </url>
+  <url>
+    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_mds.html</loc>
+    <lastmod>2025-10-24T14:04:44.414Z</lastmod>
+  </url>
+  <url>
+    <loc>https://thegravelbikegeometryproject.com/qmd/what_makes_a_relaxed_bike_relaxed.html</loc>
+    <lastmod>2025-08-19T11:25:43.898Z</lastmod>
+  </url>
+  <url>
+    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_scatter_model.html</loc>
+    <lastmod>2025-08-03T22:41:56.419Z</lastmod>
+  </url>
+  <url>
+    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_scatter_sus.html</loc>
+    <lastmod>2025-08-19T14:37:38.247Z</lastmod>
+  </url>
+  <url>
+    <loc>https://thegravelbikegeometryproject.com/qmd/what_makes_a_rowdy_bike_rowdy.html</loc>
+    <lastmod>2025-09-07T15:11:03.395Z</lastmod>
+  </url>
+  <url>
+    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_style_plot.html</loc>
+    <lastmod>2025-08-04T11:39:35.351Z</lastmod>
+  </url>
+  <url>
+    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_class.html</loc>
+    <lastmod>2025-10-24T14:03:12.843Z</lastmod>
+  </url>
+  <url>
+    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_compare_table.html</loc>
+    <lastmod>2025-10-24T13:02:44.565Z</lastmod>
+  </url>
+  <url>
+    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_tree.html</loc>
+    <lastmod>2025-09-22T00:54:32.740Z</lastmod>
+  </url>
+  <url>
+    <loc>https://thegravelbikegeometryproject.com/qmd/gravel_sus_fork.html</loc>
+    <lastmod>2025-09-10T11:59:50.108Z</lastmod>
+  </url>
+  <url>
+    <loc>https://thegravelbikegeometryproject.com/index.html</loc>
+    <lastmod>2025-10-15T14:28:20.748Z</lastmod>
   </url>
 </urlset>
