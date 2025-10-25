@@ -1789,10 +1789,19 @@ predict_height_unscaled <- function(model, frames_dt, x_cols, imp, sc, ys = NULL
 
 frame_size_predictor <- function(geobike){
   
+  set.seed(123)
+
+  # process categorical variable
+  geobike[, handlebar_dummy := ifelse(handlebar == "drop bar", 0, 
+                                      ifelse(handlebar == "both", 0.5, 1))]
+
   y_col <- c("rider_height")
   x_cols <- c("stack", "reach", "head_tube_angle", "seat_tube_angle", "chainstay_length", "front_center", "head_tube_length", "top_tube_effective_length")
-  dt <- geobike[!is.na(rider_height), .SD, .SDcols = c(y_col, x_cols)]
+  cat_cols <- "handlebar_dummy"
   
+ # x_cols <- c(x_cols, cat_cols)
+  dt <- geobike[!is.na(rider_height), .SD, .SDcols = c(y_col, x_cols)]
+
   # Split first
   idx   <- sample(seq_len(nrow(dt)), 0.8*nrow(dt))
   train <- dt[idx]
@@ -1876,11 +1885,6 @@ frame_size_predictor <- function(geobike){
 
   return(geobike)
   
-  ggplot(data = geobike,
-       aes(x = rider_height_pred,
-           y = rider_height)) +
-  geom_point()
-
 }
 
 # geobike[model == "Trek Checkmate 2025", .SD, .SDcols = c("frame_size", "rider_height", "rider_height_pred_xgb")]
@@ -1888,7 +1892,21 @@ frame_size_predictor <- function(geobike){
 # geobike[model == "Santa Cruz Stigmata CC 2025", .SD, .SDcols = c("frame_size", "rider_height", "rider_height_pred_xgb")]
 # geobike[model == "Fairlight Holt 2.0 2025", .SD, .SDcols = c("frame_size", "rider_height", "rider_height_pred_xgb")]
 # geobike[model == "Breezer Radar X 2025", .SD, .SDcols = c("frame_size", "rider_height", "rider_height_pred_xgb")]
+ggplot(data = geobike,
+       aes(x = rider_height_pred,
+           y = rider_height,
+           color = handlebar)) +
+  geom_point()
 
+
+geobike[, rider_height_residual := rider_height_pred - rider_height]
+test_geobike <- geobike[, .SD, .SDcols = c("model_size", "rider_height_residual", "rider_height", "rider_height_pred")]
+setorder(test_geobike, rider_height_residual)
+test_geobike[, abs_resid := abs(rider_height_residual)]
+View(test_geobike[!is.na(rider_height_residual)])
+bike_i <- geobike[model == "Ventum GS1 2025", .SD, .SDcols = c("model", "frame_size", "rider_height", "rider_height_pred")]
+setorder(bike_i, rider_height)
+bike_i
 ```
 
 ```{r}
