@@ -31,55 +31,9 @@ source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 ```
 
-
-```{r plot-headers, warning=FALSE, message=FALSE, eval=FALSE, echo=FALSE, out.width = "90%", out.height = "90%"}
-
-### Stack vs. Reach
-### Chainstay Length vs. Effective top tube length
-### Rear Center vs. Front Center
-### Head Tube Angle vs. Seat Tube Angle
-### Top Tube Angle vs. Seat Tube Angle
-### Trail vs. Head Tube Angle
-### Stack/Reach vs. Front Center/Wheelbase
-### Seat Tube Angle/Head Tube Angle vs. Front Center/Wheelbase
-
-```
-
-```{r size-stats, echo=FALSE, eval=FALSE}
-sizes <- c("XXS", "XS", "S", "SM", "M", "ML", "L", "XL", "XXL")
-median_min <- numeric(length(sizes))
-median_max <- numeric(length(sizes))
-median_val <- numeric(length(sizes))
-for(i in 1:length(sizes)){
-  median_min[i] <- median(geobike[frame_size_letters == sizes[i],
-                                  rider_min], na.rm = TRUE)
-  median_max[i] <- median(geobike[frame_size_letters == sizes[i],
-                                  rider_max], na.rm = TRUE)
-  median_val[i] <- median(c(median_min[i], median_max[i]), na.rm = TRUE)
-}
-size_chart <- data.table(
-  size = sizes,
-  rider_min = median_min,
-  rider_max = median_max,
-  rider_size = median_val
-)
-# top end of S
-
-frame_size_list <- c("XXS", "XS", "XS/S", "S", "S/M", "M", "M/L", "L", "L/XL", "XL", "XXL")
-rider_height_list <- c(153, 159, 163, 167, 171, 175, 179, 183, 187, 191, 196)
-median_frame_size <- numeric(length(rider_height_list))
-for(i in 1:length(number_list)){
-  median_frame_size[i] <- median(geobike[rider_height_list[i] > rider_min & rider_height_list[i] <= rider_max, frame_size_numbers], na.rm = TRUE)
-}
-final_size_chart <- data.table(
-  rider_height = rider_height_list,
-  frame_size_char = frame_size_list,
-  frame_size_num = median_frame_size
-)
-
-```
-
-```{r make-plots, echo=FALSE}
+```{r make-plots}
+#| echo: false
+#| eval: true
 
 geobike_shared <- SharedData$new(geobike, key = ~model_size, group = "2dscatter")
 
@@ -98,19 +52,362 @@ p2 <- scatter_fig(shared_data = geobike_shared,
                   same_xy_scale = FALSE)
 p3 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
+                  x_col = "top_tube_effective_length", y_col = "seat_tube_effective_length",
+                  x_label = "Top Tube (effective) (mm)", y_label = "Seat Tube (effective) (mm)",
+                  x_info = "ETTL", y_info = "ESTL",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p4 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
                   x_col = "wheelbase", y_col = "bottom_bracket_drop",
                   x_label = "Wheelbase (mm)", y_label = "Bottom Bracket Drop (mm)",
                   x_info = "WB", y_info = "BB drop",
                   g_col = "model_size",
                   same_xy_scale = FALSE)
-p4 <- scatter_fig(shared_data = geobike_shared,
+p5 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
                   x_col = "seat_tube_angle", y_col = "head_tube_angle",
                   x_label = "Seat Tube Angle (°)", y_label = "Head Tube Angle (°)",
                   x_info = "STA", y_info = "HTA", digits = 1,
                   g_col = "model_size",
                   same_xy_scale = FALSE)
+p6 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
+                  x_col = "chainstay_length",
+                  y_col = "seat_tube_length",
+                  x_label = "Chainstay Length (mm)",
+                  y_label = "Seat Tube Length (mm)",
+                  x_info = "CS", y_info = "STL",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p7 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
+                  x_col = "seat_tube_length", y_col = "top_tube_angle",
+                  x_label = "Seat Tube Length (mm)", y_label = "Top Tube Angle (°)",
+                  x_info = "STL", y_info = "TTA", digits = 1,
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p8 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
+                  x_col = "trail", y_col = "trail_45",
+                  x_label = "Trail (mm)", y_label = "Trail (45 mm tire) (mm)",
+                  x_info = "Trail", y_info = "Trail-45", digits = 1,
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p9 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
+                  x_col = "front_wheelbase", y_col = "stack_reach",
+                  x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
+                  x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p10 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
+                  x_col = "front_wheelbase", y_col = "sta_hta",
+                  x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
+                  x_info = "FC/WB", y_info = "STA/HTA", digits = 2,
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+
+```
+
+```{r working-output}
+#| eval: true
+#| echo: false
+#| out-height: "100%"
+#| out-width: "100%"
+
+
+# set up check boxes
+
+
+ # med_box <- filter_checkbox("med", "Classification size", geobike_shared, ~frame_size_std_m, inline = FALSE)
+  
+  # --- 2) Height checkbox grid (one Crosstalk filter per height column) --------
+  make_height_box <- function(h) {
+    var_form <- as.formula(paste0("~h", h))
+    crosstalk::filter_checkbox(
+      id = paste0("height_", h),
+      label = NULL,               # visible label = the height number
+      sharedData = geobike_shared,
+      var_form,                               # IMPORTANT: the column, not 'group'
+      inline = TRUE
+    )
+  }
+  height_ticks <- c(seq(150, 200, by = 1)) # adjust range/step as you like
+  height_boxes <- lapply(height_ticks, make_height_box)
+  height_ticks_in <- c(seq(59, 79, by = 0.5)) # adjust range/step as you like
+  height_boxes_in <- lapply(height_ticks_in, make_height_box)
+  
+
+  f1 <- filter_checkbox("material", "Frame material", geobike_shared, ~material, inline = TRUE)
+  f2 <- filter_checkbox("handlebar", "Handlebar", geobike_shared, ~handlebar, inline = TRUE)
+  f3 <- filter_checkbox("axle", "Hub spacing", geobike_shared, ~axle_spacing, inline = TRUE)
+  f4 <- filter_checkbox("udh", "UDH", geobike_shared, ~udh, inline = TRUE)
+  f5 <- filter_checkbox("dropper", "Stealth dropper", geobike_shared, ~stealth_dropper, inline = TRUE)
+  f6 <- filter_checkbox("fork", "Suspension correction (mm)", geobike_shared, ~fork_class, inline = TRUE)
+  f7 <- filter_checkbox("sliding", "Sliding dropout (mm)", geobike_shared, ~dropout, inline = TRUE)
+  f8 <- filter_slider("tire_700", "Max 700c tire width (mm)", geobike_shared, ~tire_width_max_700c, step = 1)
+  f9 <- filter_slider("tire_650", "Max 650b tire width (in)", geobike_shared, ~tire_width_max_650b, step = 0.05)
+  f10 <- filter_slider("max_chainring", "Max 1X chainring", geobike_shared, ~max_chainring_1x)
+  f11 <- filter_slider("frameset", "Frameset ($)", geobike_shared, ~frameset_usd)
+  f12 <- filter_slider("base_build", "Base Build ($)", geobike_shared, ~base_build_usd)
+  f13 <- filter_checkbox("country", "Location", geobike_shared, ~country, inline = TRUE)
+
+    
+left_col <- tagList(p1, br(), p2, br(), p3, br(), p4, br(), p5, br(), p6, br(), p7, br(), p8, br(), p9, br(), p10)
+
+# --- 5) Styling: two-column layout + sticky filter panel + pretty height grid -
+styles <- tags$style(HTML("
+  .page-grid {
+    display: grid;
+    grid-template-columns: minmax(400px, 1fr) 340px;  /* left flexible, right fixed */
+    gap: 16px;
+  }
+  @media (max-width: 1100px) {
+    .page-grid { grid-template-columns: 1fr; }
+  }
+  .filters-panel {
+    position: sticky; top: 8px; align-self: start;
+    max-height: calc(100vh - 16px); overflow: auto;
+    padding: 12px; border: 1px solid #ddd; border-radius: 10px;
+    background: #fafafa;
+  }
+  .filter-card {
+    border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; margin-bottom: 10px;
+    background: white;
+  }
+  .filter-card h4 {
+    margin: 0 0 6px 0; font-size: 1rem; font-weight: 600;
+  }
+
+  /* Height checkbox grid */
+  .height-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+    gap: 6px 10px;
+    align-items: center;
+  }
+  .height-grid .crosstalk-input-checkbox .checkbox { margin: 0; }
+  .height-grid label { margin: 0; font-size: 0.95rem; }
+
+  .height-toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .height-toolbar .pill { font-size: 0.85rem; padding: 2px 8px; background: #eef2ff; border-radius: 999px; }
+"))
+
+# --- 6) JS: make the height checkboxes single-select + Clear + default 175 ----
+height_select <- tags$select(
+  id = "height-select",
+  class = "height-select",
+  lapply(height_ticks, function(h) tags$option(value = h, h))
+)
+
+compact_css <- tags$style(HTML("
+  .height-select { width: 100%; font-size: 13px; padding: 4px 8px; }
+  /* Hide the checkbox grid but keep space for an optional 'Show advanced' link */
+  .height-grid.is-hidden { display: none !important; }
+"))
+
+# --- JS: tie the select to the hidden checkboxes (and preserve your Clear button)
+wire_js <- tags$script(HTML("
+  (function(){
+    function clickIfChecked(el, shouldBeChecked){
+      if (!!el.checked !== !!shouldBeChecked) el.click(); // use click() so Crosstalk updates
+    }
+    function setHeightFromSelect(val){
+      const boxes = document.querySelectorAll('.height-grid input[type=checkbox]');
+      boxes.forEach(function(b){
+        const label = b.parentElement && b.parentElement.textContent.trim();
+        clickIfChecked(b, label === val);
+      });
+    }
+    document.addEventListener('change', function(e){
+      if (e.target && e.target.matches('#height-select')) {
+        setHeightFromSelect(e.target.value);
+      }
+    });
+    document.addEventListener('click', function(e){
+      if (e.target && e.target.matches('#height-clear')) {
+        const boxes = document.querySelectorAll('.height-grid input[type=checkbox]');
+        boxes.forEach(function(b){ if (b.checked) b.click(); });
+        const sel = document.querySelector('#height-select');
+        if (sel) sel.selectedIndex = -1;  // clear selection
+      }
+    });
+    // Initialize select to 175 if that box is preselected
+    document.addEventListener('DOMContentLoaded', function(){
+      var chosen = document.querySelector('#height_175 input[type=checkbox]');
+      var sel = document.querySelector('#height-select');
+      if (sel && chosen && chosen.checked) {
+        sel.value = '175';
+      }
+    });
+  })();
+"))
+
+# Compact CSS (reuse your existing one if you already have it)
+compact_height_css_in <- tags$style(HTML("
+  .height-select { width: 100%; font-size: 13px; padding: 4px 8px; }
+  .height-grid-in.is-hidden { display: none !important; }
+"))
+
+# JS wiring for the INCH select <-> hidden checkboxes
+height_select_in_js <- tags$script(HTML("
+  (function(){
+    function clickIfNeeded(box, shouldBeChecked){
+      if (!!box.checked !== !!shouldBeChecked) box.click(); // trigger Crosstalk updates
+    }
+    function setFromSelectIn(val){
+      const boxes = document.querySelectorAll('.height-grid-in input[type=checkbox]');
+      boxes.forEach(function(b){
+        const label = b.parentElement && b.parentElement.textContent.trim();
+        clickIfNeeded(b, label === val);
+      });
+    }
+    // Select -> hidden checkboxes
+    document.addEventListener('change', function(e){
+      if (e.target && e.target.matches('#height-select-in')) {
+        setFromSelectIn(e.target.value);
+      }
+    });
+    // Clear button for inches
+    document.addEventListener('click', function(e){
+      if (e.target && e.target.matches('#height-clear-in')) {
+        document.querySelectorAll('.height-grid-in input[type=checkbox]')
+          .forEach(function(b){ if (b.checked) b.click(); });
+        const sel = document.querySelector('#height-select-in');
+        if (sel) sel.selectedIndex = -1;
+      }
+    });
+    // Checkbox -> select (keeps the dropdown in sync if the box changes elsewhere)
+    document.addEventListener('change', function(e){
+      if (e.target && e.target.matches('.height-grid-in input[type=checkbox]')) {
+        if (!e.target.checked) return;
+        const label = e.target.parentElement && e.target.parentElement.textContent.trim();
+        const sel = document.querySelector('#height-select-in');
+        if (sel) sel.value = label;
+      }
+    });
+  })();
+"))
+
+# --- Build the section
+height_section <- div(
+  class = "filter-card",
+  h4("Rider height (cm)"),
+  div(class = "height-toolbar",
+#      strong("Choose height (cm):"),
+      tags$button(id = "height-clear", "See All")
+  ),
+  compact_css, wire_js,
+  height_select,
+  div(class = "height-grid is-hidden", height_boxes)  # keep boxes hidden
+)
+
+# The INCH section (put this alongside your cm 'height_section')
+height_section_in <- div(
+  class = "filter-card",
+  h4("Rider height (in)"),
+  div(class = "height-toolbar",
+#      strong("Choose height (in):"),
+      tags$button(id = "height-clear-in", "See All")
+  ),
+  compact_height_css_in,
+  height_select_in_js,
+  # The compact select — preselect a default by adding selected="selected" on an <option>
+  tags$select(
+    id = "height-select-in",
+    class = "height-select",
+    lapply(height_ticks_in, function(x) tags$option(value = x, x))
+  ),
+  # Keep the crosstalk checkboxes in the DOM (hidden)
+  div(class = "height-grid-in is-hidden", height_boxes_in)
+)
+
+# --- 7) Assemble RIGHT column (filters) --------------------------------------
+
+specs_section <- div(
+  class = "filter-card",
+  h4("Frame specs"),
+  f1, f2, f3, f4, f5, f6, f7
+)
+
+tires_drivetrain_section <- div(
+  class = "filter-card",
+  h4("Tires & drivetrain"),
+  f8, f9, f10
+)
+
+price_location_section <- div(
+  class = "filter-card",
+  h4("Price & location"),
+  f11, f12, f13
+)
+
+right_col <- div(
+  class = "filters-panel",
+  height_section,
+  height_section_in,     # NEW: the INCH dropdown + hidden grid
+  specs_section,
+  tires_drivetrain_section,
+  price_location_section
+)
+
+# --- 8) Final page ------------------------------------------------------------
+browsable(
+  tagList(
+    styles,
+    div(class = "page-grid",
+        div(left_col),
+        right_col
+    )
+  )
+)  
+
+
+```
+
+```{r old-make-plots}
+#| echo: false
+#| eval: false
+
+geobike_shared <- SharedData$new(geobike, key = ~model_size, group = "2dscatter")
+
+p1 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
+                  x_col = "reach", y_col = "stack",
+                  x_label = "Reach (mm)", y_label = "Stack (mm)",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p2 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
+                  x_col = "front_center", y_col = "rear_center",
+                  x_label = "Front Center (horizontal) (mm)", y_label = "Rear Center (horizontal) (mm)",
+                  x_info = "FC", y_info = "RC",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p3 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
+                  x_col = "top_tube_effective_length", y_col = "seat_tube_effective_length",
+                  x_label = "Top Tube (effective) (mm)", y_label = "Seat Tube (effective) (mm)",
+                  x_info = "ETTL", y_info = "ESTL",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p4 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
+                  x_col = "wheelbase", y_col = "bottom_bracket_drop",
+                  x_label = "Wheelbase (mm)", y_label = "Bottom Bracket Drop (mm)",
+                  x_info = "WB", y_info = "BB drop",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
 p5 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
+                  x_col = "seat_tube_angle", y_col = "head_tube_angle",
+                  x_label = "Seat Tube Angle (°)", y_label = "Head Tube Angle (°)",
+                  x_info = "STA", y_info = "HTA", digits = 1,
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+p6 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
                   x_col = "chainstay_length",
                   y_col = "seat_tube_length",
@@ -126,21 +423,21 @@ p6 <- scatter_fig(shared_data = geobike_shared,
                   x_info = "STL", y_info = "TTA", digits = 1,
                   g_col = "model_size",
                   same_xy_scale = FALSE)
-p7 <- scatter_fig(shared_data = geobike_shared,
+p8 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
                   x_col = "trail", y_col = "trail_45",
                   x_label = "Trail (mm)", y_label = "Trail (45 mm tire) (mm)",
                   x_info = "Trail", y_info = "Trail-45", digits = 1,
                   g_col = "model_size",
                   same_xy_scale = FALSE)
-p8 <- scatter_fig(shared_data = geobike_shared,
+p9 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
                   x_col = "front_wheelbase", y_col = "stack_reach",
                   x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
                   x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
                   g_col = "model_size",
                   same_xy_scale = FALSE)
-p9 <- scatter_fig(shared_data = geobike_shared,
+p10 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
                   x_col = "front_wheelbase", y_col = "sta_hta",
                   x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
@@ -152,7 +449,12 @@ p9 <- scatter_fig(shared_data = geobike_shared,
 ```
 
 
-```{r, echo = FALSE, out.height="100%", out.width="100%"}
+```{r old-plot}
+#| eval: false
+#| echo: false
+#| out-height: "100%"
+#| out-width: "100%"
+
 # set up check boxes
 
   # gg_legend_ly <- ggplotly(gg_legend, width = 6.5*96, height = 1*96)

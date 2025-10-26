@@ -1351,7 +1351,7 @@ assign_std_size_pred <- function(geobike){
   
 # [1] 159 167 175 183 190
   m <- median_sizes[3]
-  geobike[, frame_size_std_m := ifelse(rider_min_pred <= m & rider_max_pred > m, TRUE, FALSE)]
+  geobike[, frame_size_std_m := ifelse(rider_min_pred <= m & rider_max_pred > m, TRUE, NA)]
   geobike[frame_size_std_m == TRUE, frame_size_std := m]
   model_list_all <- unique(geobike[, model])
   model_list_med <- unique(geobike[frame_size_std_m == TRUE, model])
@@ -1359,7 +1359,7 @@ assign_std_size_pred <- function(geobike){
   geobike[model == "Stooge Dirt Tracker 2025", frame_size_std_m := TRUE]
 
   s <- median_sizes[2]
-  geobike[, frame_size_std_s := ifelse(rider_min_pred <= s & rider_max_pred > s, TRUE, FALSE)]
+  geobike[, frame_size_std_s := ifelse(rider_min_pred <= s & rider_max_pred > s, TRUE, NA)]
   geobike[frame_size_std_s == TRUE, frame_size_std := s]
   model_list_all <- unique(geobike[, model])
   model_list_med <- unique(geobike[frame_size_std_s == TRUE, model])
@@ -1367,19 +1367,55 @@ assign_std_size_pred <- function(geobike){
   # geobike[model == model_list_diff[2], .SD, .SDcols = c("model", "frame_size", "rider_min", "rider_max", "rider_min_pred", "rider_max_pred")]
   
   l <- median_sizes[4]
-  geobike[, frame_size_std_l := ifelse(rider_min_pred <= l & rider_max_pred >= l, TRUE, FALSE)]
+  geobike[, frame_size_std_l := ifelse(rider_min_pred <= l & rider_max_pred >= l, TRUE, NA)]
   geobike[frame_size_std_l == TRUE, frame_size_std := l]
   model_list_all <- unique(geobike[, model])
   model_list_med <- unique(geobike[frame_size_std_l == TRUE, model])
   model_list_diff <- setdiff(model_list_all, model_list_med)
   # geobike[model == model_list_diff[6], .SD, .SDcols = c("model", "frame_size", "rider_min", "rider_max", "rider_min_pred", "rider_max_pred")]
+  
+  # assign each frame to a frame_size_std_fine
+  # see "bike size classes.xlsx" and computations on "gravel_scatter.qmd"
+  # rider_size <- c(151, 155, 159, 163, 167, 171, 175, 179, 183, 187, 191, 195, 199)
+  # for(i in 1:nrow(geobike)){
+  #   size_deltas <- abs(geobike[i, rider_height_pred] - rider_size)
+  #   target_size <- which(size_deltas == min(size_deltas))
+  #   geobike[i, frame_size_std_fine := rider_size[target_size]]
+  # }
+  
+  # create columns for all cm heights
+  geobike[, h0 := "all"]
+  ticks <- seq(150, 200, by = 1)
+  for (h in ticks) {
+    col <- paste0("h", h)
+    geobike[, (col) := ifelse(rider_min <= h & rider_max >= h, as.character(h), NA_character_)]
+  }
+  # create columns for all in heights
+  geobike[, h0 := "all"]
+  ticks <- seq(150, 200, by = 1)
+  for (h in ticks) {
+    col <- paste0("h", h)
+    geobike[, (col) := ifelse(rider_min <= h & rider_max >= h, as.character(h), NA_character_)]
+  }
+  ticks <- seq(59, 79, by = 0.5)
+  for (h in ticks) {
+    col <- paste0("h", h)
+    geobike[, (col) := ifelse(rider_min_inch <= h & rider_max_inch >= h, as.character(h), NA_character_)]
+  }
+  
+
   return(geobike)
 }
 
-med <- geobike[frame_size_std_l == TRUE, c("model", "frame_size")]
-counts <- med[, .(N = .N), by = model]
-bad_models <- counts[N > 1, model]
-geobike[model == bad_models[1], .SD, .SDcols = c("frame_size", "rider_min", "rider_max", "rider_min_pred", "rider_max_pred", "frame_size_std_l")]
+# geobike[model == models[1], .SD, .SDcols = c("frame_size", paste0("rider_size_", 1:13))]
+# 
+# med <- geobike[frame_size_std_l == TRUE, c("model", "frame_size")]
+# counts <- med[, .(N = .N), by = model]
+# bad_models <- counts[N > 1, model]
+# geobike[model == bad_models[1], .SD, .SDcols = c("frame_size", "rider_min", "rider_max", "rider_min_pred", "rider_max_pred", "frame_size_std_l")]
+# 
+# geobike[frame_size_std_s == TRUE & frame_size_std_m == TRUE, model_size]
+
 ```
 
 
@@ -1826,6 +1862,8 @@ rider_range <- function(geobike){
       mids <- (rider_height[2:q] + rider_height[1:(q-1)])/2
       geobike[model == models[i], rider_min_pred := mids[1:p]]
       geobike[model == models[i], rider_max_pred := mids[2:(p+1)]]
+      geobike[model == models[i], rider_min_inch := rider_min_pred/2.54]
+      geobike[model == models[i], rider_max_inch := rider_max_pred/2.54]
       geobike[model == models[i] & !is.na(rider_min), 
               specified_rider_height := 
                 paste0(round(rider_min, 0), "cm - ", round(rider_max, 0), "cm")]
@@ -1836,6 +1874,12 @@ rider_range <- function(geobike){
                 paste0(round(rider_min_pred, 0), "cm - ", round(rider_max_pred, 0), "cm")]
     }
   }
+  
+  # stooge dirt tracker
+  geobike[model == "Stooge Dirt Tracker 2025", rider_min_pred := 
+            rider_height_pred - (187.96-170.18)/2]
+  geobike[model == "Stooge Dirt Tracker 2025", rider_max_pred := 
+            rider_height_pred + (187.96-170.18)/2]
   return(geobike)
 }
 ```
@@ -2005,7 +2049,7 @@ import_bike_list <- function(style = "gravel", exchange_rates){
   
   # get classifier size medium
   geobike <- assign_std_size_pred(geobike)
-  geobike <- better_assign_std_size(geobike)
+#  geobike <- better_assign_std_size(geobike)
 
   # set my_fit or classifier fit
   geobike[, my_fit := frame_size_std_m] 
