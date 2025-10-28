@@ -362,12 +362,25 @@ compute_wheelbase <- function(bike){
   return(wheelbase)
 }
 
-# Solace OM3 does not specify head tube length. This can be
-# computed using specs of Whisky MCX fork assuming this is
-# the fork used to spec wheelbase
-head_tube_length <- function(bike){
-  offset_h <- compute_offset_h(bike)
-  fork_angle <- compute_fork_angle(bike) # beta
+compute_head_tube_length <- function(bike){
+  hta <- bike[, deg_2_rad(head_tube_angle)]
+  fs <- bike[, stack] # frame stack
+  bbd <- bike[, bottom_bracket_drop] # bb drop
+  ac <- bike[, axle_crown] # axle_crown
+  rake <- bike[, fork_offset_rake]
+  cr <- ifelse(bike[1, material] == "steel" | bike[1, material] == "titanium", 10, 0)
+  cr.v <- cr * sin(hta)
+  beta <- acos(rake/ac)
+  delta <- pi/2 - hta
+  gamma <- beta - delta
+  ac.v <- ac * sin(gamma)
+  h.v <- fs - ac.v - cr.v - bbd
+  htle <- h.v / sin(hta)
+  # data.table(
+  #   htl = bike[, head_tube_length],
+  #   htle = htle
+  # )
+  return(htle)
 }
 
 # Vagabond Genesis does not specify chainstay length.
@@ -995,7 +1008,11 @@ clean_and_compute <- function(bike){
   bike[country == "Wales", country := "United Kingdom"]
   bike[country == "UK", country := "United Kingdom"]
 
-  # decompositions
+  # decompositions & missing
+  # missing head_tube_length needed first
+  bike[is.na(head_tube_length), head_tube_length :=
+         compute_head_tube_length(bike[is.na(head_tube_length), ])]
+  
   # need this
   bike[, rear_center := sqrt(chainstay_length^2 - bottom_bracket_drop^2)] # horizontal
   
@@ -1015,7 +1032,7 @@ clean_and_compute <- function(bike){
 
   # fill in missing
   # add axle crown if it and wheelbase are missing
-  bike[is.na(wheelbase) & is.na(axle_crown), axle_crown := 395]
+#  bike[is.na(wheelbase) & is.na(axle_crown), axle_crown := 395]
 
   # wheelbase
   bike[is.na(wheelbase), wheelbase := compute_wheelbase(bike[is.na(wheelbase)])]
