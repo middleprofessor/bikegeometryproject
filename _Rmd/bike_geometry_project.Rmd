@@ -1826,25 +1826,25 @@ frame_size_predictor <- function(geobike){
 # geobike[model == "Santa Cruz Stigmata CC 2025", .SD, .SDcols = c("frame_size", "rider_height", "rider_height_pred_xgb")]
 # geobike[model == "Fairlight Holt 2.0 2025", .SD, .SDcols = c("frame_size", "rider_height", "rider_height_pred_xgb")]
 # geobike[model == "Breezer Radar X 2025", .SD, .SDcols = c("frame_size", "rider_height", "rider_height_pred_xgb")]
-ggplot(data = geobike,
-       aes(x = rider_height_pred,
-           y = rider_height,
-           color = handlebar)) +
-  geom_point()
-
-
-geobike[, rider_height_residual := rider_height_pred - rider_height]
-test_geobike <- geobike[, .SD, .SDcols = c("model_size", "rider_height_residual", "rider_height", "rider_height_pred")]
-setorder(test_geobike, rider_height_residual)
-test_geobike[, abs_resid := abs(rider_height_residual)]
-View(test_geobike[!is.na(rider_height_residual)])
-a <- "Breezer Radar X 2025"
-a <- "Ventum GS1 2025"
-bike_i <- geobike[model == "Breezer Radar X 2025", .SD, .SDcols = c("model", "frame_size", "rider_min", "rider_max", "rider_height", "rider_height_pred")]
-setorder(bike_i, rider_height)
-bike_i[, dev_low := rider_min - rider_height]
-bike_i[, dev_hi := rider_max - rider_height]
-bike_i
+# ggplot(data = geobike,
+#        aes(x = rider_height_pred,
+#            y = rider_height,
+#            color = handlebar)) +
+#   geom_point()
+# 
+# 
+# geobike[, rider_height_residual := rider_height_pred - rider_height]
+# test_geobike <- geobike[, .SD, .SDcols = c("model_size", "rider_height_residual", "rider_height", "rider_height_pred")]
+# setorder(test_geobike, rider_height_residual)
+# test_geobike[, abs_resid := abs(rider_height_residual)]
+# View(test_geobike[!is.na(rider_height_residual)])
+# a <- "Breezer Radar X 2025"
+# a <- "Ventum GS1 2025"
+# bike_i <- geobike[model == "Breezer Radar X 2025", .SD, .SDcols = c("model", "frame_size", "rider_min", "rider_max", "rider_height", "rider_height_pred")]
+# setorder(bike_i, rider_height)
+# bike_i[, dev_low := rider_min - rider_height]
+# bike_i[, dev_hi := rider_max - rider_height]
+# bike_i
 ```
 
 ```{r}

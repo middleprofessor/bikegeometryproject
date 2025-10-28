@@ -43,72 +43,56 @@ p1 <- scatter_fig(shared_data = geobike_shared,
                   x_label = "Reach (mm)", y_label = "Stack (mm)",
                   g_col = "model_size",
                   same_xy_scale = FALSE)
+
 p2 <- scatter_fig(shared_data = geobike_shared,
-                  link_group = "2dscatter",
-                  x_col = "front_center", y_col = "rear_center",
-                  x_label = "Front Center (horizontal) (mm)", y_label = "Rear Center (horizontal) (mm)",
-                  x_info = "FC", y_info = "RC",
-                  g_col = "model_size",
-                  same_xy_scale = FALSE)
-p3 <- scatter_fig(shared_data = geobike_shared,
-                  link_group = "2dscatter",
-                  x_col = "top_tube_effective_length", y_col = "seat_tube_effective_length",
-                  x_label = "Top Tube (effective) (mm)", y_label = "Seat Tube (effective) (mm)",
-                  x_info = "ETTL", y_info = "ESTL",
-                  g_col = "model_size",
-                  same_xy_scale = FALSE)
-p4 <- scatter_fig(shared_data = geobike_shared,
-                  link_group = "2dscatter",
-                  x_col = "wheelbase", y_col = "bottom_bracket_drop",
-                  x_label = "Wheelbase (mm)", y_label = "Bottom Bracket Drop (mm)",
-                  x_info = "WB", y_info = "BB drop",
-                  g_col = "model_size",
-                  same_xy_scale = FALSE)
-p5 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
                   x_col = "seat_tube_angle", y_col = "head_tube_angle",
                   x_label = "Seat Tube Angle (°)", y_label = "Head Tube Angle (°)",
                   x_info = "STA", y_info = "HTA", digits = 1,
                   g_col = "model_size",
                   same_xy_scale = FALSE)
+
+p3 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
+                  x_col = "top_tube_effective_length", y_col = "seat_tube_effective_length",
+                  x_label = "Effective Top Tube Length (mm)",
+                  y_label = "Effective Seat Tube Length (mm)",
+                  x_info = "ETTL", y_info = "ESTL", digits = 1,
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+
+
+p4 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
+                  x_col = "front_center", y_col = "rear_center",
+                  x_label = "Front Center (horizontal) (mm)", y_label = "Rear Center (horizontal) (mm)",
+                  x_info = "FC", y_info = "RC",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+
+p5 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
+                  x_col = "wheelbase", y_col = "bottom_bracket_drop",
+                  x_label = "Wheelbase (mm)", y_label = "Bottom Bracket Drop (mm)",
+                  x_info = "WB", y_info = "BB drop",
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
+
 p6 <- scatter_fig(shared_data = geobike_shared,
-                  link_group = "2dscatter",
-                  x_col = "chainstay_length",
-                  y_col = "seat_tube_length",
-                  x_label = "Chainstay Length (mm)",
-                  y_label = "Seat Tube Length (mm)",
-                  x_info = "CS", y_info = "STL",
-                  g_col = "model_size",
-                  same_xy_scale = FALSE)
-p7 <- scatter_fig(shared_data = geobike_shared,
-                  link_group = "2dscatter",
-                  x_col = "seat_tube_length", y_col = "top_tube_angle",
-                  x_label = "Seat Tube Length (mm)", y_label = "Top Tube Angle (°)",
-                  x_info = "STL", y_info = "TTA", digits = 1,
-                  g_col = "model_size",
-                  same_xy_scale = FALSE)
-p8 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
                   x_col = "trail", y_col = "trail_45",
                   x_label = "Trail (mm)", y_label = "Trail (45 mm tire) (mm)",
                   x_info = "Trail", y_info = "Trail-45", digits = 1,
                   g_col = "model_size",
                   same_xy_scale = FALSE)
-p9 <- scatter_fig(shared_data = geobike_shared,
-                  link_group = "2dscatter",
-                  x_col = "front_wheelbase", y_col = "stack_reach",
-                  x_label = "Front Center/Wheelbase", y_label = "Stack/Reach",
-                  x_info = "FC/WB", y_info = "Stack/Reach", digits = 2,
-                  g_col = "model_size",
-                  same_xy_scale = FALSE)
-p10 <- scatter_fig(shared_data = geobike_shared,
-                  link_group = "2dscatter",
-                  x_col = "front_wheelbase", y_col = "sta_hta",
-                  x_label = "Front Center/Wheelbase", y_label = "STA/HTA",
-                  x_info = "FC/WB", y_info = "STA/HTA", digits = 2,
-                  g_col = "model_size",
-                  same_xy_scale = FALSE)
 
+p7 <- scatter_fig(shared_data = geobike_shared,
+                  link_group = "2dscatter",
+                  x_col = "sta_hta", y_col = "stack_reach",
+                  x_label = "STA/HTA", y_label = "Stack/Reach",
+                  x_info = "STA/HTA", y_info = "Stack/Reach", digits = 2,
+                  g_col = "model_size",
+                  same_xy_scale = FALSE)
 ```
 
 ```{r working-output}
@@ -155,7 +139,7 @@ p10 <- scatter_fig(shared_data = geobike_shared,
   f13 <- filter_checkbox("country", "Location", geobike_shared, ~country, inline = TRUE)
 
     
-left_col <- tagList(p1, br(), p2, br(), p3, br(), p4, br(), p5, br(), p6, br(), p7, br(), p8, br(), p9, br(), p10)
+left_col <- tagList(p1, br(), p2, br(), p3, br(), p4, br(), p5, br(), p6, br(), p7)
 
 # --- 5) Styling: two-column layout + sticky filter panel + pretty height grid -
 styles <- tags$style(HTML("
