@@ -926,9 +926,11 @@ read_geometry <- function(bike_label = "Alchemy Lycos 2023",
 clean_and_compute <- function(bike){
  
        # clean strings
-  bike[, udh := ifelse(is.na(udh), "no", udh)]
-  bike[, udh := toupper(udh)]
-  
+  bike[is.na(udh), udh := "NO/Unknown"]
+  bike[udh == "no", udh := "NO/Unknown"]
+  bike[udh == "yes", udh := "YES"]
+  bike[udh == "optional", udh := "YES"]
+
   # axle spacing
   bike[, axle_spacing := rear_axle]
   bike[axle_spacing == "148", axle_spacing := "148 (boost)"]
@@ -940,7 +942,7 @@ clean_and_compute <- function(bike){
 
   # dropper
   # bike[, stealth_dropper := as.character(NA)]
-  bike[, stealth_dropper := NA_character_]
+  bike[, stealth_dropper := "NO/Unknown"]
   bike[!is.na(routing_dropper) & routing_dropper == "internal", stealth_dropper := "YES"]
   bike[!is.na(routing_dropper) & routing_dropper == "yes", stealth_dropper := "YES"]
 
