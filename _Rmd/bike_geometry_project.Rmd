@@ -940,7 +940,7 @@ clean_and_compute <- function(bike){
 
   # dropper
   # bike[, stealth_dropper := as.character(NA)]
-  bike[, stealth_dropper := "NO"]
+  bike[, stealth_dropper := NA_character_]
   bike[!is.na(routing_dropper) & routing_dropper == "internal", stealth_dropper := "YES"]
   bike[!is.na(routing_dropper) & routing_dropper == "yes", stealth_dropper := "YES"]
 
