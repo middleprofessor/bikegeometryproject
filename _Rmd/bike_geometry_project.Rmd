@@ -1747,9 +1747,14 @@ frame_size_predictor <- function(geobike){
   # process categorical variable
   geobike[, handlebar_dummy := ifelse(handlebar == "drop bar", 0, 
                                       ifelse(handlebar == "both", 0.5, 1))]
+  geobike[, steerer_length := head_tube_length + axle_crown]
 
   y_col <- c("rider_height")
-  x_cols <- c("stack", "reach", "head_tube_angle", "seat_tube_angle", "chainstay_length", "front_center", "head_tube_length", "top_tube_effective_length")
+  x_cols <- c("stack", "reach", "head_tube_angle", "seat_tube_angle", "chainstay_length", "front_center",
+              "head_tube_length",
+              "axle_crown",
+              # "steerer_length",
+"top_tube_effective_length")
   cat_cols <- "handlebar_dummy"
   
  # x_cols <- c(x_cols, cat_cols)
@@ -1972,8 +1977,8 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     bike_i[, base_build_usd := base_build]
     currency <- bike_i[1, currency]
     if(!is.na(currency) & (currency == "euro" | currency == "EUR")){
-      bike_i[!is.na(frameset), frameset_usd := euro_2_usd * frameset]
-      bike_i[!is.na(base_build), base_build_usd := euro_2_usd * base_build]
+      bike_i[!is.na(frameset), frameset_usd := eur_2_usd * frameset]
+      bike_i[!is.na(base_build), base_build_usd := eur_2_usd * base_build]
     }
     if(!is.na(currency) & (currency == "pound" | currency == "GBP")){
       bike_i[!is.na(frameset), frameset_usd := gbp_2_usd * frameset]
@@ -1982,6 +1987,10 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     if(!is.na(currency) & (currency == "dkk" | currency == "DKK")){
       bike_i[!is.na(frameset), frameset_usd := dkk_2_usd * frameset]
       bike_i[!is.na(base_build), base_build_usd := dkk_2_usd * base_build]
+   }
+    if(!is.na(currency) & (currency == "cad" | currency == "CAD")){
+      bike_i[!is.na(frameset), frameset_usd := cad_2_usd * frameset]
+      bike_i[!is.na(base_build), base_build_usd := cad_2_usd * base_build]
    }
     
     # Stuff for filters
@@ -3090,12 +3099,15 @@ if(import_it != TRUE){
   # exchange_rates
   get_exchange_rates <- FALSE
   if(get_exchange_rates == TRUE){
-    euro_2_usd <- convert_currencies(1, "EUR", "USD")
+    eur_2_usd <- convert_currencies(1, "EUR", "USD")
     gbp_2_usd <- convert_currencies(1, "GBP", "USD")
+    dkk_2_usd <- convert_currencies(1, "DKK", "USD")
+    cad_2_usd <- convert_currencies(1, "CAD", "USD")
   }else{
-    euro_2_usd <- 1.17 # 1 Oct 2025
-    gbp_2_usd <- 1.35 # 1 Oct 2025
-    dkk_2_usd <- 0.16 # 1 Oct 2025
+    eur_2_usd <- 1.152452 # 31 Oct 2025
+    gbp_2_usd <- 1.310659 # 31 Oct 2025
+    dkk_2_usd <- 0.154319 # 31 Oct 2025
+    cad_2_usd <- 0.7132362 # 31 Oct 2025
   }
   exchange_rates <- list(eur = euro_2_usd, gbp = gbp_2_usd, dkk = dkk_2_usd)
 
