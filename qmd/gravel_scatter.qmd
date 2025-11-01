@@ -124,6 +124,7 @@ p7 <- scatter_fig(shared_data = geobike_shared,
   height_boxes_in <- lapply(height_ticks_in, make_height_box)
   
 
+  f0 <- filter_checkbox("class", "Type", geobike_shared, ~terrain_class, inline = TRUE)
   f1 <- filter_checkbox("material", "Frame material", geobike_shared, ~material, inline = TRUE)
   f2 <- filter_checkbox("handlebar", "Handlebar", geobike_shared, ~handlebar, inline = TRUE)
   f3 <- filter_checkbox("axle", "Hub spacing", geobike_shared, ~axle_spacing, inline = TRUE)
@@ -313,7 +314,7 @@ height_section_in <- div(
 specs_section <- div(
   class = "filter-card",
   h4("Frame specs"),
-  f1, f2, f3, f4, f5, f6, f7
+  f0, f1, f2, f3, f4, f5, f6, f7
 )
 
 tires_drivetrain_section <- div(

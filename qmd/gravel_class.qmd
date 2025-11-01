@@ -24,7 +24,7 @@ source(source_path)
 #| eval: true
 
 
-keep_cols <- c("model", "kmeans_style", "material", "fork_class", "udh", "dropout", "axle_spacing",
+keep_cols <- c("model", "kmeans_style", "terrain_class", "material", "fork_class", "udh", "dropout", "axle_spacing",
                "max_chainring_1x", "stealth_dropper",
                "handlebar", "tire_width_max_700c", "tire_width_max_650b", "base_build_usd", "frameset_usd", "country")
 style_table <- geobike[my_fit == TRUE, .SD, .SDcols = keep_cols]
@@ -75,6 +75,7 @@ xtra_rowdy_col <- mk_dt(xtra_rowdy_shared)
 
 # filters
 filters <- list(
+  filter_checkbox("class", "Type", style_table_shared, ~terrain_class, inline = TRUE),
   filter_checkbox("material", "Frame material", style_table_shared, ~material, inline = FALSE),
   filter_checkbox("handlebar", "Handlebar", style_table_shared, ~handlebar, inline = FALSE),
   filter_checkbox("axle", "Hub spacing", style_table_shared, ~axle_spacing, inline = FALSE),

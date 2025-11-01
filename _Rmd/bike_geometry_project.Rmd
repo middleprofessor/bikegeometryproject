@@ -2082,34 +2082,53 @@ import_bike_list <- function(style = "gravel", exchange_rates){
   # set my_fit or classifier fit
   geobike[, my_fit := frame_size_std_m] 
   
-  # max_tire size classes
-  max_tire <- c("45", "47", "50", "53", "57", "57+")
-  geobike[tire_width_max >= 45, tire_class := "45"]
-  geobike[tire_width_max >= 47, tire_class := "47"]
-  geobike[tire_width_max >= 50, tire_class := "50"]
-  geobike[tire_width_max >= 53, tire_class := "53"]
-  geobike[tire_width_max >= 57, tire_class := "57"]
-  geobike[tire_width_max > 57, tire_class := "57+"]
+  # set bike class
+  geobike[, terrain_class := "Rigid Gravel"]
+  geobike[axle_crown >= 473 &
+            handlebar == "flat bar" &
+            (tire_width_max_700c >= 2.2*25.4 |
+            tire_width_max_650b >= 2.2*25.4),
+          terrain_class := "MTB"]
+  geobike[axle_crown >= 473 &
+            (handlebar == "drop bar" |
+            handlebar == "both") &
+            (tire_width_max_700c >= 2.2*25.4 |
+            tire_width_max_650b >= 2.2*25.4),
+          terrain_class := "Drop Bar MTB"]
+  geobike[axle_crown < 473 &
+            handlebar == "flat bar" &
+            (tire_width_max_700c >= 2.2*25.4 |
+            tire_width_max_650b >= 2.2*25.4),
+          terrain_class := "Flat Bar ATB"]
+  geobike[axle_crown < 473 &
+            (handlebar == "drop bar" |
+            handlebar == "both") &
+            (tire_width_max_700c >= 2.2*25.4 |
+            tire_width_max_650b >= 2.2*25.4),
+          terrain_class := "Drop Bar ATB"]
+  geobike[axle_crown >= 417.5 &
+            (tire_width_max_700c < 2.2*25.4 &
+            tire_width_max_650b < 2.2*25.4),
+          terrain_class := "SC Gravel"]
+  class_levels <- c("Rigid Gravel", 
+                    "Suspension Gravel",
+                    "Drop Bar ATB", 
+                    "Flat Bar ATB",
+                    "Drop Bar MTB",
+                    "MTB"
+                    )
+  geobike[, terrain_class := factor(terrain_class,
+                                    levels = class_levels)]
+
+#  geobike[terrain_class == "Drop Bar MTB", model] |> unique()
+  geobike[, material := factor(material,
+                                    levels = c("carbon", "aluminum", "steel", "titanium"))]
   
-  # axle-crown classes
-  axle_crown_list <- c("< 409", "409", "415", "425", "435", "> 435")
-  geobike[axle_crown >= 409, axle_crown_class := axle_crown_list[2]]
-  geobike[axle_crown >= 415, axle_crown_class := axle_crown_list[3]]
-  geobike[axle_crown >= 425, axle_crown_class := axle_crown_list[4]]
-  geobike[axle_crown >= 435, axle_crown_class := axle_crown_list[5]]
-  geobike[axle_crown > 435, axle_crown_class := axle_crown_list[6]]
-
-
   # add model-frame_size column
   geobike[, model_size := paste(model, frame_size)]
   setorder(geobike, model)
   geobike[, model_size := factor(model_size,
                                  levels = unique(model_size))]
-  
-  # create size class columns
-  # for(height in seq(150, 195, by = 5)){
-  #   geobike[, paste0("size",height) := ifelse(height >= rider_min & height < rider_max, TRUE, NA)] # ties go to larger bike
-  # }
   
   # create my_fit alternative
   geobike[, Size := ifelse(my_fit == TRUE, "M/L (54-56)", "All sizes")] # was focal/non-focal
