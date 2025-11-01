@@ -2086,30 +2086,30 @@ import_bike_list <- function(style = "gravel", exchange_rates){
   geobike[, terrain_class := "Rigid Gravel"]
   geobike[axle_crown >= 473 &
             handlebar == "flat bar" &
-            (tire_width_max_700c >= 2.2*25.4 |
-            tire_width_max_650b >= 2.2*25.4),
+            (tire_width_max_700c >= 2.1*25.4 |
+            tire_width_max_650b >= 2.1*25.4),
           terrain_class := "MTB"]
   geobike[axle_crown >= 473 &
             (handlebar == "drop bar" |
             handlebar == "both") &
-            (tire_width_max_700c >= 2.2*25.4 |
-            tire_width_max_650b >= 2.2*25.4),
+            (tire_width_max_700c >= 2.1*25.4 |
+            tire_width_max_650b >= 2.1*25.4),
           terrain_class := "Drop Bar MTB"]
   geobike[axle_crown < 473 &
             handlebar == "flat bar" &
-            (tire_width_max_700c >= 2.2*25.4 |
-            tire_width_max_650b >= 2.2*25.4),
+            (tire_width_max_700c >= 2.1*25.4 |
+            tire_width_max_650b >= 2.1*25.4),
           terrain_class := "Flat Bar ATB"]
   geobike[axle_crown < 473 &
             (handlebar == "drop bar" |
             handlebar == "both") &
-            (tire_width_max_700c >= 2.2*25.4 |
-            tire_width_max_650b >= 2.2*25.4),
+            (tire_width_max_700c >= 2.1*25.4 |
+            tire_width_max_650b >= 2.1*25.4),
           terrain_class := "Drop Bar ATB"]
   geobike[axle_crown >= 417.5 &
-            (tire_width_max_700c < 2.2*25.4 &
-            tire_width_max_650b < 2.2*25.4),
-          terrain_class := "SC Gravel"]
+            (tire_width_max_700c < 2.1*25.4 &
+            tire_width_max_650b < 2.1*25.4),
+          terrain_class := "Suspension Gravel"]
   class_levels <- c("Rigid Gravel", 
                     "Suspension Gravel",
                     "Drop Bar ATB", 
