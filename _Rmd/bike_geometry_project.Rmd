@@ -3128,7 +3128,7 @@ if(import_it != TRUE){
     dkk_2_usd <- 0.154319 # 31 Oct 2025
     cad_2_usd <- 0.7132362 # 31 Oct 2025
   }
-  exchange_rates <- list(eur = euro_2_usd, gbp = gbp_2_usd, dkk = dkk_2_usd)
+  exchange_rates <- list(eur = eur_2_usd, gbp = gbp_2_usd, dkk = dkk_2_usd)
 
   # import from xlsx
   geobike <- import_bike_list(style = "gravel", exchange_rates)
