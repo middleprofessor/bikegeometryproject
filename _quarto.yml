@@ -19,21 +19,24 @@ website:
       - text: "Gravel Style"
         menu:
           - qmd/gravel_class.qmd
-          - qmd/gravel_mds.qmd
+          - qmd/gravelverse.qmd
           - qmd/what_makes_a_racy_bike_racy.qmd
           - qmd/what_makes_a_relaxed_bike_relaxed.qmd
           - qmd/what_makes_a_rowdy_bike_rowdy.qmd
           - qmd/gravel_tree.qmd
       - text: "Gravel Compare"
         menu:
-          - qmd/gravel_compare_table.qmd
+          - qmd/gravel_compare.qmd
       - text: "Gravel Geometry"
         menu:
           - qmd/gravel_scatter.qmd
       - text: "Gravel Suspension"
         menu:
-          - qmd/gravel_sus_fork.qmd
-          - qmd/gravel_scatter_sus.qmd
+          - qmd/gravel_sus_table.qmd
+          - qmd/gravel_sus_scatter.qmd
+      - text: "Navigate"
+        menu:
+          - qmd/navigate.qmd
 format:
   html:
     theme: cosmo
