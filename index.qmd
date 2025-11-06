@@ -11,6 +11,8 @@ source(source_path)
 
 Current number of bike models in the database: `r length(unique(geobike[, model]))`!
 
+Click on an image to explore.
+
 ::: {layout-ncol=3 fig-align="center"}
 
 [![](images/gravel_class_small.jpg)](qmd/gravel_class.html)
