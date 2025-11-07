@@ -3562,11 +3562,13 @@ convert_single_files <- function(){
 
 
 ```{r add-bike-specs, eval=FALSE}
-# this script adds 3 rows to specs and populates with style = gravel, handlebar = drop bar, fork = rigid
+# scripts are in the _Rmd folder with bike_geometry_project.Rmd
+# insert_row_with_values.scpt adds 3 rows to specs and populates with style = gravel, handlebar = drop bar, fork = rigid
+# insert_headset_fork.scpt adds 6 rows to specs and populates with head_tube_d, headset_upper, headset_lower, fork_steerer, fork_steerer_d, fork_material
 
-insert_after <- "spec_list"
+insert_after <- "front_axle"
 
-filelist_path <- here("data/gravel incomplete")
+filelist_path <- here("data/gravel")
 excel_files <- list.files(filelist_path, pattern = "\\.xlsx$", full.names = TRUE)
 for (file in excel_files) {
 #  insert_row_num <- find_insert_row(file, named_range)
@@ -3582,8 +3584,7 @@ for (file in excel_files) {
 # Row to insert
   insert_row <- start_row_specs_block + insert_after_row  # +1 to insert 
   
-# this script adds 3 rows to specs and populates with style = gravel, handlebar = drop bar, fork = rigid
-  system(sprintf("osascript insert_row_with_values.scpt '%s' %d", file, insert_row))
+  system(sprintf("osascript insert_headset_fork.scpt '%s' %d", file, insert_row))
 
 }
 
