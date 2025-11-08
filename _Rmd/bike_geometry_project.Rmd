@@ -1908,234 +1908,7 @@ rider_range <- function(geobike){
 }
 ```
 
-
-# Import bikes
-
-```{r}
-import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
-  # bike_list_file = paste0(paste0(style_folder, "/"), style_folder, "_list.txt")
-  # bike_list_path <- here(data_folder, bike_list_file)
-  # bike_list <- fread(bike_list_path, sep = "\t", header = FALSE)
-  
-  filelist_path <- here(data_folder,style_folder)
-  bike_list <- list.files(filelist_path, pattern = "\\.xlsx$", full.names = FALSE)
-  bike_list <- bike_list[!grepl("^~\\$", basename(bike_list))] # delete excel hidden
-
-  # exchange_rates
-  euro_2_usd <- exchange_rates$eur
-  gbp_2_usd <- exchange_rates$gbp
-  dkk_2_usd <- exchange_rates$dkk
-
-  geobike <- data.table(NULL)
-  for(i in 1:length(bike_list)){
-    bike_file = bike_list[i]
-    print(bike_file)
-    bike_path <- here(data_folder, style_folder, bike_file)
-    model_data <- read_excel(bike_path, range = "A1:B6", col_names = FALSE,
-                          .name_repair = "unique_quiet") |>
-      data.table()
-
-    # geometry range
-    geom_range <- read_excel(bike_path, range = "B7:B7", col_names = FALSE,
-                          .name_repair = "unique_quiet") |> as.character()
-    last_row <- substr(geom_range, (nchar(geom_range)-1), nchar(geom_range)) |>
-      as.integer()
-    
-    # specs table
-    first_row <- last_row + 2
-    last_row <- first_row + 100
-    specs_range <- paste0("a", first_row, ":b", last_row)
-    
-    bike_specs <- read_excel(bike_path, range = specs_range, col_names = TRUE) |>
-      clean_names() |>
-      data.table()
-    bike_specs <- bike_specs[!apply(is.na(bike_specs), 1, all), ]
-    bike_specs_t <- transpose(bike_specs, make.names = 1)
-
-    bike_label <- paste(model_data[1, 2], model_data[2, 2], model_data[3, 2])
-    bike_geo <- read_geometry(bike_label = bike_label,
-                        bike_range = geom_range,
-                        data_file = paste0(style_folder,"/", bike_file))
-    bike_i <- cbind(bike_geo, bike_specs_t )
-    if(!"location" %in% names(bike_i)){
-      bike_i[, location := NA]
-    }
-    bike_i <- clean_and_compute(bike_i)
-    # bike_i <- read_bike(bike_label = bike_label,
-    #                     bike_range = geom_range,
-    #                     data_file = paste0(style_folder,"/", bike_file),
-    #                     material = frame_material)
-    bike_i[, url := model_data[5,2]]
-    bike_i[, image_url := model_data[6,2]]
-    bike_i[, my_fit := NA]
-    
-    # price data
-    bike_i[, base_build := as.numeric(base_build)]
-    bike_i[, frameset := as.numeric(frameset)]
-    
-    bike_i[, frameset_usd := frameset]
-    bike_i[, base_build_usd := base_build]
-    currency <- bike_i[1, currency]
-    if(!is.na(currency) & (currency == "euro" | currency == "EUR")){
-      bike_i[!is.na(frameset), frameset_usd := eur_2_usd * frameset]
-      bike_i[!is.na(base_build), base_build_usd := eur_2_usd * base_build]
-    }
-    if(!is.na(currency) & (currency == "pound" | currency == "GBP")){
-      bike_i[!is.na(frameset), frameset_usd := gbp_2_usd * frameset]
-      bike_i[!is.na(base_build), base_build_usd := gbp_2_usd * base_build]
-   }
-    if(!is.na(currency) & (currency == "dkk" | currency == "DKK")){
-      bike_i[!is.na(frameset), frameset_usd := dkk_2_usd * frameset]
-      bike_i[!is.na(base_build), base_build_usd := dkk_2_usd * base_build]
-   }
-    if(!is.na(currency) & (currency == "cad" | currency == "CAD")){
-      bike_i[!is.na(frameset), frameset_usd := cad_2_usd * frameset]
-      bike_i[!is.na(base_build), base_build_usd := cad_2_usd * base_build]
-   }
-    
-    # Stuff for filters
-    
-    # suspension class
-    # 30 mm travel
-    # Rudy: 425 - 0.05*30 = 423.5
-    # Fox TC: 425 - 0.2*30 = 419
-    # Cane Creek = Fox TC
-    # Lauf 419 mm AC, 47mm rake
-    # 40 mm travel
-    # Rudy: 435 - 0.05*40 = 433
-    # Fox TC: 435 - 0.2*40 = 427
-    # Cane Creek = Fox TC
-    # 50 mm travel
-    # Fox: 445 - .2*50 = 435
-    # 60 mm travel
-    # MRP Baxter: 456 - .2*60 = 444
-    # Rockshox 60 mm on trek
-    min_0 <- 411 # 30 mm
-    min_1 <- 415 # 30 mm
-    min_2 <- 423 # (419 + 427)/2 # 40 mm
-    min_3 <- 431 # (427 + 435)/2 # 50 mm
-    min_4 <- 439.5 # (435 + 444)/2 # 60 mm
-    min_5 <- 460 # 
-    bike_i[fork == "rigid" & axle_crown < min_0, fork_class := "0 mm"]
-    bike_i[fork == "rigid" & axle_crown >= min_0 & axle_crown < min_1, fork_class := "20 mm"]
-    bike_i[fork == "rigid" & axle_crown >= min_1 & axle_crown < min_2, fork_class := "30 mm"]
-    bike_i[fork == "rigid" & axle_crown >= min_2 & axle_crown < min_3, fork_class := "40 mm"]
-    bike_i[fork == "rigid" & axle_crown >= min_3 & axle_crown < min_4, fork_class := "50 mm"]
-    bike_i[fork == "rigid" & axle_crown >= min_4 & axle_crown < min_5, fork_class := "60 mm"]
-    bike_i[fork == "rigid" & axle_crown >= 471 & axle_crown < 489, fork_class := "100 mm"]
-    bike_i[fork == "rigid" & axle_crown >= 489 & axle_crown < 507, fork_class := "120 mm"]
-    bike_i[fork == "suspension", fork_class := paste(suspension_corrected, "mm")]
-    # make a factor and order
-    fork_classes <- c("0 mm", "20 mm", "30 mm", "40 mm", "50 mm", "60 mm", "100 mm", "120 mm")
-    bike_i[, fork_class := factor(fork_class, levels = fork_classes)]
-    
-    # bind it
-    geobike <- rbind(geobike, bike_i)
-  }
- return(geobike)
-}
-```
-
-```{r import-bike-list, echo=FALSE}
-import_bike_list <- function(style = "gravel", exchange_rates){
-  
-  geobike <- rbind(
-    import_bikes_excel_single("gravel", exchange_rates),
-    import_bikes_excel_single("gravel incomplete", exchange_rates)
-  )
-  geobike[, id := .I]
-
-  
-  # add column of shape id for plots
-  shape_list <- c(15,17,19,0,2)
-  n_shapes <- length(shape_list)
-  n_models <- length(unique(geobike[, model]))
-  n_recycles <- floor(n_models/n_shapes)
-  left_over <- n_models - n_recycles*n_shapes
-  model_2_shape_map <- c(rep(shape_list, n_recycles), shape_list[1:left_over])
-  geobike[, shape_id := model_2_shape_map[as.integer(as.factor(model))]]
-  
-
-  # center X at bottom bracket
-  geobike[, rear_x := rear_x - bottom_x]
-  geobike[, seat_x := seat_x - bottom_x]
-  geobike[, head_x := head_x - bottom_x]
-  geobike[, crown_x := crown_x - bottom_x]
-  geobike[, front_x := front_x - bottom_x]
-  geobike[, bottom_x := bottom_x - bottom_x]
-  geobike[, seattube_x := seattube_x - bottom_x]
- 
-  setorder(geobike, "model")
-  
-  # get rider_height
-  geobike <- frame_size_predictor(geobike)
-  setorder(geobike, model, rider_height_pred)
-  geobike <- rider_range(geobike)
-  
-  geobike_working <- copy(geobike)
-  # geobike <- geobike_working
-  
-  # get classifier size medium
-  geobike <- assign_std_size_pred(geobike)
-#  geobike <- better_assign_std_size(geobike)
-
-  # set my_fit or classifier fit
-  geobike[, my_fit := frame_size_std_m] 
-  
-  # set bike class
-  geobike[, terrain_class := "Rigid Gravel"]
-  geobike[axle_crown >= 473 &
-            handlebar == "flat bar" &
-            (tire_width_max_700c >= 2.1*25.4 |
-            tire_width_max_650b >= 2.1*25.4),
-          terrain_class := "MTB"]
-  geobike[axle_crown >= 473 &
-            (handlebar == "drop bar" |
-            handlebar == "both") &
-            (tire_width_max_700c >= 2.1*25.4 |
-            tire_width_max_650b >= 2.1*25.4),
-          terrain_class := "Drop Bar MTB"]
-  geobike[axle_crown < 473 &
-            handlebar == "flat bar" &
-            (tire_width_max_700c >= 2.1*25.4 |
-            tire_width_max_650b >= 2.1*25.4),
-          terrain_class := "Flat Bar ATB"]
-  geobike[axle_crown < 473 &
-            (handlebar == "drop bar" |
-            handlebar == "both") &
-            (tire_width_max_700c >= 2.1*25.4 |
-            tire_width_max_650b >= 2.1*25.4),
-          terrain_class := "Drop Bar ATB"]
-  geobike[axle_crown >= 417.5 &
-            (tire_width_max_700c < 2.1*25.4 &
-            tire_width_max_650b < 2.1*25.4),
-          terrain_class := "Suspension Gravel"]
-  class_levels <- c("Rigid Gravel", 
-                    "Suspension Gravel",
-                    "Drop Bar ATB", 
-                    "Flat Bar ATB",
-                    "Drop Bar MTB",
-                    "MTB"
-                    )
-  geobike[, terrain_class := factor(terrain_class,
-                                    levels = class_levels)]
-
-#  geobike[terrain_class == "Drop Bar MTB", model] |> unique()
-  geobike[, material := factor(material,
-                                    levels = c("carbon", "aluminum", "steel", "titanium"))]
-  
-  # add model-frame_size column
-  geobike[, model_size := paste(model, frame_size)]
-  setorder(geobike, model)
-  geobike[, model_size := factor(model_size,
-                                 levels = unique(model_size))]
-  
-  # create my_fit alternative
-  geobike[, Size := ifelse(my_fit == TRUE, "M/L (54-56)", "All sizes")] # was focal/non-focal
-
-  return(geobike)
-}
-```
+# Classifiers
 
 ```{r}
 classifier_scores <- function(dt, means){
@@ -3091,506 +2864,8 @@ gravel_scores <- function(data, y_cols){
 
 ```
 
-
-```{r import-gravel, eval=TRUE}
-import_it <-  TRUE # make false when creating .R file below!
-
-   classifier_cols <- c(
-      "stack",
-      "reach",
-      "front_center",
-      "rear_center",
-      "head_tube_angle",
-      "seat_tube_angle",
-      "trail_45"
-  )   
-  
-equalize_tire_width = TRUE
-geobike_path <- here("rds", "geobike.Rds")
-geobike_sus_path <- here("rds", "geobike_sus.Rds")
-my_fit_path <- here("rds", "my_fit.Rds")
-if(import_it != TRUE){
-  geobike <- readRDS(geobike_path)
-  geobike_sus <- readRDS(geobike_sus_path)
-  my_fit <- readRDS(my_fit_path)
-}else{
-  
-  # exchange_rates
-  get_exchange_rates <- FALSE
-  if(get_exchange_rates == TRUE){
-    eur_2_usd <- convert_currencies(1, "EUR", "USD")
-    gbp_2_usd <- convert_currencies(1, "GBP", "USD")
-    dkk_2_usd <- convert_currencies(1, "DKK", "USD")
-    cad_2_usd <- convert_currencies(1, "CAD", "USD")
-  }else{
-    eur_2_usd <- 1.152452 # 31 Oct 2025
-    gbp_2_usd <- 1.310659 # 31 Oct 2025
-    dkk_2_usd <- 0.154319 # 31 Oct 2025
-    cad_2_usd <- 0.7132362 # 31 Oct 2025
-  }
-  exchange_rates <- list(eur = eur_2_usd, gbp = gbp_2_usd, dkk = dkk_2_usd)
-
-  # import from xlsx
-  geobike <- import_bike_list(style = "gravel", exchange_rates)
-  geobike_import <- copy(geobike)
-  # geobike <- geobike_import
-  
-  
-  # classify bikes by kmeans
-  # kmeans first splits into k = 2 groups because there is only good support for 2. Then splits
-  # group 2 into two groups because there is good support for this.
-  # then combines into 3 clusters
-  # classify bikes
-  k <- 3
-  style_levels <- c("racy", "relaxed", "rowdy", "allroad")[1:k]
-  
-  # kmeans
-  kmeans_classes <- kmeans_classifier(
-    geobike[my_fit == TRUE],
-    k = k,
-    method = "rkm", # km or rkm where rkm is robust
-    nested = TRUE
-  )
-  geobike <- merge(geobike,
-                   kmeans_classes[, .SD, .SDcols = c("model", "kmeans_style")],
-                   by = c("model"), all.x = TRUE)
-  geobike <- merge(geobike,
-                   kmeans_classes[, .SD,
-                                  .SDcols = c("model", "frame_size",
-                                              paste0("kmeans_", style_levels),
-                                              "mds1", "mds2")],
-                   by = c("model", "frame_size"), all.x = TRUE)
-
-  # nested kmeans
-  # nkmeans_classes <- nested_km_classifier(
-  #   geobike[my_fit == TRUE]
-  # )
-  # geobike <- merge(geobike,
-  #                  nkmeans_classes[, .SD, .SDcols = c("model", "nkmeans_style")],
-  #                  by = c("model"), all.x = TRUE)
-  # geobike <- merge(geobike,
-  #                  nkmeans_classes[, .SD, .SDcols = c("model", "frame_size", paste0("nkmeans_", style_levels))],
-  #                  by = c("model", "frame_size"), all.x = TRUE)
-
-  # # mclust
-  # mclust_classes <- mclust_classifier(geobike[my_fit == TRUE,])
-  # geobike <- merge(geobike,
-  #                  mclust_classes[, .SD, .SDcols = c("model", "mclust_style")],
-  #                  by = c("model"), all.x = TRUE)
-  # geobike <- merge(geobike,
-  #                  mclust_classes[, .SD, .SDcols = c("model", "frame_size", paste0("mclust_", style_levels))],
-  #                  by = c("model", "frame_size"), all.x = TRUE)
-  # 
-
-  # tree classifier
-  tree_classes <- tree_classifier(
-    geobike[my_fit == TRUE],
-    k = 3,
-    method = "ward.D2",
-    scores = FALSE
-  )
-  # tree_classes[is.na(tree_style), tree_style := "rowdy"]
-  # geobike <- merge(geobike,
-  #                  tree_classes[, .SD, .SDcols = c("model", "tree_style")],
-  #                  by = c("model"), all.x = TRUE)
-  # geobike <- merge(geobike,
-  #                  tree_classes[, .SD, .SDcols = c("model", "frame_size", paste0("tree_", style_levels))],
-  #                  by = c("model", "frame_size"), all.x = TRUE)
-
-  # functional class
-  # functional_classes <- functional_classifier(
-  #   geobike[my_fit == TRUE]
-  # )
-  # geobike <- merge(geobike,
-  #                  functional_classes[, .SD, .SDcols = c("model", "functional_style")],
-  #                  by = c("model"), all.x = TRUE)
-  # geobike <- merge(geobike,
-  #                  functional_classes[, .SD, .SDcols = c("model", "frame_size", paste0("functional_", style_levels[1:3]))],
-  #                  by = c("model", "frame_size"), all.x = TRUE)
-  
-  geobike[, color_kmeans := pal_okabe_ito_4[as.integer(kmeans_style)]]
-#  geobike[, color_tree := pal_okabe_ito_3[as.integer(tree_style)]]
-#  geobike[, color_function := pal_okabe_ito_3[as.integer(functional_style)]]
-  geobike[, color := color_kmeans]
-  geobike[, highlight_text := model_size]
-
-  # my_fit
-  my_fit <- geobike[my_fit == TRUE]
-
-  # save
-  saveRDS(geobike, geobike_path)
-  saveRDS(my_fit, my_fit_path)
-  
-  # compute and save sus geometry
-  geobike_sus <- stack_sus_columns(geobike)
-  saveRDS(geobike_sus, geobike_sus_path)
-  
-  # make images for index page
-  
-}
-
-```
-
-# Modify Excel files
-
-```{r eval=FALSE}
-convert_multi_files <- function(){
-
-  spec_data_labels <- c(
-    "material",
-    "udh",
-    "dropout",
-    "tire_width_max_700c",
-    "tire_width_max_650b",
-    "suspension_corrected",
-    "fork_suspension",
-    "stem_suspension",
-    "rear_suspension",
-    "rear_axle",
-    "front_axle",
-    "bottom_bracket",
-    "q_factor",
-    "seatpost_diameter",
-    "front_derailleur",
-    "max_chainring_1x",
-    "max_chainring_2x",
-    "rotor_max_front",
-    "rotor_max_rear",
-    "iso_astm",
-    "routing_shifter",
-    "routing_dropper",
-    "routing_dynamo",
-    "internal_storage",
-    "mounts_inner",
-    "mounts_under",
-    "mounts_top",
-    "mounts_fork",
-    "mounts_fender",
-    "mounts_rack_front",
-    "mounts_rack_rear",
-    "frameset",
-    "base_build",
-    "custom_builds",
-    "currency"
-)
-  bike_path <- here(data_folder,"gravel orig excel file/gravel.xlsx")
-  bike_list_file = "gravel orig excel file/gravel_list.txt"
-  bike_list_path <- here(data_folder, bike_list_file)
-  bike_list <- fread(bike_list_path, sep = "\t", header = TRUE)
-  colnames(bike_list)[1] <- "model_year"
-  
-  bike_list[, brand_model := substr(model_year, 1, (nchar(model_year)-4))]
-  bike_list[, year := substr(model_year, (nchar(model_year)-3), nchar(model_year))]
-  bike_list[, first_row := substr(data_range, 2, 2) |> as.integer()]
-
-  for(i in 1:nrow(bike_list)){
-
-    bike_file <- paste0(bike_list[i, model_year], ".xlsx")
-    bike_model_i <- data.table(
-      spec = c("brand", "model", "model_year", "input_date", "url"),
-      val = as.character(NA)
-    )
-    
-    sheet_i <- bike_list[i, model_year]
-    temp_split <- str_split(bike_list[i, brand_model], " ", n = 2)
-    bike_model_i[1, val := temp_split[[1]][1]]
-    bike_model_i[2, val := temp_split[[1]][2]]
-    bike_model_i[3, val := bike_list[i, year]]
-    
-    range_i <- bike_list[i, data_range]
-    first_row <- substr(range_i, 2, 2) |> as.integer()
-    
-    # if sheet has no model data
-    if(first_row == 1){
-      bike_model_i[4, val := bike_list[i, year]]
-    }
-    if(first_row == 6){
-      input_date_i <- read_excel(bike_path,
-                                sheet = sheet_i,
-                                range = "B3", col_names = FALSE)
-      colnames(input_date_i) <- c("input_date")
-      input_date_str <- format(input_date_i$`input_date`, "%d-%b-%Y")
-      
-      url_i <- read_excel(bike_path,
-                                sheet = sheet_i,
-                                range = "B4", col_names = FALSE)
-      
-      bike_model_i[4, val := input_date_str]
-      bike_model_i[5, val := url_i]
-    }
-    
-    bike_specs_t <- data.table(
-      spec_list = spec_data_labels,
-      value = as.character(NA)
-    )
-    bike_specs_t[spec_list == "material", value := bike_list[i, frame]]
-    
-
-    # geometry
-    bike_geo <- read_excel(bike_path,
-                           sheet = sheet_i,
-                           range = range_i, col_names = TRUE) |>
-      data.table()
-    colnames(bike_geo)[1:2] <- c("frame_size", "frame size")
-    measures <- bike_geo[, frame_size]
-    if(!"frame_weight" %in% measures){
-      j <- which(measures == "wheel_size")
-      if(length(j) == 2){
-        # delete first wheel_size row
-        bike_geo <- bike_geo[-j[1]]
-        j <- j[2]
-      }
-      new_row <- data.table(
-        colnames = colnames(bike_geo),
-        frame_weight = as.numeric(NA)
-      ) |>
-        transpose(make.names = 1)
-      new_row[, frame_size := "frame_weight"]
-      bike_geo <- rbind(
-        bike_geo[1:(j-1),],
-        new_row,
-        bike_geo[j:nrow(bike_geo)]
-      )
-    }
-    data_range <- data.table(
-      var = "data_range",
-      range = paste0("a8:", letters[ncol(bike_geo)], (nrow(bike_geo) + 8))
-    )
-
-
-    # export
-    bike_path_out <- here(data_folder, "gravel_temp_incomplete", bike_file)
-
-    wb <- createWorkbook()
-    addWorksheet(wb, "Sheet1") # Add a sheet if creating new
-    modifyBaseFont(wb, fontSize = 14, fontName = "Futura")
-    writeData(wb, sheet = "Sheet1", # model data
-              x = bike_model_i,
-              startRow = 1, startCol = 1,
-              colNames = FALSE, rowNames = FALSE)
-    writeData(wb, sheet = "Sheet1", # measured range
-              x = data_range,
-              startRow = 7, startCol = 1,
-              colNames = FALSE, rowNames = FALSE)
-    writeData(wb, sheet = "Sheet1", # geometry
-              x = bike_geo,
-              startRow = 8, startCol = 1,
-              colNames = TRUE, rowNames = FALSE)
-    writeData(wb, sheet = "Sheet1", # specs
-              x = bike_specs_t,
-              startRow = 10 + nrow(bike_geo), startCol = 1,
-              colNames = TRUE, rowNames = FALSE)
-    setColWidths(
-      wb,
-      sheet = "Sheet1",
-      cols = 1:2,
-      widths = 19
-    )
-    saveWorkbook(wb, bike_path_out, overwrite = TRUE)
-
-
-  }
-  
-  
-
-}
-```
-
-```{r eval=FALSE}
-convert_single_files <- function(){
-  input_spec_data_labels <- c(
-    "material",
-    "udh",
-    "dropout",
-    "tire_width_max_700c",
-    "tire_width_max_650b",
-    "suspension_corrected",
-    "fork_suspension",
-    "stem_suspension",
-    "rear_suspension",
-    "rear_axle",
-    "front_axle",
-    "q_factor",
-    "seatpost_diameter",
-    "routing_shifter",
-    "routing_dropper",
-    "routing_dynamo",
-    "front_derailleur",
-    "max_chainring_1x",
-    "max_chainring_2x",
-    "bottom_bracket",
-    "mounts_inner",
-    "mounts_under",
-    "mounts_top",
-    "mounts_fork",
-    "mounts_fender",
-    "mounts_fender_front",
-    "mounts_rack_rear",
-    "iso_astm",
-    "rotor_max_front",
-    "rotor_max_rear",
-    "frameset",
-    "base_build",
-    "currency",
-    "internal_storage"
-)
-  
-    spec_data_labels <- c(
-    "material",
-    "udh",
-    "dropout",
-    "tire_width_max_700c",
-    "tire_width_max_650b",
-    "suspension_corrected",
-    "fork_suspension",
-    "stem_suspension",
-    "rear_suspension",
-    "rear_axle",
-    "front_axle",
-    "bottom_bracket",
-    "q_factor",
-    "seatpost_diameter",
-    "front_derailleur",
-    "max_chainring_1x",
-    "max_chainring_2x",
-    "rotor_max_front",
-    "rotor_max_rear",
-    "iso_astm",
-    "routing_shifter",
-    "routing_dropper",
-    "routing_dynamo",
-    "internal_storage",
-    "mounts_inner",
-    "mounts_under",
-    "mounts_top",
-    "mounts_fork",
-    "mounts_fender",
-    "mounts_rack_front",
-    "mounts_rack_rear",
-    "frameset",
-    "base_build",
-    "custom_builds",
-    "currency"
-)
-  bike_list_file = "gravel old/gravel_list.txt"
-  bike_list_path <- here(data_folder, bike_list_file)
-  bike_list <- fread(bike_list_path, sep = "\t", header = FALSE)
-  
-  for(i in 1:nrow(bike_list)){
-    
-    bike_file = bike_list[i]
-    bike_path <- here(data_folder, "gravel old", bike_file)
-    bike_model_i <- read_excel(bike_path, range = "A1:B5", col_names = FALSE) |>
-      data.table()
-    # read date
-    input_date_i <- read_excel(bike_path, range = "B4", col_names = FALSE)
-    colnames(input_date_i) <- c("input_date")
-    input_date_str <- format(input_date_i$`input_date`, "%d-%b-%Y")
-
-    # specs table
-    bike_specs <- read_excel(bike_path, range = "A6:AH7", col_names = TRUE) |>
-      clean_names() |>
-      data.table()
-    colnames(bike_specs) <- input_spec_data_labels
-    bike_specs$mounts_rack_front <- NA
-    bike_specs$custom_builds <- NA
-    bike_specs <- bike_specs[1, .SD, .SDcols = spec_data_labels]
-    row.names(bike_specs) <- "value"
-    bike_specs_t <- data.table(
-      spec_list = colnames(bike_specs),
-      value = bike_specs[1, .SD, .SDcols = spec_data_labels] |> as.character()
-    )
-    bike_specs_t[value == "NA", value := NA]
-
-    # geometry
-    bike_range_i <- read_excel(bike_path, range = "B9:B9", col_names = FALSE) |> as.character()
-    bike_geo <- read_excel(bike_path, range = bike_range_i, col_names = TRUE) |>
-      data.table()
-    colnames(bike_geo)[1:2] <- c("frame_size", "frame size")
-    measures <- bike_geo[, frame_size]
-    if(!"frame_weight" %in% measures){
-      a <- 3
-    }
-    
-    data_range <- data.table(
-      var = "data_range",
-      range = paste0("a8:", letters[ncol(bike_geo)], (nrow(bike_geo) + 8))
-    )
-
-    # export
-    bike_path_out <- here(data_folder, "gravel_temp", bike_file)
-
-    wb <- createWorkbook()
-    addWorksheet(wb, "Sheet1") # Add a sheet if creating new
-    modifyBaseFont(wb, fontSize = 14, fontName = "Futura")
-    writeData(wb, sheet = "Sheet1", # model data
-              x = bike_model_i,
-              startRow = 1, startCol = 1,
-              colNames = FALSE, rowNames = FALSE) 
-    writeData(wb, sheet = "Sheet1", # replace with formatted date
-              x = input_date_str,
-              startRow = 4, startCol = 2,
-              colNames = FALSE, rowNames = FALSE) 
-    writeData(wb, sheet = "Sheet1", # measured range
-              x = data_range,
-              startRow = 7, startCol = 1,
-              colNames = FALSE, rowNames = FALSE) 
-    writeData(wb, sheet = "Sheet1", # geometry
-              x = bike_geo,
-              startRow = 8, startCol = 1,
-              colNames = TRUE, rowNames = FALSE) 
-    writeData(wb, sheet = "Sheet1",
-              x = bike_specs_t,
-              startRow = 10 + nrow(bike_geo), startCol = 1,
-              colNames = TRUE, rowNames = FALSE) 
-    setColWidths(
-      wb,
-      sheet = "Sheet1",
-      cols = 1:2,
-      widths = 19
-    )
-    saveWorkbook(wb, bike_path_out, overwrite = TRUE)
-
-  }
-  
-  
-
-}
-```
-
-
-
-
-```{r add-bike-specs, eval=FALSE}
-# scripts are in the _Rmd folder with bike_geometry_project.Rmd
-# insert_row_with_values.scpt adds 3 rows to specs and populates with style = gravel, handlebar = drop bar, fork = rigid
-# insert_headset_fork.scpt adds 6 rows to specs and populates with head_tube_d, headset_upper, headset_lower, fork_steerer, fork_steerer_d, fork_material
-
-insert_after <- "front_axle"
-
-filelist_path <- here("data/gravel")
-excel_files <- list.files(filelist_path, pattern = "\\.xlsx$", full.names = TRUE)
-for (file in excel_files) {
-#  insert_row_num <- find_insert_row(file, named_range)
-  data_range <- read_excel(file, range = "B7:B7", col_names = FALSE) |>
-    as.character()
-  last_row_data_block <- substr(data_range, 5, 6) |> as.integer()
-  start_row_specs_block <- last_row_data_block + 2
-  end_row_specs_block <- start_row_specs_block + 100
-  specs_range <- paste0("A", start_row_specs_block,":A", end_row_specs_block)
-  specs <- read_excel(file, range = specs_range, col_names = FALSE)
-  insert_after_row <- which(specs == insert_after)
-  
-# Row to insert
-  insert_row <- start_row_specs_block + insert_after_row  # +1 to insert 
-  
-  system(sprintf("osascript insert_headset_fork.scpt '%s' %d", file, insert_row))
-
-}
-
-```
-
 # check colors
+
 ```{r eval=FALSE}
 "#56B4E9" "#E69F00" "#009E73"
 ```
@@ -3609,7 +2884,7 @@ classifier_y[, fc_proxy := reach - head_tube_angle + fork_offset_rake]
 cor(classifier_y)
 ```
 
-# figure functions
+# Figure functions
 
 ```{r base-plot, echo = FALSE}
 base_plot <- function(data = geobike,
@@ -4280,3 +3555,732 @@ if(write_it_as_R == TRUE){
   file.rename(file_name, r_path)
 }
 ```
+
+# Modify Excel files
+
+```{r eval=FALSE}
+convert_multi_files <- function(){
+
+  spec_data_labels <- c(
+    "material",
+    "udh",
+    "dropout",
+    "tire_width_max_700c",
+    "tire_width_max_650b",
+    "suspension_corrected",
+    "fork_suspension",
+    "stem_suspension",
+    "rear_suspension",
+    "rear_axle",
+    "front_axle",
+    "bottom_bracket",
+    "q_factor",
+    "seatpost_diameter",
+    "front_derailleur",
+    "max_chainring_1x",
+    "max_chainring_2x",
+    "rotor_max_front",
+    "rotor_max_rear",
+    "iso_astm",
+    "routing_shifter",
+    "routing_dropper",
+    "routing_dynamo",
+    "internal_storage",
+    "mounts_inner",
+    "mounts_under",
+    "mounts_top",
+    "mounts_fork",
+    "mounts_fender",
+    "mounts_rack_front",
+    "mounts_rack_rear",
+    "frameset",
+    "base_build",
+    "custom_builds",
+    "currency"
+)
+  bike_path <- here(data_folder,"gravel orig excel file/gravel.xlsx")
+  bike_list_file = "gravel orig excel file/gravel_list.txt"
+  bike_list_path <- here(data_folder, bike_list_file)
+  bike_list <- fread(bike_list_path, sep = "\t", header = TRUE)
+  colnames(bike_list)[1] <- "model_year"
+  
+  bike_list[, brand_model := substr(model_year, 1, (nchar(model_year)-4))]
+  bike_list[, year := substr(model_year, (nchar(model_year)-3), nchar(model_year))]
+  bike_list[, first_row := substr(data_range, 2, 2) |> as.integer()]
+
+  for(i in 1:nrow(bike_list)){
+
+    bike_file <- paste0(bike_list[i, model_year], ".xlsx")
+    bike_model_i <- data.table(
+      spec = c("brand", "model", "model_year", "input_date", "url"),
+      val = as.character(NA)
+    )
+    
+    sheet_i <- bike_list[i, model_year]
+    temp_split <- str_split(bike_list[i, brand_model], " ", n = 2)
+    bike_model_i[1, val := temp_split[[1]][1]]
+    bike_model_i[2, val := temp_split[[1]][2]]
+    bike_model_i[3, val := bike_list[i, year]]
+    
+    range_i <- bike_list[i, data_range]
+    first_row <- substr(range_i, 2, 2) |> as.integer()
+    
+    # if sheet has no model data
+    if(first_row == 1){
+      bike_model_i[4, val := bike_list[i, year]]
+    }
+    if(first_row == 6){
+      input_date_i <- read_excel(bike_path,
+                                sheet = sheet_i,
+                                range = "B3", col_names = FALSE)
+      colnames(input_date_i) <- c("input_date")
+      input_date_str <- format(input_date_i$`input_date`, "%d-%b-%Y")
+      
+      url_i <- read_excel(bike_path,
+                                sheet = sheet_i,
+                                range = "B4", col_names = FALSE)
+      
+      bike_model_i[4, val := input_date_str]
+      bike_model_i[5, val := url_i]
+    }
+    
+    bike_specs_t <- data.table(
+      spec_list = spec_data_labels,
+      value = as.character(NA)
+    )
+    bike_specs_t[spec_list == "material", value := bike_list[i, frame]]
+    
+
+    # geometry
+    bike_geo <- read_excel(bike_path,
+                           sheet = sheet_i,
+                           range = range_i, col_names = TRUE) |>
+      data.table()
+    colnames(bike_geo)[1:2] <- c("frame_size", "frame size")
+    measures <- bike_geo[, frame_size]
+    if(!"frame_weight" %in% measures){
+      j <- which(measures == "wheel_size")
+      if(length(j) == 2){
+        # delete first wheel_size row
+        bike_geo <- bike_geo[-j[1]]
+        j <- j[2]
+      }
+      new_row <- data.table(
+        colnames = colnames(bike_geo),
+        frame_weight = as.numeric(NA)
+      ) |>
+        transpose(make.names = 1)
+      new_row[, frame_size := "frame_weight"]
+      bike_geo <- rbind(
+        bike_geo[1:(j-1),],
+        new_row,
+        bike_geo[j:nrow(bike_geo)]
+      )
+    }
+    data_range <- data.table(
+      var = "data_range",
+      range = paste0("a8:", letters[ncol(bike_geo)], (nrow(bike_geo) + 8))
+    )
+
+
+    # export
+    bike_path_out <- here(data_folder, "gravel_temp_incomplete", bike_file)
+
+    wb <- createWorkbook()
+    addWorksheet(wb, "Sheet1") # Add a sheet if creating new
+    modifyBaseFont(wb, fontSize = 14, fontName = "Futura")
+    writeData(wb, sheet = "Sheet1", # model data
+              x = bike_model_i,
+              startRow = 1, startCol = 1,
+              colNames = FALSE, rowNames = FALSE)
+    writeData(wb, sheet = "Sheet1", # measured range
+              x = data_range,
+              startRow = 7, startCol = 1,
+              colNames = FALSE, rowNames = FALSE)
+    writeData(wb, sheet = "Sheet1", # geometry
+              x = bike_geo,
+              startRow = 8, startCol = 1,
+              colNames = TRUE, rowNames = FALSE)
+    writeData(wb, sheet = "Sheet1", # specs
+              x = bike_specs_t,
+              startRow = 10 + nrow(bike_geo), startCol = 1,
+              colNames = TRUE, rowNames = FALSE)
+    setColWidths(
+      wb,
+      sheet = "Sheet1",
+      cols = 1:2,
+      widths = 19
+    )
+    saveWorkbook(wb, bike_path_out, overwrite = TRUE)
+
+
+  }
+  
+  
+
+}
+```
+
+```{r eval=FALSE}
+convert_single_files <- function(){
+  input_spec_data_labels <- c(
+    "material",
+    "udh",
+    "dropout",
+    "tire_width_max_700c",
+    "tire_width_max_650b",
+    "suspension_corrected",
+    "fork_suspension",
+    "stem_suspension",
+    "rear_suspension",
+    "rear_axle",
+    "front_axle",
+    "q_factor",
+    "seatpost_diameter",
+    "routing_shifter",
+    "routing_dropper",
+    "routing_dynamo",
+    "front_derailleur",
+    "max_chainring_1x",
+    "max_chainring_2x",
+    "bottom_bracket",
+    "mounts_inner",
+    "mounts_under",
+    "mounts_top",
+    "mounts_fork",
+    "mounts_fender",
+    "mounts_fender_front",
+    "mounts_rack_rear",
+    "iso_astm",
+    "rotor_max_front",
+    "rotor_max_rear",
+    "frameset",
+    "base_build",
+    "currency",
+    "internal_storage"
+)
+  
+    spec_data_labels <- c(
+    "material",
+    "udh",
+    "dropout",
+    "tire_width_max_700c",
+    "tire_width_max_650b",
+    "suspension_corrected",
+    "fork_suspension",
+    "stem_suspension",
+    "rear_suspension",
+    "rear_axle",
+    "front_axle",
+    "bottom_bracket",
+    "q_factor",
+    "seatpost_diameter",
+    "front_derailleur",
+    "max_chainring_1x",
+    "max_chainring_2x",
+    "rotor_max_front",
+    "rotor_max_rear",
+    "iso_astm",
+    "routing_shifter",
+    "routing_dropper",
+    "routing_dynamo",
+    "internal_storage",
+    "mounts_inner",
+    "mounts_under",
+    "mounts_top",
+    "mounts_fork",
+    "mounts_fender",
+    "mounts_rack_front",
+    "mounts_rack_rear",
+    "frameset",
+    "base_build",
+    "custom_builds",
+    "currency"
+)
+  bike_list_file = "gravel old/gravel_list.txt"
+  bike_list_path <- here(data_folder, bike_list_file)
+  bike_list <- fread(bike_list_path, sep = "\t", header = FALSE)
+  
+  for(i in 1:nrow(bike_list)){
+    
+    bike_file = bike_list[i]
+    bike_path <- here(data_folder, "gravel old", bike_file)
+    bike_model_i <- read_excel(bike_path, range = "A1:B5", col_names = FALSE) |>
+      data.table()
+    # read date
+    input_date_i <- read_excel(bike_path, range = "B4", col_names = FALSE)
+    colnames(input_date_i) <- c("input_date")
+    input_date_str <- format(input_date_i$`input_date`, "%d-%b-%Y")
+
+    # specs table
+    bike_specs <- read_excel(bike_path, range = "A6:AH7", col_names = TRUE) |>
+      clean_names() |>
+      data.table()
+    colnames(bike_specs) <- input_spec_data_labels
+    bike_specs$mounts_rack_front <- NA
+    bike_specs$custom_builds <- NA
+    bike_specs <- bike_specs[1, .SD, .SDcols = spec_data_labels]
+    row.names(bike_specs) <- "value"
+    bike_specs_t <- data.table(
+      spec_list = colnames(bike_specs),
+      value = bike_specs[1, .SD, .SDcols = spec_data_labels] |> as.character()
+    )
+    bike_specs_t[value == "NA", value := NA]
+
+    # geometry
+    bike_range_i <- read_excel(bike_path, range = "B9:B9", col_names = FALSE) |> as.character()
+    bike_geo <- read_excel(bike_path, range = bike_range_i, col_names = TRUE) |>
+      data.table()
+    colnames(bike_geo)[1:2] <- c("frame_size", "frame size")
+    measures <- bike_geo[, frame_size]
+    if(!"frame_weight" %in% measures){
+      a <- 3
+    }
+    
+    data_range <- data.table(
+      var = "data_range",
+      range = paste0("a8:", letters[ncol(bike_geo)], (nrow(bike_geo) + 8))
+    )
+
+    # export
+    bike_path_out <- here(data_folder, "gravel_temp", bike_file)
+
+    wb <- createWorkbook()
+    addWorksheet(wb, "Sheet1") # Add a sheet if creating new
+    modifyBaseFont(wb, fontSize = 14, fontName = "Futura")
+    writeData(wb, sheet = "Sheet1", # model data
+              x = bike_model_i,
+              startRow = 1, startCol = 1,
+              colNames = FALSE, rowNames = FALSE) 
+    writeData(wb, sheet = "Sheet1", # replace with formatted date
+              x = input_date_str,
+              startRow = 4, startCol = 2,
+              colNames = FALSE, rowNames = FALSE) 
+    writeData(wb, sheet = "Sheet1", # measured range
+              x = data_range,
+              startRow = 7, startCol = 1,
+              colNames = FALSE, rowNames = FALSE) 
+    writeData(wb, sheet = "Sheet1", # geometry
+              x = bike_geo,
+              startRow = 8, startCol = 1,
+              colNames = TRUE, rowNames = FALSE) 
+    writeData(wb, sheet = "Sheet1",
+              x = bike_specs_t,
+              startRow = 10 + nrow(bike_geo), startCol = 1,
+              colNames = TRUE, rowNames = FALSE) 
+    setColWidths(
+      wb,
+      sheet = "Sheet1",
+      cols = 1:2,
+      widths = 19
+    )
+    saveWorkbook(wb, bike_path_out, overwrite = TRUE)
+
+  }
+  
+  
+
+}
+```
+
+
+
+
+```{r add-bike-specs, eval=FALSE}
+# scripts are in the _Rmd folder with bike_geometry_project.Rmd
+# insert_row_with_values.scpt adds 3 rows to specs and populates with style = gravel, handlebar = drop bar, fork = rigid
+# insert_headset_fork.scpt adds 6 rows to specs and populates with head_tube_d, headset_upper, headset_lower, fork_steerer, fork_steerer_d, fork_material
+
+insert_after <- "front_axle"
+
+filelist_path <- here("data/gravel incomplete")
+excel_files <- list.files(filelist_path, pattern = "\\.xlsx$", full.names = TRUE)
+for (file in excel_files) {
+#  insert_row_num <- find_insert_row(file, named_range)
+  data_range <- read_excel(file, range = "B7:B7", col_names = FALSE) |>
+    as.character()
+  last_row_data_block <- substr(data_range, 5, 6) |> as.integer()
+  start_row_specs_block <- last_row_data_block + 2
+  end_row_specs_block <- start_row_specs_block + 100
+  specs_range <- paste0("A", start_row_specs_block,":A", end_row_specs_block)
+  specs <- read_excel(file, range = specs_range, col_names = FALSE)
+  insert_after_row <- which(specs == insert_after)
+  
+# Row to insert
+  insert_row <- start_row_specs_block + insert_after_row  # +1 to insert 
+  
+  system(sprintf("osascript insert_headset_fork.scpt '%s' %d", file, insert_row))
+
+}
+
+```
+
+# Import bikes
+
+```{r}
+import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
+  # bike_list_file = paste0(paste0(style_folder, "/"), style_folder, "_list.txt")
+  # bike_list_path <- here(data_folder, bike_list_file)
+  # bike_list <- fread(bike_list_path, sep = "\t", header = FALSE)
+  
+  filelist_path <- here(data_folder,style_folder)
+  bike_list <- list.files(filelist_path, pattern = "\\.xlsx$", full.names = FALSE)
+  bike_list <- bike_list[!grepl("^~\\$", basename(bike_list))] # delete excel hidden
+
+  # exchange_rates
+  euro_2_usd <- exchange_rates$eur
+  gbp_2_usd <- exchange_rates$gbp
+  dkk_2_usd <- exchange_rates$dkk
+
+  geobike <- data.table(NULL)
+  for(i in 1:length(bike_list)){
+    bike_file = bike_list[i]
+    print(bike_file)
+    bike_path <- here(data_folder, style_folder, bike_file)
+    model_data <- read_excel(bike_path, range = "A1:B6", col_names = FALSE,
+                          .name_repair = "unique_quiet") |>
+      data.table()
+
+    # geometry range
+    geom_range <- read_excel(bike_path, range = "B7:B7", col_names = FALSE,
+                          .name_repair = "unique_quiet") |> as.character()
+    last_row <- substr(geom_range, (nchar(geom_range)-1), nchar(geom_range)) |>
+      as.integer()
+    
+    # specs table
+    first_row <- last_row + 2
+    last_row <- first_row + 100
+    specs_range <- paste0("a", first_row, ":b", last_row)
+    
+    bike_specs <- read_excel(bike_path, range = specs_range, col_names = TRUE) |>
+      clean_names() |>
+      data.table()
+    bike_specs <- bike_specs[!apply(is.na(bike_specs), 1, all), ]
+    bike_specs_t <- transpose(bike_specs, make.names = 1)
+
+    bike_label <- paste(model_data[1, 2], model_data[2, 2], model_data[3, 2])
+    bike_geo <- read_geometry(bike_label = bike_label,
+                        bike_range = geom_range,
+                        data_file = paste0(style_folder,"/", bike_file))
+    bike_i <- cbind(bike_geo, bike_specs_t )
+    if(!"location" %in% names(bike_i)){
+      bike_i[, location := NA]
+    }
+    bike_i <- clean_and_compute(bike_i)
+    # bike_i <- read_bike(bike_label = bike_label,
+    #                     bike_range = geom_range,
+    #                     data_file = paste0(style_folder,"/", bike_file),
+    #                     material = frame_material)
+    bike_i[, url := model_data[5,2]]
+    bike_i[, image_url := model_data[6,2]]
+    bike_i[, my_fit := NA]
+    
+    # price data
+    bike_i[, base_build := as.numeric(base_build)]
+    bike_i[, frameset := as.numeric(frameset)]
+    
+    bike_i[, frameset_usd := frameset]
+    bike_i[, base_build_usd := base_build]
+    currency <- bike_i[1, currency]
+    if(!is.na(currency) & (currency == "euro" | currency == "EUR")){
+      bike_i[!is.na(frameset), frameset_usd := eur_2_usd * frameset]
+      bike_i[!is.na(base_build), base_build_usd := eur_2_usd * base_build]
+    }
+    if(!is.na(currency) & (currency == "pound" | currency == "GBP")){
+      bike_i[!is.na(frameset), frameset_usd := gbp_2_usd * frameset]
+      bike_i[!is.na(base_build), base_build_usd := gbp_2_usd * base_build]
+   }
+    if(!is.na(currency) & (currency == "dkk" | currency == "DKK")){
+      bike_i[!is.na(frameset), frameset_usd := dkk_2_usd * frameset]
+      bike_i[!is.na(base_build), base_build_usd := dkk_2_usd * base_build]
+   }
+    if(!is.na(currency) & (currency == "cad" | currency == "CAD")){
+      bike_i[!is.na(frameset), frameset_usd := cad_2_usd * frameset]
+      bike_i[!is.na(base_build), base_build_usd := cad_2_usd * base_build]
+   }
+    
+    # Stuff for filters
+    
+    # suspension class
+    # 30 mm travel
+    # Rudy: 425 - 0.05*30 = 423.5
+    # Fox TC: 425 - 0.2*30 = 419
+    # Cane Creek = Fox TC
+    # Lauf 419 mm AC, 47mm rake
+    # 40 mm travel
+    # Rudy: 435 - 0.05*40 = 433
+    # Fox TC: 435 - 0.2*40 = 427
+    # Cane Creek = Fox TC
+    # 50 mm travel
+    # Fox: 445 - .2*50 = 435
+    # 60 mm travel
+    # MRP Baxter: 456 - .2*60 = 444
+    # Rockshox 60 mm on trek
+    min_0 <- 411 # 30 mm
+    min_1 <- 415 # 30 mm
+    min_2 <- 423 # (419 + 427)/2 # 40 mm
+    min_3 <- 431 # (427 + 435)/2 # 50 mm
+    min_4 <- 439.5 # (435 + 444)/2 # 60 mm
+    min_5 <- 460 # 
+    bike_i[fork == "rigid" & axle_crown < min_0, fork_class := "0 mm"]
+    bike_i[fork == "rigid" & axle_crown >= min_0 & axle_crown < min_1, fork_class := "20 mm"]
+    bike_i[fork == "rigid" & axle_crown >= min_1 & axle_crown < min_2, fork_class := "30 mm"]
+    bike_i[fork == "rigid" & axle_crown >= min_2 & axle_crown < min_3, fork_class := "40 mm"]
+    bike_i[fork == "rigid" & axle_crown >= min_3 & axle_crown < min_4, fork_class := "50 mm"]
+    bike_i[fork == "rigid" & axle_crown >= min_4 & axle_crown < min_5, fork_class := "60 mm"]
+    bike_i[fork == "rigid" & axle_crown >= 471 & axle_crown < 489, fork_class := "100 mm"]
+    bike_i[fork == "rigid" & axle_crown >= 489 & axle_crown < 507, fork_class := "120 mm"]
+    bike_i[fork == "suspension", fork_class := paste(suspension_corrected, "mm")]
+    # make a factor and order
+    fork_classes <- c("0 mm", "20 mm", "30 mm", "40 mm", "50 mm", "60 mm", "100 mm", "120 mm")
+    bike_i[, fork_class := factor(fork_class, levels = fork_classes)]
+    
+    # bind it
+    geobike <- rbind(geobike, bike_i)
+  }
+ return(geobike)
+}
+```
+
+```{r import-bike-list, echo=FALSE}
+import_bike_list <- function(style = "gravel", exchange_rates){
+  
+  geobike <- rbind(
+    import_bikes_excel_single("gravel", exchange_rates),
+    import_bikes_excel_single("gravel incomplete", exchange_rates)
+  )
+  geobike[, id := .I]
+
+  
+  # add column of shape id for plots
+  shape_list <- c(15,17,19,0,2)
+  n_shapes <- length(shape_list)
+  n_models <- length(unique(geobike[, model]))
+  n_recycles <- floor(n_models/n_shapes)
+  left_over <- n_models - n_recycles*n_shapes
+  model_2_shape_map <- c(rep(shape_list, n_recycles), shape_list[1:left_over])
+  geobike[, shape_id := model_2_shape_map[as.integer(as.factor(model))]]
+  
+
+  # center X at bottom bracket
+  geobike[, rear_x := rear_x - bottom_x]
+  geobike[, seat_x := seat_x - bottom_x]
+  geobike[, head_x := head_x - bottom_x]
+  geobike[, crown_x := crown_x - bottom_x]
+  geobike[, front_x := front_x - bottom_x]
+  geobike[, bottom_x := bottom_x - bottom_x]
+  geobike[, seattube_x := seattube_x - bottom_x]
+ 
+  setorder(geobike, "model")
+  
+  # get rider_height
+  geobike <- frame_size_predictor(geobike)
+  setorder(geobike, model, rider_height_pred)
+  geobike <- rider_range(geobike)
+  
+  geobike_working <- copy(geobike)
+  # geobike <- geobike_working
+  
+  # get classifier size medium
+  geobike <- assign_std_size_pred(geobike)
+#  geobike <- better_assign_std_size(geobike)
+
+  # set my_fit or classifier fit
+  geobike[, my_fit := frame_size_std_m] 
+  
+  # set bike class
+  geobike[, terrain_class := "Rigid Gravel"]
+  geobike[axle_crown >= 473 &
+            handlebar == "flat bar" &
+            (tire_width_max_700c >= 2.1*25.4 |
+            tire_width_max_650b >= 2.1*25.4),
+          terrain_class := "MTB"]
+  geobike[axle_crown >= 473 &
+            (handlebar == "drop bar" |
+            handlebar == "both") &
+            (tire_width_max_700c >= 2.1*25.4 |
+            tire_width_max_650b >= 2.1*25.4),
+          terrain_class := "Drop Bar MTB"]
+  geobike[axle_crown < 473 &
+            handlebar == "flat bar" &
+            (tire_width_max_700c >= 2.1*25.4 |
+            tire_width_max_650b >= 2.1*25.4),
+          terrain_class := "Flat Bar ATB"]
+  geobike[axle_crown < 473 &
+            (handlebar == "drop bar" |
+            handlebar == "both") &
+            (tire_width_max_700c >= 2.1*25.4 |
+            tire_width_max_650b >= 2.1*25.4),
+          terrain_class := "Drop Bar ATB"]
+  geobike[axle_crown >= 417.5 &
+            (tire_width_max_700c < 2.1*25.4 &
+            tire_width_max_650b < 2.1*25.4),
+          terrain_class := "Suspension Gravel"]
+  class_levels <- c("Rigid Gravel", 
+                    "Suspension Gravel",
+                    "Drop Bar ATB", 
+                    "Flat Bar ATB",
+                    "Drop Bar MTB",
+                    "MTB"
+                    )
+  geobike[, terrain_class := factor(terrain_class,
+                                    levels = class_levels)]
+
+#  geobike[terrain_class == "Drop Bar MTB", model] |> unique()
+  geobike[, material := factor(material,
+                                    levels = c("carbon", "aluminum", "steel", "titanium"))]
+  
+  # add model-frame_size column
+  geobike[, model_size := paste(model, frame_size)]
+  setorder(geobike, model)
+  geobike[, model_size := factor(model_size,
+                                 levels = unique(model_size))]
+  
+  # create my_fit alternative
+  geobike[, Size := ifelse(my_fit == TRUE, "M/L (54-56)", "All sizes")] # was focal/non-focal
+
+  return(geobike)
+}
+```
+
+
+
+```{r import-gravel, eval=TRUE}
+import_it <-  TRUE # make false when creating .R file below!
+
+   classifier_cols <- c(
+      "stack",
+      "reach",
+      "front_center",
+      "rear_center",
+      "head_tube_angle",
+      "seat_tube_angle",
+      "trail_45"
+  )   
+  
+equalize_tire_width = TRUE
+geobike_path <- here("rds", "geobike.Rds")
+geobike_sus_path <- here("rds", "geobike_sus.Rds")
+my_fit_path <- here("rds", "my_fit.Rds")
+if(import_it != TRUE){
+  geobike <- readRDS(geobike_path)
+  geobike_sus <- readRDS(geobike_sus_path)
+  my_fit <- readRDS(my_fit_path)
+}else{
+  
+  # exchange_rates
+  get_exchange_rates <- FALSE
+  if(get_exchange_rates == TRUE){
+    eur_2_usd <- convert_currencies(1, "EUR", "USD")
+    gbp_2_usd <- convert_currencies(1, "GBP", "USD")
+    dkk_2_usd <- convert_currencies(1, "DKK", "USD")
+    cad_2_usd <- convert_currencies(1, "CAD", "USD")
+  }else{
+    eur_2_usd <- 1.152452 # 31 Oct 2025
+    gbp_2_usd <- 1.310659 # 31 Oct 2025
+    dkk_2_usd <- 0.154319 # 31 Oct 2025
+    cad_2_usd <- 0.7132362 # 31 Oct 2025
+  }
+  exchange_rates <- list(eur = eur_2_usd, gbp = gbp_2_usd, dkk = dkk_2_usd)
+
+  # import from xlsx
+  geobike <- import_bike_list(style = "gravel", exchange_rates)
+  geobike_import <- copy(geobike)
+  # geobike <- geobike_import
+  
+  
+  # classify bikes by kmeans
+  # kmeans first splits into k = 2 groups because there is only good support for 2. Then splits
+  # group 2 into two groups because there is good support for this.
+  # then combines into 3 clusters
+  # classify bikes
+  k <- 3
+  style_levels <- c("racy", "relaxed", "rowdy", "allroad")[1:k]
+  
+  # kmeans
+  kmeans_classes <- kmeans_classifier(
+    geobike[my_fit == TRUE],
+    k = k,
+    method = "rkm", # km or rkm where rkm is robust
+    nested = TRUE
+  )
+  geobike <- merge(geobike,
+                   kmeans_classes[, .SD, .SDcols = c("model", "kmeans_style")],
+                   by = c("model"), all.x = TRUE)
+  geobike <- merge(geobike,
+                   kmeans_classes[, .SD,
+                                  .SDcols = c("model", "frame_size",
+                                              paste0("kmeans_", style_levels),
+                                              "mds1", "mds2")],
+                   by = c("model", "frame_size"), all.x = TRUE)
+
+  # nested kmeans
+  # nkmeans_classes <- nested_km_classifier(
+  #   geobike[my_fit == TRUE]
+  # )
+  # geobike <- merge(geobike,
+  #                  nkmeans_classes[, .SD, .SDcols = c("model", "nkmeans_style")],
+  #                  by = c("model"), all.x = TRUE)
+  # geobike <- merge(geobike,
+  #                  nkmeans_classes[, .SD, .SDcols = c("model", "frame_size", paste0("nkmeans_", style_levels))],
+  #                  by = c("model", "frame_size"), all.x = TRUE)
+
+  # # mclust
+  # mclust_classes <- mclust_classifier(geobike[my_fit == TRUE,])
+  # geobike <- merge(geobike,
+  #                  mclust_classes[, .SD, .SDcols = c("model", "mclust_style")],
+  #                  by = c("model"), all.x = TRUE)
+  # geobike <- merge(geobike,
+  #                  mclust_classes[, .SD, .SDcols = c("model", "frame_size", paste0("mclust_", style_levels))],
+  #                  by = c("model", "frame_size"), all.x = TRUE)
+  # 
+
+  # tree classifier
+  tree_classes <- tree_classifier(
+    geobike[my_fit == TRUE],
+    k = 3,
+    method = "ward.D2",
+    scores = FALSE
+  )
+  # tree_classes[is.na(tree_style), tree_style := "rowdy"]
+  # geobike <- merge(geobike,
+  #                  tree_classes[, .SD, .SDcols = c("model", "tree_style")],
+  #                  by = c("model"), all.x = TRUE)
+  # geobike <- merge(geobike,
+  #                  tree_classes[, .SD, .SDcols = c("model", "frame_size", paste0("tree_", style_levels))],
+  #                  by = c("model", "frame_size"), all.x = TRUE)
+
+  # functional class
+  # functional_classes <- functional_classifier(
+  #   geobike[my_fit == TRUE]
+  # )
+  # geobike <- merge(geobike,
+  #                  functional_classes[, .SD, .SDcols = c("model", "functional_style")],
+  #                  by = c("model"), all.x = TRUE)
+  # geobike <- merge(geobike,
+  #                  functional_classes[, .SD, .SDcols = c("model", "frame_size", paste0("functional_", style_levels[1:3]))],
+  #                  by = c("model", "frame_size"), all.x = TRUE)
+  
+  geobike[, color_kmeans := pal_okabe_ito_4[as.integer(kmeans_style)]]
+#  geobike[, color_tree := pal_okabe_ito_3[as.integer(tree_style)]]
+#  geobike[, color_function := pal_okabe_ito_3[as.integer(functional_style)]]
+  geobike[, color := color_kmeans]
+  geobike[, highlight_text := model_size]
+
+  # my_fit
+  my_fit <- geobike[my_fit == TRUE]
+
+  # save
+  saveRDS(geobike, geobike_path)
+  saveRDS(my_fit, my_fit_path)
+  
+  # compute and save sus geometry
+  geobike_sus <- stack_sus_columns(geobike)
+  saveRDS(geobike_sus, geobike_sus_path)
+  
+  # make images for index page
+  
+}
+
+```
+
