@@ -1130,8 +1130,8 @@ clean_and_compute <- function(bike){
   # landmarks with rear axle as origin
   bike[, x1 := 0] # rear axle
   bike[, y1 := 0]
-  bike[, x2 := rear_center - seat_h] # seat at stack height
-  bike[, y2 := stack - bottom_bracket_drop]
+  bike[, x2 := rear_center - seat_tube_h] # seat tube
+  bike[, y2 := seat_tube_v - bottom_bracket_drop]
   bike[, x3 := rear_center + reach] # head tube top
   bike[, y3 := stack - bottom_bracket_drop]
   bike[, x4 := x3 + head_h] # head tube base
@@ -1140,14 +1140,14 @@ clean_and_compute <- function(bike){
   bike[, y5 := 0]
   bike[, x6 := rear_center] # bottom bracket
   bike[, y6 := -bottom_bracket_drop]
-  bike[, x7 := rear_center - seat_tube_h] # seat tube
-  bike[, y7 := seat_tube_v]
+  bike[, x7 := rear_center - seat_h] # seat at stack height
+  bike[, y7 := stack - bottom_bracket_drop]
   
   # landmarks_named
   bike[, rear_x := x1]
   bike[, rear_y := y1]
-  bike[, seat_x := x2]
-  bike[, seat_y := y2]
+  bike[, seattube_x := x2]
+  bike[, seattube_y := y2]
   bike[, head_x := x3]
   bike[, head_y := y3]
   bike[, crown_x := x4]
@@ -1156,8 +1156,8 @@ clean_and_compute <- function(bike){
   bike[, front_y := y5]
   bike[, bottom_x := x6]
   bike[, bottom_y := y6]
-  bike[, seattube_x := x7]
-  bike[, seattube_y := y7]
+  bike[, seat_x := x7]
+  bike[, seat_y := y7]
   
   # geometry_with_sus_fork <- function(frame,
   #                                  sus_length = 425,
@@ -2864,6 +2864,14 @@ gravel_scores <- function(data, y_cols){
 
 ```
 
+# Geometric morphometrics
+
+```{r}
+coord_cols <- paste0(c("x", "y"), 1:6)
+
+gm <- geobike[my_fit == TRUE]
+```
+
 # check colors
 
 ```{r eval=FALSE}
@@ -4063,14 +4071,14 @@ import_bike_list <- function(style = "gravel", exchange_rates){
   
 
   # center X at bottom bracket
-  geobike[, rear_x := rear_x - bottom_x]
-  geobike[, seat_x := seat_x - bottom_x]
-  geobike[, head_x := head_x - bottom_x]
-  geobike[, crown_x := crown_x - bottom_x]
-  geobike[, front_x := front_x - bottom_x]
-  geobike[, bottom_x := bottom_x - bottom_x]
-  geobike[, seattube_x := seattube_x - bottom_x]
- 
+  # geobike[, rear_x := rear_x - bottom_x]
+  # geobike[, seattube_x := seattube_x - bottom_x]
+  # geobike[, head_x := head_x - bottom_x]
+  # geobike[, crown_x := crown_x - bottom_x]
+  # geobike[, front_x := front_x - bottom_x]
+  # geobike[, bottom_x := bottom_x - bottom_x]
+  # geobike[, seat_x := seat_x - bottom_x]
+  
   setorder(geobike, "model")
   
   # get rider_height
