@@ -24,8 +24,6 @@ More notes at the bottom!
 :::
 
 
-[Click here to see a version of this page that simultaneously highlights all frame sizes within a model](../qmd/gravel_scatter_model.qmd)
-
 ```{r setup-gravel-scatter, echo=FALSE, warning=FALSE, message=FALSE}
 source_path <- here::here("bike_geometry_project.R")
 source(source_path)

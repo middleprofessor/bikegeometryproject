@@ -18,20 +18,6 @@ source(source_path)
 ```
 
 
-
-```{r plot-headers, warning=FALSE, message=FALSE, eval=FALSE, echo=FALSE, out.width = "90%", out.height = "90%"}
-
-### Stack vs. Reach
-### Chainstay Length vs. Effective top tube length
-### Rear Center vs. Front Center
-### Head Tube Angle vs. Seat Tube Angle
-### Top Tube Angle vs. Seat Tube Angle
-### Trail vs. Head Tube Angle
-### Stack/Reach vs. Front Center/Wheelbase
-### Seat Tube Angle/Head Tube Angle vs. Front Center/Wheelbase
-
-```
-
 ```{r make-plots, echo=FALSE}
 #geobike_sus_shared <- SharedData$new(geobike_sus[my_fit == TRUE,], key = ~model_size, group = "2dsus")
 geobike_sus_shared <- SharedData$new(geobike_sus[my_fit == TRUE,], key = ~row_id, group = "2dsus")
