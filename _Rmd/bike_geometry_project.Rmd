@@ -2866,7 +2866,7 @@ gravel_scores <- function(data, y_cols){
 
 # Geometric morphometrics
 
-```{r}
+```{r eval=FALSE}
 coord_cols <- paste0(c("x", "y"), 1:6)
 
 gm <- geobike[my_fit == TRUE]
@@ -3548,7 +3548,7 @@ scatter_fig <- function(shared_data = geobike_shared,
   return(fig)}
 ```
 
-```{r}
+```{r eval=FALSE}
 t <- geobike[material == "aluminum" & frame_weight < 2000, .SD, .SD = c("model", "frame_size", "frame_weight")]
 t |> knitr::kable(digits = c(0,0,0)) |> kableExtra::kable_styling()
 ```
