@@ -1,0 +1,36 @@
+---
+title: "Bike Details"
+format:
+  html:
+    toc: false
+    theme: cosmo
+params:
+  brand: ""
+  model: ""
+  year: ""
+  slug: ""
+  data_path: "data/geobike.rds"      # update if needed
+  site_base_url: "https://thegravelbikegeometryproject.com"  # your domain
+freeze: auto
+---
+
+```{r}
+#| echo: false
+library(data.table)
+library(jsonlite)
+library(knitr)
+
+# Load data
+geobike <- readRDS(params$data_path)
+# Subset this bike
+bike <- geobike[brand == params$brand & model == params$model & year == params$year]
+if (nrow(bike) == 0) stop(sprintf("No rows found for: %s %s %s", params$brand, params$model, params$year))
+# SEO strings
+page_title <- sprintf("%s %s %s Geometry & Specs", params$brand, params$model, params$year)
+page_desc <- sprintf("Geometry, specs, and sizing for the %s %s (%s) gravel bike.",
+params$brand, params$model, params$year)
+canonical_url <- sprintf("%s/bikes/%s.html", params$site_base_url, params$slug)
+# Optional image column
+img_url <- if ("image_url" %in% names(bike)) bike[1, image_url] else NA_character_
+```
+

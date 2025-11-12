@@ -354,10 +354,15 @@ compute_steering_h <- function(bike){
 
 ```{r missing data}
 compute_wheelbase <- function(bike){
-  steering_h <- compute_steering_h(bike[is.na(wheelbase)])
-  offset_h <- compute_offset_h(bike[is.na(wheelbase)])
-  chainstay_h <- compute_chainstay_h(bike[is.na(wheelbase)])
-  reach <- bike[is.na(wheelbase), reach]
+  # steering_h <- compute_steering_h(bike[is.na(wheelbase)])
+  # offset_h <- compute_offset_h(bike[is.na(wheelbase)])
+  # chainstay_h <- compute_chainstay_h(bike[is.na(wheelbase)])
+  # reach <- bike[is.na(wheelbase), reach]
+  # wheelbase <- chainstay_h + reach + steering_h + offset_h
+  steering_h <- compute_steering_h(bike)
+  offset_h <- compute_offset_h(bike)
+  chainstay_h <- compute_chainstay_h(bike)
+  reach <- bike[, reach]
   wheelbase <- chainstay_h + reach + steering_h + offset_h
   return(wheelbase)
 }
@@ -3966,11 +3971,19 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     bike_specs <- bike_specs[!apply(is.na(bike_specs), 1, all), ]
     bike_specs_t <- transpose(bike_specs, make.names = 1)
 
-    bike_label <- paste(model_data[1, 2], model_data[2, 2], model_data[3, 2])
+    brand_i <- model_data[1, 2]
+    model_i <- model_data[2, 2]
+    year_i <- model_data[3, 2]
+    bike_label <- paste(brand_i, model_i, year_i)
     bike_geo <- read_geometry(bike_label = bike_label,
                         bike_range = geom_range,
                         data_file = paste0(style_folder,"/", bike_file))
-    bike_i <- cbind(bike_geo, bike_specs_t )
+    model_dt <- data.table(
+      brand = brand_i,
+      model_name = model_i,
+      year = year_i
+    )
+    bike_i <- cbind(model_dt, bike_geo, bike_specs_t )
     if(!"location" %in% names(bike_i)){
       bike_i[, location := NA]
     }
@@ -4290,5 +4303,146 @@ if(import_it != TRUE){
   
 }
 
+```
+
+```{r generate_pages_site, eval=FALSE}
+# ---- Config ---------------------------------------------------------------
+site_base_url   <- "https://thegravelbikegeometryproject.com"   # your public URL
+template_file   <- "qmd/bike_template.qmd"                           # model page template
+data_rds_path   <- "rds/geobike.rds"                            # fallback if geobike not in env
+
+site_output_dir <- "docs"                                        # Quarto output dir
+bikes_dir       <- file.path(site_output_dir, "bikes")           # target for model pages
+
+# Skip writing these so you don't clobber Quarto's files
+write_sitemap   <- FALSE
+write_robots    <- FALSE
+
+# ---- Packages -------------------------------------------------------------
+if (!requireNamespace("data.table", quietly = TRUE)) stop("Install 'data.table'")
+if (!requireNamespace("fs", quietly = TRUE))         stop("Install 'fs'")
+if (!requireNamespace("quarto", quietly = TRUE))     stop("Install 'quarto'")
+
+library(data.table)
+library(fs)
+library(quarto)
+
+# ---- Slugify --------------------------------------------------------------
+slugify <- function(x) {
+  x <- iconv(x, from = "", to = "ASCII//TRANSLIT")
+  x <- tolower(x)
+  x <- gsub("&", " and ", x)
+  x <- gsub("[^a-z0-9]+", "-", x)
+  x <- gsub("(^-|-$)", "", x)
+  x <- gsub("-{2,}", "-", x)
+  x
+}
+
+# ---- Data source ----------------------------------------------------------
+if (!exists("geobike")) {
+  if (!file.exists(data_rds_path)) stop("geobike not in-memory and RDS not found at: ", data_rds_path)
+  geobike <- readRDS(data_rds_path)
+}
+
+# stopifnot(all(c("brand","model","year") %in% names(geobike)))
+# geobike[, brand := as.character(brand)]
+# geobike[, model := as.character(model)]
+# geobike[, year  := as.character(year)]
+
+# ---- Dirs -----------------------------------------------------------------
+dir_create(bikes_dir)
+
+# ---- Unique pages + slugs -------------------------------------------------
+# pages <- unique(geobike[, .(brand, model, year)])
+pages <- unique(geobike[, model])
+pages[, slug := slugify(model]
+if (any(duplicated(pages$slug))) {
+  pages[, dup_n := ave(seq_len(.N), slug, FUN = seq_along)]
+  pages[!is.na(dup_n), slug := paste0(slug, "-", dup_n)]
+}
+
+# ---- Render each model page (inherits navbar/theme from project) ----------
+# IMPORTANT: run this from the project root so Quarto sees your _quarto.yml
+for (i in seq_len(nrow(pages))) {
+  row <- pages[i]
+  quarto::quarto_render(
+    input = template_file,
+    execute_params = list(
+      brand         = row$brand,
+      model         = row$model,
+      year          = row$year,
+      slug          = row$slug,
+      data_path     = data_rds_path,
+      site_base_url = site_base_url
+    ),
+    output_file = file.path(bikes_dir, paste0(row$slug, ".html"))
+  )
+}
+
+# ---- Make bikes/index.qmd and render so it has your navbar ----------------
+# We avoid tricky 'asis' chunks; this is a small QMD that reads a TSV we write now.
+bix <- pages[, .(
+  brand, model, year,
+  link = sprintf('<a href="/bikes/%s.html">%s %s %s</a>', slug, brand, model, year)
+)]
+fwrite(bix, file.path(site_output_dir, "bikes_index.tsv"), sep = "\t")
+
+index_qmd <- '
+---
+title: "All Bike Models"
+format: html
+---
+
+# All Bike Models
+
+```{r, include=FALSE}
+library(data.table); library(knitr)
+dt <- fread("bikes_index.tsv")
+knitr::kable(dt[, .(brand, model, year, link)],
+format = "html",
+table.attr = "class=\"table table-sm table-striped\"",
+col.names = c("Brand","Model","Year","Page"))
+'
+
+writeLines(index_qmd, file.path("bikes", "index.qmd")) # in project space
+quarto::quarto_render(file.path("bikes", "index.qmd"),
+output_file = file.path(bikes_dir, "index.html"))
+
+# Only run if you actually want a bikes-only sitemap file
+if (isTRUE(write_sitemap)) {
+
+  # Root <urlset>
+  doc <- xml_new_root("urlset", xmlns = "http://www.sitemaps.org/schemas/sitemap/0.9")
+
+  # Home
+  url_home <- xml_add_child(doc, "url")
+  xml_add_child(url_home, "loc", paste0(site_base_url, "/"))
+
+  # Bikes index
+  url_index <- xml_add_child(doc, "url")
+  xml_add_child(url_index, "loc", paste0(site_base_url, "/bikes/index.html"))
+
+  # One <url> per model page
+  apply(pages[, .(slug)], 1, function(r) {
+    u <- xml_add_child(doc, "url")
+    xml_add_child(u, "loc", paste0(site_base_url, "/bikes/", r[["slug"]], ".html"))
+  })
+
+  out_path <- file.path(site_output_dir, "sitemap-bikes.xml")  # different name → no overwrite
+  write_xml(doc, out_path, options = "format")
+  message("Wrote bikes-only sitemap: ", out_path)
+}
+
+if (isTRUE(write_robots)) {
+  robots <- c(
+    "User-agent: *",
+    "Allow: /",
+    sprintf("Sitemap: %s/sitemap.xml", site_base_url),
+    sprintf("Sitemap: %s/sitemap-bikes.xml", site_base_url)
+  )
+  writeLines(robots, file.path(site_output_dir, "robots-extra.txt"))
+  # NOTE: we do NOT overwrite robots.txt; you can merge robots-extra.txt manually.
+}
+message("Done: model pages in docs/bikes, index with navbar, no sitemap/robots overwritten.")
 ```
 

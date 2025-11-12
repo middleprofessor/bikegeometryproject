@@ -1,0 +1,120 @@
+---
+title: "Bike Details"
+format:
+  html:
+    toc: false
+    theme: cosmo
+params:
+  brand: ""
+  model: ""
+  year: ""
+  slug: ""
+  data_path: "data/geobike.rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+freeze: auto
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(jsonlite)
+library(knitr)
+
+# Load data
+geobike <- readRDS(params$data_path)
+
+# Subset this bike
+bike <- geobike[brand == params$brand & model == params$model & year == params$year]
+if (nrow(bike) == 0) stop(sprintf("No rows found for: %s %s %s", params$brand, params$model, params$year))
+
+# SEO strings
+page_title <- sprintf("%s %s %s Geometry & Specs", params$brand, params$model, params$year)
+page_desc  <- sprintf("Geometry, specs, and sizing for the %s %s (%s) gravel bike.",
+                      params$brand, params$model, params$year)
+canonical_url <- sprintf("%s/bikes/%s.html", params$site_base_url, params$slug)
+
+# Optional image column
+img_url <- if ("image_url" %in% names(bike)) bike[1, image_url] else NA_character_
+```
+
+```{r meta, echo=FALSE, results='asis'}
+# Emit canonical + meta description as literal HTML (safe, minimal)
+cat(sprintf('<link rel="canonical" href="%s">\n', canonical_url))
+cat(sprintf('<meta name="description" content="%s">\n', page_desc))
+# Also set browser title so tab shows the SEO title
+cat(sprintf('<script>document.title=%s;</script>\n', toJSON(page_title, auto_unbox=TRUE)))
+```
+
+# `r page_title`
+
+**Brand:** `r params$brand`  
+**Model:** `r params$model`  
+**Year:** `r params$year`  
+**Category:** Gravel Bike
+
+```{r hero, echo=FALSE, results='asis'}
+if (!is.na(img_url) && nzchar(img_url)) {
+  cat(sprintf(
+    '<img src="%s" alt="%s %s %s" style="max-width:720px;width:100%%;border-radius:12px;margin:1rem 0;">',
+    img_url, params$brand, params$model, params$year
+  ))
+}
+```
+
+## Geometry & Specs (static, crawlable)
+
+```{r table, echo=FALSE}
+keep_cols <- intersect(c(
+  "size","reach","stack","top_tube_effective","seat_tube","head_tube",
+  "head_tube_angle","seat_tube_angle","bb_drop","chainstay","wheelbase",
+  "fork_offset","fork_axle_to_crown","trail","tire_width_max_700c",
+  "tire_width_max_650b","handlebar","material","udh","stealth_dropper",
+  "base_build_usd","frameset_usd"
+), names(bike))
+
+# Order by numeric size where possible
+ord <- order(
+  ifelse(is.na(bike$size), 999, suppressWarnings(as.numeric(gsub("[^0-9.]", "", bike$size)))),
+  na.last = TRUE
+)
+kb <- bike[ord, ..keep_cols]
+
+kable(kb, format = "html", table.attr = 'class="table table-sm table-striped"')
+```
+
+## Summary
+
+- The **`r params$brand` `r params$model` (`r params$year`)** is listed in our gravel database with the geometry and specs above.  
+- Looking for more? See **[all bikes index](/bikes/index.html)**.
+
+### Related
+
+- Explore other **`r params$brand`** models via our brand pages or the site index.  
+- Compare **reach vs. stack** and **HTA vs. STA** in our interactive dashboards.
+
+```{r jsonld, echo=FALSE, results='asis'}
+first_row <- if (nrow(kb)) as.list(kb[1]) else list()
+props <- lapply(names(first_row), function(nm) {
+  list(`@type`="PropertyValue", name=nm, value=as.character(first_row[[nm]]))
+})
+
+schema <- list(
+  `@context` = "https://schema.org",
+  `@type`    = "Product",
+  name       = sprintf("%s %s %s", params$brand, params$model, params$year),
+  brand      = list(`@type`="Brand", name=params$brand),
+  category   = "Bicycle",
+  productID  = paste(params$brand, params$model, params$year),
+  url        = canonical_url,
+  image      = if (is.na(img_url) || !nzchar(img_url)) NULL else img_url,
+  description= page_desc,
+  additionalProperty = props
+)
+
+cat('<script type="application/ld+json">')
+cat(toJSON(schema, auto_unbox = TRUE, null = "null"))
+cat('</script>')
+```
+
+**Internal Links:**  
+- [All bikes index](/bikes/index.html)  
+- [Home](/)
