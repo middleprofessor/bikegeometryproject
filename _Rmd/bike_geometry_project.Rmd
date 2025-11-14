@@ -1964,7 +1964,6 @@ get_centroids <- function(Y, cluster){
 }
 ```
 
-
 ```{r d_scores}
 d_scores <- function(Y, class_dt, cluster_col = "init_cluster", prefix = "kmeans"){
   # projections onto axis through cluster centroid. Y is the matrix of data
@@ -1996,13 +1995,13 @@ d_scores <- function(Y, class_dt, cluster_col = "init_cluster", prefix = "kmeans
   # assign style to axes
   style_levels <- c("racy", "relaxed", "rowdy", "allroad")[1:k]
   relaxed <- which.max(loadings[rownames(loadings) == "rear_center"])
-#  relaxed <- class_dt[model == "Tumbleweed Stargazer 2025", init_cluster]
+  relaxed <- class_dt[model == "Tumbleweed Stargazer Gen 2 2025", init_cluster]
   colnames(scores_scaled)[relaxed] <- "relaxed"
   rowdy <- which.max(loadings[rownames(loadings) == "front_center"])
-#  rowdy <- class_dt[model == "Specialized Chisel 2022", init_cluster]
+  rowdy <- class_dt[model == "Specialized Chisel 2025", init_cluster]
   colnames(scores_scaled)[rowdy] <- "rowdy"
   racy <- which.max(loadings[rownames(loadings) == "head_tube_angle"])
-#  racy <- class_dt[model == "Cervelo Aspero 2024", init_cluster]
+  racy <- class_dt[model == "Time ADHX 2025", init_cluster]
   colnames(scores_scaled)[racy] <- "racy"
   if(k==4){
     allroad <- setdiff(1:4, c(racy, relaxed, rowdy))
@@ -2113,6 +2112,7 @@ mclust_classifier <- function(dt,
 }
 ```
 
+
 ```{r kmeans-classifier}
 kmeans_classifier <- function(dt,
                               k = 3,
@@ -2126,7 +2126,8 @@ kmeans_classifier <- function(dt,
                                 "seat_tube_angle",
                                 "trail_45"
                               ),
-                              nested = FALSE
+                              nested = FALSE,
+                              reclass = "all"
                               ){
   # dt should be my_fit
   dt_info <- dt[, .SD,.SDcols = c("model", "frame_size")]
@@ -2169,8 +2170,11 @@ kmeans_classifier <- function(dt,
 
   if(nested == TRUE){
   # dt should be my_fit
-    reclassifier_cols <- c("stack_reach", "chainstay_length")
-    reclassifier_cols <- classifier_cols
+    if(reclass == "all"){
+      reclassifier_cols <- classifier_cols
+    }else{
+      reclassifier_cols <- c("stack_reach", "chainstay_length")
+    }
     subset_rows <- which(kmeans_scores$kmeans_style == "relaxed")
     dt_sub <- dt[subset_rows]
     dt_info <- dt_sub[, .SD,.SDcols = c("model", "frame_size")]
@@ -2213,6 +2217,7 @@ kmeans_classifier <- function(dt,
 
 }
 ```
+
 
 ```{r kmeans-classifier-4}
 kmeans_classifier_4 <- function(dt,
@@ -4213,55 +4218,66 @@ if(import_it != TRUE){
 
   # import from xlsx
   geobike <- import_bike_list(style = "gravel", exchange_rates)
+  init_path <- here("rds", "geobike_init.Rds")
+  saveRDS(geobike, init_path)
   geobike_import <- copy(geobike)
   # geobike <- geobike_import
   
   
   # classify bikes by kmeans
-  # kmeans first splits into k = 2 groups because there is only good support for 2. Then splits
-  # group 2 into two groups because there is good support for this.
-  # then combines into 3 clusters
-  # classify bikes
   k <- 3
   style_levels <- c("racy", "relaxed", "rowdy", "allroad")[1:k]
   
-  # kmeans
-  kmeans_classes <- kmeans_classifier(
+  # kmeans nested-all
+  kmeans_classes_all <- kmeans_classifier(
     geobike[my_fit == TRUE],
     k = k,
     method = "rkm", # km or rkm where rkm is robust
-    nested = TRUE
+    nested = TRUE,
+    reclass = "all"
   )
+  setnames(kmeans_classes_all, old = "kmeans_style", new = "kmeans_style_all")
   geobike <- merge(geobike,
-                   kmeans_classes[, .SD, .SDcols = c("model", "kmeans_style")],
+                   kmeans_classes_all[, .SD, .SDcols = c("model", "kmeans_style_all")],
                    by = c("model"), all.x = TRUE)
+
+  # kmeans nested-sub
+  kmeans_classes_sub <- kmeans_classifier(
+    geobike[my_fit == TRUE],
+    k = k,
+    method = "rkm", # km or rkm where rkm is robust
+    nested = TRUE,
+    reclass = "sub"
+  )
+  setnames(kmeans_classes_sub, old = "kmeans_style", new = "kmeans_style_sub")
+  geobike <- merge(geobike,
+                   kmeans_classes_sub[, .SD, .SDcols = c("model", "kmeans_style_sub")],
+                   by = c("model"), all.x = TRUE)
+  
+  # kmeans 4 classes
+  kmeans_classes_4 <- kmeans_classifier(
+    geobike[my_fit == TRUE],
+    k = 4,
+    method = "rkm", # km or rkm where rkm is robust
+    nested = FALSE
+  )
+  kmeans_classes_4[kmeans_style == "rowdy", kmeans_style := "xtra rowdy"]
+  kmeans_classes_4[kmeans_style == "allroad", kmeans_style := "rowdy"]
+  setnames(kmeans_classes_4, old = "kmeans_style", new = "kmeans_style_4")
+  geobike <- merge(geobike,
+                   kmeans_classes_4[, .SD, .SDcols = c("model", "kmeans_style_4")],
+                   by = c("model"), all.x = TRUE)
+
+  # set kmeans_style
+  geobike[, kmeans_style := kmeans_style_4 |> 
+            factor(levels = c("racy", "relaxed", "rowdy", "xtra rowdy"))]
+  kmeans_classes <- kmeans_classes_4
   geobike <- merge(geobike,
                    kmeans_classes[, .SD,
                                   .SDcols = c("model", "frame_size",
                                               paste0("kmeans_", style_levels),
                                               "mds1", "mds2")],
                    by = c("model", "frame_size"), all.x = TRUE)
-  
-  # nested kmeans
-  # nkmeans_classes <- nested_km_classifier(
-  #   geobike[my_fit == TRUE]
-  # )
-  # geobike <- merge(geobike,
-  #                  nkmeans_classes[, .SD, .SDcols = c("model", "nkmeans_style")],
-  #                  by = c("model"), all.x = TRUE)
-  # geobike <- merge(geobike,
-  #                  nkmeans_classes[, .SD, .SDcols = c("model", "frame_size", paste0("nkmeans_", style_levels))],
-  #                  by = c("model", "frame_size"), all.x = TRUE)
-
-  # # mclust
-  # mclust_classes <- mclust_classifier(geobike[my_fit == TRUE,])
-  # geobike <- merge(geobike,
-  #                  mclust_classes[, .SD, .SDcols = c("model", "mclust_style")],
-  #                  by = c("model"), all.x = TRUE)
-  # geobike <- merge(geobike,
-  #                  mclust_classes[, .SD, .SDcols = c("model", "frame_size", paste0("mclust_", style_levels))],
-  #                  by = c("model", "frame_size"), all.x = TRUE)
-  # 
 
   # tree classifier
   tree_classes <- tree_classifier(
