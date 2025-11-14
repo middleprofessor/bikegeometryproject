@@ -56,34 +56,6 @@ if (BIKE_LIMIT > 0L) {
 
 dir_create(here::here("bikes"))
 
-# ------------- incremental hashing -------------
-
-# Which columns should trigger a rebuild if they change?
-likely_delta <- c(
-  "reach", "stack", "head_tube_angle", "seat_tube_angle", "wheelbase",
-  "chainstay", "bb_drop", "trail", "fork_offset", "head_tube", "top_tube"
-)
-delta_cols <- c(req, intersect(likely_delta, names(geobike)))
-
-setkeyv(geobike, req)
-
-hash_row <- function(dt_row) {
-  # Include template_version so bumping it forces a rebuild for all bikes
-  vals <- as.list(dt_row[, ..delta_cols])
-  vals$template_version <- template_version
-  digest(vals, algo = "xxhash64")
-}
-
-pages[, hash := geobike[.SD, on = req, mult = "first"][, hash_row(.SD)], by = .I]
-
-# Manifest file to remember previous hashes
-manifest_path <- here::here("bikes", "bikes_manifest.json")
-manifest <- if (file.exists(manifest_path)) {
-  jsonlite::read_json(manifest_path, simplifyVector = TRUE)
-} else {
-  list()
-}
-
 # ------------- write per-bike wrappers (incremental) -------------
 
 write_wrapper_qmd <- function(path_abs, brand, model, year, slug,
@@ -104,7 +76,6 @@ write_wrapper_qmd <- function(path_abs, brand, model, year, slug,
     "  data_path: ",     jsonlite::toJSON(data_rds_abs, auto_unbox = TRUE), "\n",
     "  site_base_url: ", jsonlite::toJSON(site_base_url, auto_unbox = TRUE), "\n",
     "---\n\n",
-    # wrapper is in bikes/, template is in _Rmd/, so go up one level
     "```{r, child=\"../_Rmd/bike_template.qmd\"}\n",
     "```\n"
   )
@@ -119,25 +90,14 @@ for (i in seq_len(nrow(pages))) {
   m <- pages$model_name[i]
   y <- pages$year[i]
   s <- pages$slug[i]
-  h <- pages$hash[i]
-  
+
   key <- paste(b, m, y, sep = "||")
   wrapper_abs <- here::here("bikes", paste0(s, ".qmd"))
-  
-  # Incremental logic: skip if hash unchanged
-  if (!is.null(manifest[[key]]) && identical(manifest[[key]], h)) {
-    # No data/template change for this bike → don't touch its QMD
-    next
-  }
   
   message("  updating ", b, " ", m, " ", y, " -> bikes/", s, ".qmd")
   
   write_wrapper_qmd(wrapper_abs, b, m, y, s, data_rds_abs, site_base_url, template_version)
-  manifest[[key]] <- h
 }
-
-# Save updated manifest
-jsonlite::write_json(manifest, manifest_path, auto_unbox = TRUE, pretty = TRUE)
 
 # ------------- write bikes/bike_index.qmd (always) -------------
 

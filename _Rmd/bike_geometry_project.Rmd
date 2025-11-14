@@ -2170,6 +2170,7 @@ kmeans_classifier <- function(dt,
   if(nested == TRUE){
   # dt should be my_fit
     reclassifier_cols <- c("stack_reach", "chainstay_length")
+    reclassifier_cols <- classifier_cols
     subset_rows <- which(kmeans_scores$kmeans_style == "relaxed")
     dt_sub <- dt[subset_rows]
     dt_info <- dt_sub[, .SD,.SDcols = c("model", "frame_size")]
@@ -4240,7 +4241,7 @@ if(import_it != TRUE){
                                               paste0("kmeans_", style_levels),
                                               "mds1", "mds2")],
                    by = c("model", "frame_size"), all.x = TRUE)
-
+  
   # nested kmeans
   # nkmeans_classes <- nested_km_classifier(
   #   geobike[my_fit == TRUE]
