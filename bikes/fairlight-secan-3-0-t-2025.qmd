@@ -1,0 +1,19 @@
+---
+title: "Fairlight Secan 3.0 T 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Fairlight"
+  model: "Secan 3.0 T"
+  year: "2025"
+  slug: "fairlight-secan-3-0-t-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

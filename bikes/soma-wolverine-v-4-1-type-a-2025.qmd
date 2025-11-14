@@ -1,0 +1,19 @@
+---
+title: "Soma Wolverine V.4.1 Type A 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Soma"
+  model: "Wolverine V.4.1 Type A"
+  year: "2025"
+  slug: "soma-wolverine-v-4-1-type-a-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

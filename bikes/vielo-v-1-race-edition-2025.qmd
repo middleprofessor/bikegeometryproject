@@ -1,0 +1,19 @@
+---
+title: "Vielo V+1 Race Edition 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Vielo"
+  model: "V+1 Race Edition"
+  year: "2025"
+  slug: "vielo-v-1-race-edition-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

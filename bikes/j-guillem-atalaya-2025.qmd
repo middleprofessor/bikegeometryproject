@@ -1,0 +1,19 @@
+---
+title: "J.Guillem Atalaya 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "J.Guillem"
+  model: "Atalaya"
+  year: "2025"
+  slug: "j-guillem-atalaya-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

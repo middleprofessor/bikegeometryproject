@@ -1,0 +1,19 @@
+---
+title: "Orbea Terra M 2023"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Orbea"
+  model: "Terra M"
+  year: "2023"
+  slug: "orbea-terra-m-2023"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

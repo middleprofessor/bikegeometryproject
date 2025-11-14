@@ -1,0 +1,19 @@
+---
+title: "Rodeo Labs Flaanimal 6 Ti 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Rodeo Labs"
+  model: "Flaanimal 6 Ti"
+  year: "2025"
+  slug: "rodeo-labs-flaanimal-6-ti-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

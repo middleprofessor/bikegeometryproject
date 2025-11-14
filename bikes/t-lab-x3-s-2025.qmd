@@ -1,0 +1,19 @@
+---
+title: "T-Lab X3-S 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "T-Lab"
+  model: "X3-S"
+  year: "2025"
+  slug: "t-lab-x3-s-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

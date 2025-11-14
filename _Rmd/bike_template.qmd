@@ -1,0 +1,155 @@
+---
+params:
+  brand: ~
+  model: ~
+  year: ~
+  slug: ~
+  data_path: ~
+  site_base_url: ~
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(jsonlite)
+library(knitr)
+
+# Safe accessor: read from params without writing to it
+get_param <- function(nm, default = NULL) {
+  v <- tryCatch(params[[nm]], error = function(e) NULL)
+  if (is.null(v) || is.na(v) || !nzchar(as.character(v))) return(default)
+  as.character(v)
+}
+
+# Pull values (do NOT assign into `params`)
+brand_val <- get_param("brand",         Sys.getenv("BRAND",         "DEBUG_BRAND"))
+model_val <- get_param("model",         Sys.getenv("MODEL",         "DEBUG_MODEL"))
+year_val  <- get_param("year",          Sys.getenv("YEAR",          "DEBUG_YEAR"))
+slug_val  <- get_param("slug",          Sys.getenv("SLUG",          "debug-slug"))
+data_path <- get_param("data_path",     Sys.getenv("DATA_PATH",     "data/geobike.rds"))
+site_base <- get_param("site_base_url", Sys.getenv("SITE_BASE_URL", "https://example.com"))
+
+# Load data
+if (!file.exists(data_path)) {
+  stop("RDS not found at: ", data_path, "\n(getwd() during render: ", getwd(), ")")
+}
+geobike <- readRDS(data_path)
+if (!is.data.table(geobike)) setDT(geobike)
+
+bike <- geobike[
+  brand == brand_val &
+  model_name == model_val &
+  year  == year_val
+]
+
+if (nrow(bike) == 0) {
+  stop(sprintf("No rows found for brand='%s' model='%s' year='%s' (using columns %s / %s / %s)",
+               brand_val, model_val, year_val, brand_col, model_col, year_col))
+}
+
+# SEO bits
+page_title   <- sprintf("%s %s %s", brand_val, model_val, year_val)
+page_desc    <- sprintf("Geometry, specs, and sizing for the %s %s (%s) gravel bike.", brand_val, model_val, year_val)
+canonical_url<- sprintf("%s/bikes/%s.html", site_base, slug_val)
+img_url      <- if ("image_url" %in% names(bike)) bike[1, image_url] else NA_character_
+
+```
+
+```{r meta, echo=FALSE, results='asis'}
+# Emit canonical + meta description as literal HTML (safe, minimal)
+cat(sprintf('<link rel="canonical" href="%s">\n', canonical_url))
+cat(sprintf('<meta name="description" content="%s">\n', page_desc))
+# Also set browser title so tab shows the SEO title
+cat(sprintf('<script>document.title=%s;</script>\n', toJSON(page_title, auto_unbox=TRUE)))
+```
+
+**Brand:** `r params$brand`\
+**Model:** `r params$model`\
+**Year:** `r params$year`\
+**Category:** `r bike[1, class]`\
+**Similar bikes:**
+
+```{r hero, echo=FALSE, results='asis'}
+if (!is.na(img_url) && nzchar(img_url)) {
+  cat(sprintf(
+    '<img src="%s" alt="%s %s %s" style="max-width:720px;width:100%%;border-radius:12px;margin:1rem 0;">',
+    img_url, params$brand, params$model, params$year
+  ))
+}
+```
+
+## Geometry & Specs
+
+```{r table, echo=FALSE}
+options(knitr.kable.NA = '')
+# spec columns present in geobike
+specs_cols <- c("frame_size","estimated_rider_height", "specified_rider_height", "kmeans_style", "material", "fork", "handlebar", "stack", "reach", "standover", "head_tube_angle", "seat_tube_angle","chainstay_length", "front_center", "bottom_bracket_drop", "trail", "trail_45", "udh", "tire_width_max_700c", "tire_width_max_650b", "fork_class", "axle_spacing", "stealth_dropper", "seatpost_diameter", "max_chainring_1x", "dropout", "internal_storage", "base_build_usd", "frameset_usd", "location")
+keep_cols <- intersect(specs_cols, names(bike))
+
+# Order by numeric size where possible
+
+kb <- bike[, ..keep_cols]
+kb <- kb[order(reach)]
+
+setnames(
+  kb,
+  old = c("kmeans_style", "fork_class"),
+  new = c("style", "suspension_correction")
+)
+
+# Rounding / currency
+kb[, front_center := round(front_center, 0)]
+kb[, trail := round(trail, 0)]
+kb[, trail_45 := round(trail_45, 0)]
+kb[, frameset_usd := ifelse(is.na(frameset_usd), frameset_usd, paste0("$", frameset_usd))]
+kb[, base_build_usd := ifelse(is.na(base_build_usd), base_build_usd, paste0("$", base_build_usd))]
+
+kb <- t(kb)
+spec_col <- rownames(kb)
+spec_col <- stringr::str_replace_all(spec_col, "_", " ")
+spec_col <- stringr::str_to_title(spec_col)
+spec_col <- stringr::str_replace(spec_col, "Udh", "UDH")
+spec_col <- stringr::str_replace(spec_col, "Usd", "USD")
+rownames(kb) <- spec_col
+
+kable(kb, format = "html", table.attr = 'class="table table-sm table-striped"') |>
+  kableExtra::kable_styling()
+```
+
+
+```{r jsonld, echo=FALSE, results='asis'}
+first_row <- if (nrow(kb)) as.list(kb[1]) else list()
+props <- lapply(names(first_row), function(nm) {
+  list(`@type`="PropertyValue", name=nm, value=as.character(first_row[[nm]]))
+})
+
+schema <- list(
+  `@context` = "https://schema.org",
+  `@type`    = "Product",
+  name       = sprintf("%s %s %s", params$brand, params$model, params$year),
+  brand      = list(`@type`="Brand", name=params$brand),
+  category   = "Bicycle",
+  productID  = paste(params$brand, params$model, params$year),
+  url        = canonical_url,
+  image      = if (is.na(img_url) || !nzchar(img_url)) NULL else img_url,
+  description= page_desc,
+  additionalProperty = props
+)
+
+cat('<script type="application/ld+json">')
+cat(toJSON(schema, auto_unbox = TRUE, null = "null"))
+cat('</script>')
+```
+
+### Related
+
+See where the `r params$brand` `r params$model` `r params$year` fits into 
+<a href="/qmd/gravelverse.html">The GravelVerse</a>, 
+a plot that compares overall similarity of frame geometry among gravel bikes.
+
+<a href="/qmd/gravel_compare.html">Compare three other bikes</a> to the `r params$brand` `r params$model` `r params$year` on key frame specs and frame geometry measures.
+
+<a href="/qmd/gravel_sus_table.html">See how the geometry changes</a> if you add a suspension fork to the `r params$brand` `r params$model` `r params$year`.
+
+**Internal Links:**\
+- [All bikes index](/bikes/bike_index.html)\
+- [Home](/)

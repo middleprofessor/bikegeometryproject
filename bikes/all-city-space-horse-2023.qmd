@@ -1,0 +1,19 @@
+---
+title: "All-City Space Horse 2023"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "All-City"
+  model: "Space Horse"
+  year: "2023"
+  slug: "all-city-space-horse-2023"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

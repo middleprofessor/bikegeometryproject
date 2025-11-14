@@ -1,0 +1,19 @@
+---
+title: "Ari Shafer 2026"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Ari"
+  model: "Shafer"
+  year: "2026"
+  slug: "ari-shafer-2026"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

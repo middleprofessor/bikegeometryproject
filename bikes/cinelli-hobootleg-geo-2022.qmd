@@ -1,0 +1,19 @@
+---
+title: "Cinelli Hobootleg Geo 2022"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Cinelli"
+  model: "Hobootleg Geo"
+  year: "2022"
+  slug: "cinelli-hobootleg-geo-2022"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

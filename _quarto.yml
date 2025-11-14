@@ -4,6 +4,27 @@ project:
   resources: 
     - googlef06d37c17cf410a9.html
     - CNAME
+# Run your generator BEFORE the site render
+  pre-render:
+    - Rscript tools/generate_bikes.R
+
+  # Tell Quarto which pages to render
+  render:
+    - index.qmd              # landing page
+    - about.qmd              # whatever else you have
+    - qmd/gravel_class.qmd
+    - qmd/gravelverse.qmd
+    - qmd/what_makes_a_racy_bike_racy.qmd
+    - qmd/what_makes_a_relaxed_bike_relaxed.qmd
+    - qmd/what_makes_a_rowdy_bike_rowdy.qmd
+    - qmd/gravel_tree.qmd
+    - qmd/gravel_compare.qmd
+    - qmd/gravel_scatter.qmd
+    - qmd/gravel_sus_table.qmd
+    - qmd/gravel_sus_scatter.qmd
+    - qmd/navigate.qmd
+    - bikes/bike_index.qmd   # the list of all bikes
+    - bikes/*.qmd            # all per-bike pages
 
 website:
   title: "TheGravelBikeGeometryProject"
@@ -34,9 +55,12 @@ website:
         menu:
           - qmd/gravel_sus_table.qmd
           - qmd/gravel_sus_scatter.qmd
-      - text: "Navigate"
+      - text: "More Info"
         menu:
-          - qmd/navigate.qmd
+          - text: "How to navigate this site"
+            href: qmd/navigate.qmd
+          - text: "All bikes index"
+            href: bikes/bike_index.html
 format:
   html:
     theme: cosmo

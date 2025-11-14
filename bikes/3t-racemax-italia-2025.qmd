@@ -1,0 +1,19 @@
+---
+title: "3T Racemax Italia 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "3T"
+  model: "Racemax Italia"
+  year: "2025"
+  slug: "3t-racemax-italia-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

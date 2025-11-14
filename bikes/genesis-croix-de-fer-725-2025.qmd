@@ -1,0 +1,19 @@
+---
+title: "Genesis Croix de Fer 725 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Genesis"
+  model: "Croix de Fer 725"
+  year: "2025"
+  slug: "genesis-croix-de-fer-725-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

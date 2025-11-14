@@ -1,0 +1,19 @@
+---
+title: "Felt Breed FRD UN1TD LE 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Felt"
+  model: "Breed FRD UN1TD LE"
+  year: "2025"
+  slug: "felt-breed-frd-un1td-le-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

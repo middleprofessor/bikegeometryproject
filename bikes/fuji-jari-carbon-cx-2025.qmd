@@ -1,0 +1,19 @@
+---
+title: "Fuji Jari Carbon CX 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Fuji"
+  model: "Jari Carbon CX"
+  year: "2025"
+  slug: "fuji-jari-carbon-cx-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

@@ -1,0 +1,19 @@
+---
+title: "Bridge Bike Works Surveyor Gravel 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Bridge Bike Works"
+  model: "Surveyor Gravel"
+  year: "2025"
+  slug: "bridge-bike-works-surveyor-gravel-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

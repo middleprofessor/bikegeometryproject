@@ -1,0 +1,19 @@
+---
+title: "Merida Silex 2022"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Merida"
+  model: "Silex"
+  year: "2022"
+  slug: "merida-silex-2022"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

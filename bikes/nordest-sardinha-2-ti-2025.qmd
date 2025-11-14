@@ -1,0 +1,19 @@
+---
+title: "Nordest Sardinha 2 Ti 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Nordest"
+  model: "Sardinha 2 Ti"
+  year: "2025"
+  slug: "nordest-sardinha-2-ti-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

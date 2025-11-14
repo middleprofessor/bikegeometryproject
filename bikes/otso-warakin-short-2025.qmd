@@ -1,0 +1,19 @@
+---
+title: "Otso Warakin (short) 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Otso"
+  model: "Warakin (short)"
+  year: "2025"
+  slug: "otso-warakin-short-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

@@ -1,0 +1,19 @@
+---
+title: "Trek Checkpoint SL5 2022"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Trek"
+  model: "Checkpoint SL5"
+  year: "2022"
+  slug: "trek-checkpoint-sl5-2022"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

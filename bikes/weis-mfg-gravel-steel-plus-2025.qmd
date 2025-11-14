@@ -1,0 +1,19 @@
+---
+title: "Weis MFG Gravel Steel Plus 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Weis MFG"
+  model: "Gravel Steel Plus"
+  year: "2025"
+  slug: "weis-mfg-gravel-steel-plus-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+
