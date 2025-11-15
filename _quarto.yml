@@ -25,6 +25,8 @@ project:
     - qmd/navigate.qmd
     - bikes/bike_index.qmd   # the list of all bikes
     - bikes/*.qmd            # all per-bike pages
+execute:
+  freeze: false
 
 website:
   title: "TheGravelBikeGeometryProject"

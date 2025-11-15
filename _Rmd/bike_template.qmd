@@ -66,7 +66,7 @@ cat(sprintf('<script>document.title=%s;</script>\n', toJSON(page_title, auto_unb
 **Model:** `r params$model`\
 **Year:** `r params$year`\
 **Category:** `r bike[1, class]`\
-**Similar bikes:**
+**Similar bikes:** `r bike[1, similar_bikes]`
 
 ```{r hero, echo=FALSE, results='asis'}
 if (!is.na(img_url) && nzchar(img_url)) {

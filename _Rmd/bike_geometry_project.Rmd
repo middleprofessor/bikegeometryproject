@@ -2875,6 +2875,45 @@ gravel_scores <- function(data, y_cols){
 
 ```
 
+# Similarity list
+
+```{r}
+find_similar_bikes <- function(geobike){
+  d_cols <- c("reach", "stack", "seat_tube_angle", "head_tube_angle", "rear_center", "front_center", "bottom_bracket_drop", "axle_crown", "trail_45", "tire_width_max_700c")
+  # , "tire_width_max_700c"
+  Y <- scale(geobike[my_fit == TRUE,.SD, .SDcols = d_cols])
+  D <- dist(Y, method = "euclidean") |> as.matrix()
+  rownames(D) <- geobike[my_fit == TRUE, model]
+  
+  k <- 5
+  
+  
+  # Don't let a bike be its own neighbor
+  diag(D) <- Inf
+  
+  # nn_idx[i, ] = indices of the 5 nearest neighbors of bike i
+  nn_idx <- t(apply(D, 1, function(row) {
+    head(order(row), k)  # order gives smallest distances first
+  }))
+  
+  # Optional: also grab the distances
+  nn_dist <- t(apply(D, 1, function(row) {
+    sort(row, partial = k)[1:k]
+  }))
+  
+  nn_string <- apply(nn_idx, 1, function(idx) {
+    paste(rownames(D)[idx], collapse = ", ")
+  })
+  similar_dt <- data.table(
+    model = geobike[my_fit == TRUE, model],
+    similar_bikes = nn_string
+  )
+  
+  geobike <- merge(geobike, similar_dt, by = "model", all.x = TRUE)
+  return(geobike)
+}
+```
+
 # Geometric morphometrics
 
 ```{r eval=FALSE}
@@ -4223,6 +4262,8 @@ if(import_it != TRUE){
   geobike_import <- copy(geobike)
   # geobike <- geobike_import
   
+  # Find similar bikes
+  geobike <- find_similar_bikes(geobike)
   
   # classify bikes by kmeans
   k <- 3
@@ -4286,31 +4327,12 @@ if(import_it != TRUE){
     method = "ward.D2",
     scores = FALSE
   )
-  # tree_classes[is.na(tree_style), tree_style := "rowdy"]
-  # geobike <- merge(geobike,
-  #                  tree_classes[, .SD, .SDcols = c("model", "tree_style")],
-  #                  by = c("model"), all.x = TRUE)
-  # geobike <- merge(geobike,
-  #                  tree_classes[, .SD, .SDcols = c("model", "frame_size", paste0("tree_", style_levels))],
-  #                  by = c("model", "frame_size"), all.x = TRUE)
 
-  # functional class
-  # functional_classes <- functional_classifier(
-  #   geobike[my_fit == TRUE]
-  # )
-  # geobike <- merge(geobike,
-  #                  functional_classes[, .SD, .SDcols = c("model", "functional_style")],
-  #                  by = c("model"), all.x = TRUE)
-  # geobike <- merge(geobike,
-  #                  functional_classes[, .SD, .SDcols = c("model", "frame_size", paste0("functional_", style_levels[1:3]))],
-  #                  by = c("model", "frame_size"), all.x = TRUE)
-  
   geobike[, color_kmeans := pal_okabe_ito_4[as.integer(kmeans_style)]]
-#  geobike[, color_tree := pal_okabe_ito_3[as.integer(tree_style)]]
-#  geobike[, color_function := pal_okabe_ito_3[as.integer(functional_style)]]
   geobike[, color := color_kmeans]
   geobike[, highlight_text := model_size]
 
+  
   # my_fit
   my_fit <- geobike[my_fit == TRUE]
 
