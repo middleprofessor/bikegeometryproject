@@ -1678,10 +1678,20 @@ rider_range <- function(geobike){
     p <- length(sizes)
     if(p > 1){
       rider_height <- geobike[model == models[i], rider_height_pred]
-      rider_height <- c(rider_height[1] - (rider_height[2] - rider_height[1]),
+      # set the min rider height of smallest frame and max rider height of biggest frame to the maximum of the neighbor delta or the average delta
+      delta <- mean(diff(rider_height)) # mean difference in rider heights
+      delta_1 <- delta
+      delta_p <- delta
+      if(p >= 4){
+        delta_1 <- max(delta_1, diff(rider_height[1:2]))
+        delta_p <- max(delta_1, diff(rider_height[(p-1):p]))
+      }
+      # add a frame at each end of range with expected rider height
+      rider_height <- c(rider_height[1] - delta_1,
                         rider_height,
-                        rider_height[p] + (rider_height[p] - rider_height[p-1]))
+                        rider_height[p] + delta_p)
       q <- length(rider_height)
+      # mids will be the mid-points between predicted rider height, so the lower and upper bounds for each frame size
       mids <- (rider_height[2:q] + rider_height[1:(q-1)])/2
       geobike[model == models[i], rider_min_pred := mids[1:p]]
       geobike[model == models[i], rider_max_pred := mids[2:(p+1)]]
@@ -4147,8 +4157,14 @@ if(import_it != TRUE){
 # FAQ
 ## Re-render individual bikes
 
-quarto render bikes/moots-routt-crd-2025.qmd
+quarto render bikes/rondo-bogan-lo-2025.qmd
 quarto render bikes/3t-extrema-italia-2025.qmd --no-cache
+
+## Force clean rebuild of whole website
+rm -rf _freeze
+rm -rf docs/bikes
+quarto render
+
 
 ```{r eval=FALSE}
 quarto::quarto_render(
