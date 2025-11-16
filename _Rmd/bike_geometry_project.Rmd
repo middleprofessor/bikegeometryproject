@@ -4350,5 +4350,20 @@ if(import_it != TRUE){
 
 ```
 
+# FAQ
+## Re-render individual bikes
+
+quarto render bikes/moots-mxc-2025.qmd
+quarto render bikes/3t-extrema-italia-2025.qmd --no-cache
+
+```{r eval=FALSE}
+quarto::quarto_render(
+  input       = "bikes/3t-extrema-italia-2025.qmd",
+  execute_dir = here::here()
+)
+```
+
+
+
 
 
