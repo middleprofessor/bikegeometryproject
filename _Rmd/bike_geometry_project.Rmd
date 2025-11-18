@@ -484,8 +484,21 @@ geom_checker <- function(chainstay_length, # chainstay length
   offset_h <- compute_offset_h(bike)
   wheelbase_computed <- chainstay_length_h + reach +
     steer_axis_h + offset_h
+}
 
-  }
+effective_tt_check <- function(geobike){
+  geobike[, top_tube_effective_est := layback + reach]
+  geobike[, top_tube_diff := top_tube_effective_est - top_tube_effective_length]
+  geobike[abs(top_tube_diff) > 2,
+          .SD, .SDcols = c("model", "frame_size", "top_tube_effective_est", "top_tube_effective_length", "top_tube_diff")] |> View()
+}
+
+effective_st_check <- function(geobike){
+  geobike[, est_est := sqrt(layback^2 + stack^2)]
+  geobike[,
+          .SD, .SDcols = c("model", "frame_size", "seat_tube_effective_length", "est_est")] |> View()
+
+}
 ```
 
 # Add sus fork modifications
@@ -835,6 +848,10 @@ clean_frame_size <- function(bike){
   bike[frame_size == "V4", frame_size := "L"]
   bike[frame_size == "V5", frame_size := "XL"]
 
+  # Merida scultura
+  bike[frame_size == "4XS", frame_size := "XXXXS"]
+  bike[frame_size == "3XS", frame_size := "XXXS"]
+  
   # clean
   bike[, frame_size_working := toupper(frame_size)]
 
@@ -843,6 +860,7 @@ clean_frame_size <- function(bike){
          unlist()]
   bike[, frame_size_numbers := lapply(frame_size_working, get_frame_size_numbers) |>
          unlist()]
+  bike[, frame_size_letters := str_remove_all(frame_size_letters, "MM")] # why isn't CM here?
   bike[frame_size_letters == "", frame_size_letters := NA]
   bike[frame_size_letters == "R", frame_size_letters := NA]
   bike[frame_size_letters == "T", frame_size_letters := NA]
@@ -1072,8 +1090,10 @@ clean_and_compute <- function(bike){
   
   # more stuff
 
-  # effective seat post length
-  bike[, seat_tube_effective_length := sin(seat_tube_angle*pi/180)*stack]
+  # effective lengths
+  bike[, layback := seat_h]
+  bike[, seat_tube_effective_length := sqrt(layback^2 + stack^2)]
+  bike[, top_tube_effective_length_est := layback + reach]
   
   # top tube angle
   bike[, seat_post_length := seat_tube_effective_length - seat_tube_length]
@@ -1541,22 +1561,91 @@ predict_height_unscaled <- function(model, frames_dt, x_cols, imp, sc, ys = NULL
 
 frame_size_predictor <- function(geobike){
   
+  
   set.seed(123)
 
+  geobike[, size_numeric_raw := frame_size_numbers]
+  
+  # 3) detect letter sizes
+  letter_order <- c("XXXXS", "XXXS", "XXS", "XS", "S", "SM", "M", "ML", "L", "LXL", "L", "XXL", "XXXL")
+  geobike[, size_letter_raw := match(frame_size_letters, letter_order)]
+  
+  # 4) provisional ordering (numeric vs letter vs unknown)
+  # if numeric exists, use numeric
+  # else if letter exists, use letter mapping
+  # else fallback to geometry (stack)
+  
+  geobike[, size_initial :=
+       fifelse(!is.na(size_numeric_raw), size_numeric_raw,
+               fifelse(!is.na(size_letter_raw),  size_letter_raw,
+                       NA_real_))]
+  
+  # 5) For weird labels (NA initial), fill using geometry (stack)
+  geobike[is.na(size_initial), size_initial := stack]   # stack is strongly monotone with size
+  
+  # 6) Now create *within-model* ordered factor
+  geobike[, frame_size_numeric :=
+       frank(size_initial, ties.method = "dense"),
+     by = .(brand, model)]
+  
   # process categorical variable
   geobike[, handlebar_dummy := ifelse(handlebar == "drop bar", 0, 
                                       ifelse(handlebar == "both", 0.5, 1))]
   geobike[, steerer_length := head_tube_length + axle_crown]
 
+# reach 0.53
+# tt 0.68
+# tt + st 0.71
+# tt + st + ac 0.85
+# tt + ac 0.79
+# st + ac 0.75
+# stack + reach + hta + sta + ac .888
+# stack + reach + hta + sta + ac + ht .897
+# stack + reach + hta + sta + ac + cs .906
+# stack + reach + hta + sta + ac + ht + cs .910
+# tt + st + stack + reach + hta + sta + ac = 0.888
+# tt + st + stack + reach + hta + sta + ac = 0.898
+# tt + st + stack + reach + hta + sta + fc + ac = 0.89
+# tt + st + stack + reach + hta + sta + fc + ht + ac = 0.89
+# tt + st + stack + reach + hta + sta + fc + cs + ac = 0.89
+# tt + st + stack + reach + hta + sta + fc + cs + ht + ac = 0.906
+  # create 3 measures of triangle of contact
+  geobike[, front_chord := sqrt((head_x - bottom_x)^2 + (head_y - bottom_y)^2)]
   y_col <- c("rider_height")
-  x_cols <- c("stack", "reach", "head_tube_angle", "seat_tube_angle", "chainstay_length", "front_center",
-              "head_tube_length",
-              "axle_crown",
-              # "steerer_length",
-"top_tube_effective_length")
+  x_cols <- c(
+    # "top_tube_effective_length",
+    # "seat_tube_effective_length",
+    "stack",
+    "reach",
+    "head_tube_angle",
+    "seat_tube_angle",
+    "chainstay_length",
+    # "front_center",
+    "head_tube_length",
+    "axle_crown",
+    NULL
+    )
+
+  x_cols <- c(
+    "top_tube_effective_length_est",
+    "seat_tube_effective_length",
+    "front_chord",
+    "axle_crown",
+    "chainstay_length",
+    "head_tube_length",
+    "head_tube_angle",
+    "seat_tube_angle",
+    "stack",
+    "reach",
+    "layback",
+    NULL
+  )
+  geobike[, frame_size_numeric := as.numeric(factor(frame_size, ordered = TRUE))]
+  x_cols <- c(x_cols, "frame_size_numeric")
+
   cat_cols <- "handlebar_dummy"
+  x_cols <- c(x_cols, cat_cols)
   
- # x_cols <- c(x_cols, cat_cols)
   dt <- geobike[!is.na(rider_height), .SD, .SDcols = c(y_col, x_cols)]
 
   # Split first
@@ -1602,8 +1691,9 @@ frame_size_predictor <- function(geobike){
   # xgboost
   K <- length(x_cols)
   mono <- rep(0, K)
-  mono[which(x_cols %in% c("stack","reach","wheelbase"))] <- 1
-  mono[which(x_cols %in% c("bb_drop"))] <- -1  # lower BB = smaller frames roughly
+  mono[which(x_cols %in% c("frame_size_numeric"))] <- 1
+  # mono[which(x_cols %in% c("bb_drop"))] <- -1  # lower BB = smaller frames roughly
+#  mono[ match("frame_size_numeric", x_cols) ] <- 1
   
   dtrain <- xgb.DMatrix(x_tr, label=y_tr)
   dtest  <- xgb.DMatrix(x_te, label=y_te)
@@ -1629,7 +1719,7 @@ frame_size_predictor <- function(geobike){
     data.table(model="xgb",    RMSE=rmse_xgb, R2=r2_xgb)
   ))
   results[order(RMSE)]
-  
+  # xgb.importance(model = xgb_fit)
   # predict from models
   
   prep <- prepare_new_frames(geobike, x_cols, imp, sc)
@@ -1640,34 +1730,13 @@ frame_size_predictor <- function(geobike){
   pred_xg <- as.numeric(predict(xgb_fit, dnew))
   geobike[, rider_height_pred := pred_xg]
 
+#  geobike[model == "Sage Storm King 2025", rider_height_pred]
+
   return(geobike)
   
 }
 
-# geobike[model == "Trek Checkmate 2025", .SD, .SDcols = c("frame_size", "rider_height", "rider_height_pred_xgb")]
-# geobike[model == "Sklar SuperSomething 2025", .SD, .SDcols = c("frame_size", "rider_height", "rider_height_pred_xgb")]
-# geobike[model == "Santa Cruz Stigmata CC 2025", .SD, .SDcols = c("frame_size", "rider_height", "rider_height_pred_xgb")]
-# geobike[model == "Fairlight Holt 2.0 2025", .SD, .SDcols = c("frame_size", "rider_height", "rider_height_pred_xgb")]
-# geobike[model == "Breezer Radar X 2025", .SD, .SDcols = c("frame_size", "rider_height", "rider_height_pred_xgb")]
-# ggplot(data = geobike,
-#        aes(x = rider_height_pred,
-#            y = rider_height,
-#            color = handlebar)) +
-#   geom_point()
-# 
-# 
-# geobike[, rider_height_residual := rider_height_pred - rider_height]
-# test_geobike <- geobike[, .SD, .SDcols = c("model_size", "rider_height_residual", "rider_height", "rider_height_pred")]
-# setorder(test_geobike, rider_height_residual)
-# test_geobike[, abs_resid := abs(rider_height_residual)]
-# View(test_geobike[!is.na(rider_height_residual)])
-# a <- "Breezer Radar X 2025"
-# a <- "Ventum GS1 2025"
-# bike_i <- geobike[model == "Breezer Radar X 2025", .SD, .SDcols = c("model", "frame_size", "rider_min", "rider_max", "rider_height", "rider_height_pred")]
-# setorder(bike_i, rider_height)
-# bike_i[, dev_low := rider_min - rider_height]
-# bike_i[, dev_hi := rider_max - rider_height]
-# bike_i
+
 ```
 
 ```{r}
@@ -3774,6 +3843,34 @@ for (file in excel_files) {
   system(sprintf("osascript insert_headset_fork.scpt '%s' %d", file, insert_row))
 
 }
+
+```
+
+# Various code
+## What predicted size doesn't match spec size?
+
+```{r eval = FALSE}
+deviation <- 4
+
+rider_min_too_small <- which(geobike[, rider_min_pred - rider_min] > deviation)
+geobike[rider_min_too_small, .SD, .SDcols = c("model", "frame_size", "rider_min", "rider_min_pred")] |>
+  kable() |>
+  kable_styling()
+
+rider_min_too_big <- which(geobike[, rider_min_pred - rider_min] < -deviation)
+geobike[rider_min_too_big, .SD, .SDcols = c("model", "frame_size", "rider_min", "rider_min_pred")] |>
+  kable() |>
+  kable_styling()
+
+rider_max_too_small <- which(geobike[, rider_max_pred - rider_max] > deviation)
+geobike[rider_max_too_small, .SD, .SDcols = c("model", "frame_size", "rider_max", "rider_max_pred")] |>
+  kable() |>
+  kable_styling()
+
+rider_max_too_big <- which(geobike[, rider_max_pred - rider_max] < -deviation)
+geobike[rider_max_too_big, .SD, .SDcols = c("model", "frame_size", "rider_max", "rider_max_pred")] |>
+  kable() |>
+  kable_styling()
 
 ```
 
