@@ -487,10 +487,15 @@ geom_checker <- function(chainstay_length, # chainstay length
 }
 
 effective_tt_check <- function(geobike){
-  geobike[, top_tube_effective_est := layback + reach]
-  geobike[, top_tube_diff := top_tube_effective_est - top_tube_effective_length]
-  geobike[abs(top_tube_diff) > 2,
-          .SD, .SDcols = c("model", "frame_size", "top_tube_effective_est", "top_tube_effective_length", "top_tube_diff")] |> View()
+  geobike[, top_tube_diff := top_tube_effective_length_est - top_tube_effective_length]
+  geobike[abs(top_tube_diff) > 4,
+          .SD, .SDcols = c("model", "frame_size", "top_tube_effective_length_est", "top_tube_effective_length", "top_tube_diff")] |> View()
+  
+  sta <- geobike[, .(sd = sd(seat_tube_angle)), by = .(model)]
+  ett <- geobike[abs(top_tube_diff) > 4, model] |> unique()
+  ett <- data.table(model = ett)
+  flag <- merge(sta, ett, by = "model")
+  flag[sd == 0] |> View()
 }
 
 effective_st_check <- function(geobike){
