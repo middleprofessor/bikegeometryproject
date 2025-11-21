@@ -487,6 +487,9 @@ geom_checker <- function(chainstay_length, # chainstay length
 }
 
 effective_tt_check <- function(geobike){
+# diff < 0 if ESTA ≠ STA and ETT measured above stack then my ETT < spec ETT 
+# diff > 0 if ESTA ≠ STA and ETT measured using STA instead of ESTA
+  
   geobike[, top_tube_diff := top_tube_effective_length_est - top_tube_effective_length]
   geobike[abs(top_tube_diff) > 4,
           .SD, .SDcols = c("model", "frame_size", "top_tube_effective_length_est", "top_tube_effective_length", "top_tube_diff")] |> View()
@@ -1067,8 +1070,12 @@ clean_and_compute <- function(bike){
   bike[, head_h := head_tube_length * cos(deg_2_rad(head_tube_angle))]
 
   # fill in missing
-  # add axle crown if it and wheelbase are missing
-#  bike[is.na(wheelbase) & is.na(axle_crown), axle_crown := 395]
+  bike[, layback := seat_h]
+
+  # effective seat tube angle
+  # bike[is.na(seat_tube_angle) &
+  #        !is.na(seat_tube_angle_actual),
+  #      seat_tube_angle := atan(stack/layback)]
 
   # wheelbase
   bike[is.na(wheelbase), wheelbase := compute_wheelbase(bike[is.na(wheelbase)])]
@@ -1096,7 +1103,6 @@ clean_and_compute <- function(bike){
   # more stuff
 
   # effective lengths
-  bike[, layback := seat_h]
   bike[, seat_tube_effective_length := sqrt(layback^2 + stack^2)]
   bike[, top_tube_effective_length_est := layback + reach]
   
@@ -1412,7 +1418,9 @@ assign_std_size_pred <- function(geobike){
   model_list_med <- unique(geobike[frame_size_std_m == TRUE, model])
   model_list_diff <- setdiff(model_list_all, model_list_med)
   geobike[model == "Stooge Dirt Tracker 2025", frame_size_std_m := TRUE]
-  geobike[model == "Chiru Kegeti 2025" & frame_size == "S", frame_size_std_m := TRUE]
+  if("Chiru Kegeti 2025" %in% model_list_diff){
+    geobike[model == "Chiru Kegeti 2025" & frame_size == "S", frame_size_std_m := TRUE]
+  }
 
   s <- median_sizes[2]
   geobike[, frame_size_std_s := ifelse(rider_min_pred <= s & rider_max_pred > s, TRUE, NA)]
@@ -4189,18 +4197,21 @@ if(import_it != TRUE){
                    by = c("model"), all.x = TRUE)
 
   # kmeans nested-sub
-  kmeans_classes_sub <- kmeans_classifier(
-    geobike[my_fit == TRUE],
-    k = k,
-    method = "rkm", # km or rkm where rkm is robust
-    nested = TRUE,
-    reclass = "sub"
-  )
-  setnames(kmeans_classes_sub, old = "kmeans_style", new = "kmeans_style_sub")
-  geobike <- merge(geobike,
-                   kmeans_classes_sub[, .SD, .SDcols = c("model", "kmeans_style_sub")],
-                   by = c("model"), all.x = TRUE)
-  
+  do_kmeans_classes_sub <- FALSE
+  if(do_kmeans_classes_sub == TRUE){
+    kmeans_classes_sub <- kmeans_classifier(
+      geobike[my_fit == TRUE],
+      k = k,
+      method = "rkm", # km or rkm where rkm is robust
+      nested = TRUE,
+      reclass = "sub"
+    )
+    setnames(kmeans_classes_sub, old = "kmeans_style", new = "kmeans_style_sub")
+    geobike <- merge(geobike,
+                     kmeans_classes_sub[, .SD, .SDcols = c("model", "kmeans_style_sub")],
+                     by = c("model"), all.x = TRUE)
+  }
+ 
   # kmeans 4 classes
   kmeans_classes_4 <- kmeans_classifier(
     geobike[my_fit == TRUE],
