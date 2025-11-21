@@ -42,8 +42,10 @@ bike <- geobike[
 ]
 
 if (nrow(bike) == 0) {
-  stop(sprintf("No rows found for brand='%s' model='%s' year='%s' (using columns %s / %s / %s)",
-               brand_val, model_val, year_val, brand_col, model_col, year_col))
+  stop(sprintf(
+    "No rows found for brand='%s' model='%s' year='%s' (lookup uses columns brand / model_name / year).",
+    brand_val, model_val, year_val
+  ))
 }
 
 # SEO bits

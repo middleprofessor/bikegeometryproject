@@ -760,10 +760,6 @@ get_frame_size_letters <- function(frame_size){
   frame_size_letters <- str_replace(frame_size_letters, "XM", "ML")
   frame_size_letters <- str_replace(frame_size_letters, "LA", "L")
  
-  # something like "SmallMedium" maps to small but should map to "SM"
-  # I think this can be deleted
-  if(frame_size == "Small/Medium"){frame_size_letters <- "SM"}
-
   return(frame_size_letters)
 }
 ```
@@ -824,6 +820,9 @@ clean_frame_size <- function(bike){
   # Light Blue Darwin
   bike[frame_size == "Small/Medium", frame_size := "SMMD"] # this will convert to SM
   
+  # Binary Kinetic
+  bike[frame_size == "SMD", frame_size := "SMMD"] # this will convert to SM
+ 
   # Haute Sauce
   bike[frame_size == "S/M", frame_size := "SMMD"] # this will convert to SM
 
@@ -1200,6 +1199,12 @@ clean_and_compute <- function(bike){
   bike[, bottom_y := y6]
   bike[, seat_x := x7]
   bike[, seat_y := y7]
+
+  # front triangle size
+  bike[, front_chord := sqrt((head_x - bottom_x)^2 + (head_y - bottom_y)^2)]
+  bike[, front_triangle_size := sqrt(seat_tube_effective_length^2 +
+                                       top_tube_effective_length_est^2 +
+                                       front_chord^2)]
   
   # geometry_with_sus_fork <- function(frame,
   #                                  sus_length = 425,
@@ -1580,7 +1585,7 @@ frame_size_predictor <- function(geobike){
   geobike[, size_numeric_raw := frame_size_numbers]
   
   # 3) detect letter sizes
-  letter_order <- c("XXXXS", "XXXS", "XXS", "XS", "S", "SM", "M", "ML", "L", "LXL", "L", "XXL", "XXXL")
+  letter_order <- c("XXXXS", "XXXS", "XXS", "XS", "S", "SM", "M", "ML", "L", "LXL", "L", "XL", "XXL", "XXXL")
   geobike[, size_letter_raw := match(frame_size_letters, letter_order)]
   
   # 4) provisional ordering (numeric vs letter vs unknown)
@@ -1599,13 +1604,16 @@ frame_size_predictor <- function(geobike){
   # 6) Now create *within-model* ordered factor
   geobike[, frame_size_numeric :=
        frank(size_initial, ties.method = "dense"),
-     by = .(brand, model)]
+     by = .(model)]
+  
+  # 7) normalize
+  geobike[, frame_size_norm :=
+       (frame_size_numeric - 1) / (max(frame_size_numeric) - 1),
+     by = .(model)]
   
   # process categorical variable
   geobike[, handlebar_dummy := ifelse(handlebar == "drop bar", 0, 
                                       ifelse(handlebar == "both", 0.5, 1))]
-  geobike[, steerer_length := head_tube_length + axle_crown]
-
 # reach 0.53
 # tt 0.68
 # tt + st 0.71
@@ -1623,23 +1631,9 @@ frame_size_predictor <- function(geobike){
 # tt + st + stack + reach + hta + sta + fc + cs + ac = 0.89
 # tt + st + stack + reach + hta + sta + fc + cs + ht + ac = 0.906
   # create 3 measures of triangle of contact
-  geobike[, front_chord := sqrt((head_x - bottom_x)^2 + (head_y - bottom_y)^2)]
   y_col <- c("rider_height")
-  x_cols <- c(
-    # "top_tube_effective_length",
-    # "seat_tube_effective_length",
-    "stack",
-    "reach",
-    "head_tube_angle",
-    "seat_tube_angle",
-    "chainstay_length",
-    # "front_center",
-    "head_tube_length",
-    "axle_crown",
-    NULL
-    )
 
-  x_cols <- c(
+  x_numeric_cols <- c(
     "top_tube_effective_length_est",
     "seat_tube_effective_length",
     "front_chord",
@@ -1653,16 +1647,16 @@ frame_size_predictor <- function(geobike){
     "layback",
     NULL
   )
-  geobike[, frame_size_numeric := as.numeric(factor(frame_size, ordered = TRUE))]
-  x_cols <- c(x_cols, "frame_size_numeric")
-
   cat_cols <- "handlebar_dummy"
-  x_cols <- c(x_cols, cat_cols)
   
-  dt <- geobike[!is.na(rider_height), .SD, .SDcols = c(y_col, x_cols)]
-
   # Split first
   idx   <- sample(seq_len(nrow(dt)), 0.8*nrow(dt))
+  
+  # random forest
+#  x_cols <- c(x_cols, "frame_size_numeric")
+  x_cols <- c(x_numeric_cols, "frame_size_norm", cat_cols)
+  dt <- geobike[!is.na(rider_height), .SD, .SDcols = c(y_col, x_cols)]
+
   train <- dt[idx]
   test <- dt[-idx]
   
@@ -1685,14 +1679,6 @@ frame_size_predictor <- function(geobike){
   summary(train[[y_col]])
   sd(train[[y_col]], na.rm = TRUE)
   
-  # regularized linear regression
-  cv_fit <- cv.glmnet(x_tr, y_tr, alpha = 0.5, nfolds = 10)
-  y_pred <- predict(cv_fit, newx = x_te, s = "lambda.min")[, "lambda.min"]
-  rmse_glm <- sqrt(mean((y_te - y_pred)^2))
-  r2_glm   <- cor(y_te, y_pred)^2
-  list(model="glmnet", RMSE=rmse_glm, R2=r2_glm)
-  
-  # random forest
   rf_fit <- ranger(rider_height ~ ., data = train[, c(y_col, x_cols), with=FALSE],
                    num.trees = 1000, mtry = floor(sqrt(length(x_cols))),
                    importance = "impurity")
@@ -1701,12 +1687,36 @@ frame_size_predictor <- function(geobike){
   r2_rf   <- cor(y_te, y_pred)^2
   list(model="ranger", RMSE=rmse_rf, R2=r2_rf)
   
+  
   # xgboost
+  x_cols <- c(x_numeric_cols, "frame_size_norm", cat_cols)
+  dt <- geobike[!is.na(rider_height), .SD, .SDcols = c(y_col, x_cols)]
+
+  train <- dt[idx]
+  test <- dt[-idx]
+  
+  # Fit imputer/scaler on TRAIN predictors only
+  imp <- median_imputer(train, x_cols)
+  sc  <- scaler_fit(train, x_cols)
+  
+  # Apply to both sets (predictors only)
+  train <- imp$impute(copy(train))
+  test  <- imp$impute(copy(test))
+  train <- sc$transform(train)
+  test  <- sc$transform(test)
+  
+  # Build matrices for X; y stays on original scale
+  x_tr <- as.matrix(train[, ..x_cols])
+  y_tr <- train[[y_col]]          # UNscaled outcome
+  x_te <- as.matrix(test[, ..x_cols])
+  y_te <- test[[y_col]]
+  
+  summary(train[[y_col]])
+  sd(train[[y_col]], na.rm = TRUE)
+
   K <- length(x_cols)
   mono <- rep(0, K)
-  mono[which(x_cols %in% c("frame_size_numeric"))] <- 1
-  # mono[which(x_cols %in% c("bb_drop"))] <- -1  # lower BB = smaller frames roughly
-#  mono[ match("frame_size_numeric", x_cols) ] <- 1
+  mono[ match("frame_size_numeric", x_cols)] <- 1
   
   dtrain <- xgb.DMatrix(x_tr, label=y_tr)
   dtest  <- xgb.DMatrix(x_te, label=y_te)
@@ -1726,8 +1736,8 @@ frame_size_predictor <- function(geobike){
   r2_xgb   <- cor(y_te, y_pred)^2
   list(model="xgboost", RMSE=rmse_xgb, R2=r2_xgb)
   
+  # summarize results
   results <- rbindlist(list(
-    data.table(model="glmnet", RMSE=rmse_glm, R2=r2_glm),
     data.table(model="ranger", RMSE=rmse_rf, R2=r2_rf),
     data.table(model="xgb",    RMSE=rmse_xgb, R2=r2_xgb)
   ))
@@ -1741,14 +1751,48 @@ frame_size_predictor <- function(geobike){
   
   dnew    <- xgb.DMatrix(Xnew)
   pred_xg <- as.numeric(predict(xgb_fit, dnew))
-  geobike[, rider_height_pred := pred_xg]
+  geobike[, rider_height_pred_xg := pred_xg]
 
-#  geobike[model == "Sage Storm King 2025", rider_height_pred]
+  pred_rf <- predict(rf_fit, data = as.data.frame(Xnew))$predictions |>
+    as.numeric()
+  geobike[, rider_height_pred_rf := pred_rf]
+
+  geobike[, rider_height_pred := (pred_xg + pred_rf)/2]
+
+#  geobike[model == "Argonaut Supernaut GR3 2025", .SD, .SDcols = c("frame_size", "rider_height", "rider_height_pred_xg", "rider_height_pred_rf")]
 
   return(geobike)
   
 }
 
+# check
+check_it <- FALSE
+if(check_it){
+  #geobike[, rider_height_smooth := cummax(rider_height_pred), by = .(model)]
+
+  models <- geobike[, model] |> unique()
+  n <- length(models)
+  rho <- as.numeric(n)
+  for(i in 1:n){
+    if(nrow(geobike[model == models[i]]) > 1){
+      rho[i] <- cor.test(geobike[model == models[i], front_triangle_size],
+                         geobike[model == models[i], rider_height_pred],
+                         method = "spearman")$estimate
+    }else{
+      rho[i] <- NA
+    }
+  }
+  rider_height_test <- data.table(
+    model = models,
+    "rho" = rho
+  )
+  rider_height_test <- rider_height_test[abs(rho - 1) > 0.00001, ]
+  models <- rider_height_test[, model]
+  
+  geobike[model == models[1], .SD, .SDcols =
+            c("model", "frame_size", "rider_height", "rider_height_smooth", "rider_height_pred", "rider_height_pred_xg", "rider_height_pred_rf", "front_triangle_size", x_cols, "frame_size_numeric" )] |> View()
+  
+}
 
 ```
 
@@ -4054,7 +4098,7 @@ import_bike_list <- function(style = "gravel", exchange_rates){
   
   # get rider_height
   geobike <- frame_size_predictor(geobike)
-  setorder(geobike, model, rider_height_pred)
+  setorder(geobike, model, front_triangle_size)
   geobike <- rider_range(geobike)
   
   # geobike_working <- copy(geobike)
@@ -4062,7 +4106,6 @@ import_bike_list <- function(style = "gravel", exchange_rates){
   
   # get classifier size medium
   geobike <- assign_std_size_pred(geobike)
-#  geobike <- better_assign_std_size(geobike)
 
   # set my_fit or classifier fit
   geobike[, my_fit := frame_size_std_m] 
@@ -4249,6 +4292,7 @@ if(import_it != TRUE){
   geobike[, color := color_kmeans]
   geobike[, highlight_text := model_size]
 
+  setorder(geobike, model, front_triangle_size)
   
   # my_fit
   my_fit <- geobike[my_fit == TRUE]
