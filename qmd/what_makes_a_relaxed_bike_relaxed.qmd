@@ -21,11 +21,17 @@ source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 ```
 
+```{r echo=FALSE, eval=FALSE}
+cor(geobike[my_fit==TRUE &
+              (kmeans_style == "relaxed" |
+                 kmeans_style == "rowdy"), .SD, .SDcols=c("mds2", "stack_reach", "front_rear", "chainstay_length", "stack", "reach", "seat_tube_angle", "trail_45", "head_tube_angle")])
+```
 
 
 ```{r make-plots, echo=FALSE}
 
-relaxed_shared <- SharedData$new(geobike[my_fit == TRUE],
+relaxed_shared <- SharedData$new(geobike[my_fit == TRUE &
+                                           (kmeans_style == "relaxed" | kmeans_style == "rowdy")],
                                  key = ~model_size, group = "2drelaxed")
 add_regression <- TRUE
 
@@ -36,48 +42,9 @@ kmeans_class <- 3
 mclust_class <- 4
 relaxed_col <- c("tree_relaxed", "functional_relaxed", "kmeans_relaxed", "mclust_relaxed")[kmeans_class]
 color_col <- c("tree_style", "functional_style", "kmeans_style", "mclust_style")[kmeans_class]
+relaxed_col <- "mds2"
 
 p1 <- scatter_fig(shared_data = relaxed_shared,
-                  link_group = "2drelaxed",
-                  y_col = relaxed_col, x_col = "stack",
-                  y_label = "Relaxed Index", x_label = "Stack (mm)",
-                  g_col = "model_size",
-                  color_col = color_col,
-                  same_xy_scale = FALSE,
-                  add_regression = add_regression)
-p2 <- scatter_fig(shared_data = relaxed_shared,
-                  link_group = "2drelaxed",
-                  y_col = relaxed_col, x_col = "reach",
-                  y_label = "Relaxed Index", x_label = "Reach (mm)",
-                  g_col = "model_size",
-                  color_col = color_col,
-                  same_xy_scale = FALSE,
-                  add_regression = add_regression)
-p3 <- scatter_fig(shared_data = relaxed_shared,
-                  link_group = "2drelaxed",
-                  y_col = relaxed_col, x_col = "head_tube_angle",
-                  y_label = "Relaxed Index", x_label = "Head Tube Angle (°)",
-                  g_col = "model_size",
-                  color_col = color_col,
-                  same_xy_scale = FALSE,
-                  add_regression = add_regression)
-p4 <- scatter_fig(shared_data = relaxed_shared,
-                  link_group = "2drelaxed",
-                  y_col = relaxed_col, x_col = "seat_tube_angle",
-                  y_label = "Relaxed Index", x_label = "Seat Tube Angle (°)",
-                  g_col = "model_size",
-                  color_col = color_col,
-                  same_xy_scale = FALSE,
-                  add_regression = add_regression)
-p5 <- scatter_fig(shared_data = relaxed_shared,
-                  link_group = "2drelaxed",
-                  y_col = relaxed_col, x_col = "bottom_bracket_drop",
-                  y_label = "Relaxed Index", x_label = "Bottom Bracket Drop (mm)",
-                  g_col = "model_size",
-                  color_col = color_col,
-                  same_xy_scale = FALSE,
-                  add_regression = add_regression)
-p6 <- scatter_fig(shared_data = relaxed_shared,
                   link_group = "2drelaxed",
                   y_col = relaxed_col, x_col = "chainstay_length",
                   y_label = "Relaxed Index", x_label = "Chainstay Length (mm)",
@@ -85,34 +52,42 @@ p6 <- scatter_fig(shared_data = relaxed_shared,
                   color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
-p7 <- scatter_fig(shared_data = relaxed_shared,
+p2 <- scatter_fig(shared_data = relaxed_shared,
                   link_group = "2drelaxed",
-                  y_col = relaxed_col, x_col = "front_center",
-                  y_label = "Relaxed Index", x_label = "Front Center (mm)",
+                  y_col = relaxed_col, x_col = "stack",
+                  y_label = "Relaxed Index", x_label = "Stack (mm)",
                   g_col = "model_size",
                   color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
-p8 <- scatter_fig(shared_data = relaxed_shared,
+p3 <- scatter_fig(shared_data = relaxed_shared,
                   link_group = "2drelaxed",
-                  y_col = relaxed_col, x_col = "stack_reach",
-                  y_label = "Relaxed Index", x_label = "Stack:Reach",
+                  y_col = relaxed_col, x_col = "seat_tube_angle",
+                  y_label = "Relaxed Index", x_label = "Seat Tube Angle (°)",
                   g_col = "model_size",
                   color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
-p9 <- scatter_fig(shared_data = relaxed_shared,
+p4 <- scatter_fig(shared_data = relaxed_shared,
                   link_group = "2drelaxed",
-                  y_col = relaxed_col, x_col = "front_rear",
-                  y_label = "Relaxed Index", x_label = "Front Center:Rear Center",
+                  y_col = relaxed_col, x_col = "reach",
+                  y_label = "Relaxed Index", x_label = "Reach (mm)",
                   g_col = "model_size",
                   color_col = color_col,
                   same_xy_scale = FALSE,
                   add_regression = add_regression)
-p10 <- scatter_fig(shared_data = relaxed_shared,
+p5 <- scatter_fig(shared_data = relaxed_shared,
                   link_group = "2drelaxed",
-                  y_col = relaxed_col, x_col = "trail",
-                  y_label = "Relaxed Index", x_label = "Trail (mm)",
+                  y_col = relaxed_col, x_col = "head_tube_angle",
+                  y_label = "Relaxed Index", x_label = "Head Tube Angle (°)",
+                  g_col = "model_size",
+                  color_col = color_col,
+                  same_xy_scale = FALSE,
+                  add_regression = add_regression)
+p6 <- scatter_fig(shared_data = relaxed_shared,
+                  link_group = "2drelaxed",
+                  y_col = relaxed_col, x_col = "trail_45",
+                  y_label = "Relaxed Index", x_label = "Trail with 45 mm tire (mm)",
                   g_col = "model_size",
                   color_col = color_col,
                   same_xy_scale = FALSE,
@@ -123,29 +98,20 @@ p10 <- scatter_fig(shared_data = relaxed_shared,
 
 
 
-### Relaxed bike frames have a combination of high stack, short reach, and long chain stays
+### Relaxed bike frames have a combination of long chain stays, high frame stack, and shallow seat tube angles
 
 ```{r relaxed-high, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="70%"}
 # boxes
-p8
-p6
-```
-
-### By themselves, stack and reach aren't really related to relaxedness
-
-```{r relaxed-stack-reach, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="70%"}
 p1
 p2
+p3
 ```
 
-### Headtube angle, seattube angle, bottom bracket drop, and trail aren't really related to relaxedness
+### Reach, headtube angle, and trail aren't really related to relaxedness
 
 ```{r relaxed-low, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="70%"}
-p3
 p4
 p5
-p7
-p9
-#p10
+p5
 ```
 
