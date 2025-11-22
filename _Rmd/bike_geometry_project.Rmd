@@ -4312,6 +4312,13 @@ if(import_it != TRUE){
 ```
 
 # FAQ
+## clean old qmd
+```{r}
+# Clean out old wrappers before writing new ones
+existing <- fs::dir_ls(here::here("bikes"), glob = "*.qmd")
+fs::file_delete(existing)
+```
+
 ## Re-render individual bikes
 
 quarto render bikes/rondo-bogan-lo-2025.qmd
