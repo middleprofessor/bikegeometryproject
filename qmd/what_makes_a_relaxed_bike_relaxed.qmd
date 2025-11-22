@@ -112,6 +112,6 @@ p3
 ```{r relaxed-low, echo = FALSE, message=FALSE, warning=FALSE, out.height="100%", out.width="70%"}
 p4
 p5
-p5
+p6
 ```
 
