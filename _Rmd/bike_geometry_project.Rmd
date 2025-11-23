@@ -985,7 +985,19 @@ clean_and_compute <- function(bike){
   # dropout
   bike[is.na(dropout), dropout := "fixed"]
   bike[dropout == "0", dropout := "fixed"]
-  
+ 
+  # fender
+  bike[is.na(mounts_fender), mounts_fender := "No/Unknown"]
+  bike[mounts_fender == "no", mounts_fender := "No/Unknown"]
+  bike[mounts_fender == "yes", mounts_fender := "YES"]
+  bike[mounts_fender == "optional", mounts_fender := "Optional"]
+
+  # rack
+  bike[is.na(mounts_rack_rear), mounts_rack_rear := "No/Unknown"]
+  bike[mounts_rack_rear == "no", mounts_rack_rear := "No/Unknown"]
+  bike[mounts_rack_rear == "yes", mounts_rack_rear := "YES"]
+  bike[mounts_rack_rear == "optional", mounts_rack_rear := "Optional"]
+ 
   # suspension
   bike[, suspension_corrected := ifelse(!is.na(suspension_corrected), as.numeric(suspension_corrected), 0.0)]
   bike[, fork_suspension := ifelse(!is.na(fork_suspension), as.numeric(fork_suspension), 0.0)]
@@ -4313,7 +4325,7 @@ if(import_it != TRUE){
 
 # FAQ
 ## clean old qmd
-```{r}
+```{r eval=FALSE}
 # Clean out old wrappers before writing new ones
 existing <- fs::dir_ls(here::here("bikes"), glob = "*.qmd")
 fs::file_delete(existing)

@@ -84,7 +84,7 @@ if (!is.na(img_url) && nzchar(img_url)) {
 ```{r table, echo=FALSE}
 options(knitr.kable.NA = '')
 # spec columns present in geobike
-specs_cols <- c("frame_size","estimated_rider_height", "specified_rider_height", "kmeans_style", "material", "fork", "handlebar", "stack", "reach", "standover", "head_tube_angle", "seat_tube_angle","chainstay_length", "front_center", "bottom_bracket_drop", "trail", "trail_45", "udh", "tire_width_max_700c", "tire_width_max_650b", "fork_class", "axle_spacing", "stealth_dropper", "seatpost_diameter", "max_chainring_1x", "dropout", "internal_storage", "base_build_usd", "frameset_usd", "location")
+specs_cols <- c("frame_size","estimated_rider_height", "specified_rider_height", "kmeans_style", "material", "fork", "handlebar", "top_tube_effective_length_est", "reach", "stack", "standover", "head_tube_angle", "seat_tube_angle","chainstay_length", "front_center", "bottom_bracket_drop", "trail", "trail_45", "udh", "tire_width_max_700c", "tire_width_max_650b", "fork_class", "axle_spacing", "stealth_dropper", "seatpost_diameter", "max_chainring_1x", "dropout", "internal_storage", "base_build_usd", "frameset_usd", "location")
 keep_cols <- intersect(specs_cols, names(bike))
 
 # Order by numeric size where possible
@@ -94,16 +94,16 @@ kb <- kb[order(reach)]
 
 setnames(
   kb,
-  old = c("kmeans_style", "fork_class"),
-  new = c("style", "suspension_correction")
+  old = c("kmeans_style", "fork_class", "top_tube_effective_length_est"),
+  new = c("style", "suspension_correction", "effective_top_tube_length")
 )
 
 # Rounding / currency
 kb[, front_center := round(front_center, 0)]
 kb[, trail := round(trail, 0)]
 kb[, trail_45 := round(trail_45, 0)]
-kb[, frameset_usd := ifelse(is.na(frameset_usd), frameset_usd, paste0("$", frameset_usd))]
-kb[, base_build_usd := ifelse(is.na(base_build_usd), base_build_usd, paste0("$", base_build_usd))]
+kb[, frameset_usd := ifelse(is.na(frameset_usd), frameset_usd, paste0("$", round(frameset_usd, 0)))]
+kb[, base_build_usd := ifelse(is.na(base_build_usd), base_build_usd, paste0("$", round(base_build_usd,0)))]
 
 kb <- t(kb)
 spec_col <- rownames(kb)
