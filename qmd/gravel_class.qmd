@@ -86,7 +86,7 @@ filters <- list(
   filter_checkbox("fork", "Suspension correction (mm)", style_table_shared, ~fork_class, inline = FALSE),
   filter_checkbox("sliding", "Sliding dropout (mm)", style_table_shared, ~dropout, inline = TRUE),
   filter_checkbox("fender", "Fender mounts", style_table_shared, ~mounts_fender, inline = TRUE),
-  filter_checkbox("fender", "Rack mounts", style_table_shared, ~mounts_rack_rear, inline = TRUE),
+  filter_checkbox("rack", "Rack mounts", style_table_shared, ~mounts_rack_rear, inline = TRUE),
   filter_slider("tire_700", "Max 700c tire width (mm)", style_table_shared, ~tire_width_max_700c, step = 1),
   filter_slider("tire_650", "Max 650b tire width (in)", style_table_shared, ~tire_width_max_650b, step = 0.05),
   filter_slider("max_chainring", "Max 1X chainring", style_table_shared, ~max_chainring_1x),

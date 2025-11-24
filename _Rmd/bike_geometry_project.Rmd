@@ -4123,37 +4123,41 @@ import_bike_list <- function(style = "gravel", exchange_rates){
   geobike[, my_fit := frame_size_std_m] 
   
   # set bike class
-  # gravel
-  # sc gravel
-  # mountain: flat bar + 2.2 + boost
-  # drop-bar mountain: drop bar + 2.2 + boost
-  # atb: flat bar + 2.2 - boost
-  # drop-bar atb: drop bar + 2.2 - boost
-  # gravel: drop bar - 2.2 - boost
-  # flat-bar gravel: drop bar - 2.2 - boost
+  # mtn bikes have
+    # 1. tires > 55 mm
+    # 2. boost
+    # 3. flat bars
+    # 4. >= 100 mm suspension
+    # mtb - 1-4
+    # atb 
+ 
+  mtb_tire_width <- 2.3*25.4
   geobike[handlebar == "flat bar" &
-            tire_width_max_700c >= 2.2 * 25.4 &
-            rear_axle == "148",
+            tire_width_max_700c >= mtb_tire_width &
+            rear_axle == "148" &
+            suspension_corrected >= 100,
           class := "MTB"]
   geobike[(handlebar == "drop bar" | 
             handlebar == "both") &
-            tire_width_max_700c >= 2.2 * 25.4 &
-            rear_axle == "148",
+            tire_width_max_700c >= mtb_tire_width &
+            rear_axle == "148" &
+            suspension_corrected >= 100,
           class := "Drop Bar MTB"]
   geobike[handlebar == "flat bar" &
-            tire_width_max_700c >= 2.2 * 25.4 &
-            rear_axle != "148",
+            tire_width_max_700c >= mtb_tire_width &
+            suspension_corrected < 100,
           class := "ATB"]
   geobike[(handlebar == "drop bar" | 
             handlebar == "both") &
-            tire_width_max_700c >= 2.2 * 25.4 &
-            rear_axle != "148",
+            tire_width_max_700c >= mtb_tire_width &
+            suspension_corrected < 100,
           class := "Drop Bar ATB"]
   geobike[handlebar == "flat bar" &
-            tire_width_max_700c < 2.2 * 25.4,
+            tire_width_max_700c < mtb_tire_width,
           class := "Flat Bar Gravel"]
-  geobike[handlebar == "drop bar" &
-            tire_width_max_700c < 2.2 * 25.4,
+  geobike[(handlebar == "drop bar" | 
+            handlebar == "both") &
+            tire_width_max_700c < mtb_tire_width,
           class := "Gravel"]
 
   class_levels <- c("Gravel", 
