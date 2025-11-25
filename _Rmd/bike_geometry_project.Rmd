@@ -1662,12 +1662,11 @@ frame_size_predictor <- function(geobike){
   cat_cols <- "handlebar_dummy"
   
   # Split first
+  x_cols <- c(x_numeric_cols, "frame_size_norm", cat_cols)
+  dt <- geobike[!is.na(rider_height), .SD, .SDcols = c(y_col, x_cols)]
   idx   <- sample(seq_len(nrow(dt)), 0.8*nrow(dt))
   
   # random forest
-#  x_cols <- c(x_cols, "frame_size_numeric")
-  x_cols <- c(x_numeric_cols, "frame_size_norm", cat_cols)
-  dt <- geobike[!is.na(rider_height), .SD, .SDcols = c(y_col, x_cols)]
 
   train <- dt[idx]
   test <- dt[-idx]

@@ -35,7 +35,7 @@ source(source_path)
 ncols <- 4
 
 # spec columns present in geobike
-specs_cols <- c("estimated_rider_height", "specified_rider_height", "kmeans_style", "material", "fork", "handlebar", "stack", "reach", "standover", "head_tube_angle", "seat_tube_angle","chainstay_length", "front_center", "bottom_bracket_drop", "trail", "trail_45", "udh", "tire_width_max_700c", "tire_width_max_650b", "fork_class", "axle_spacing", "stealth_dropper", "seatpost_diameter", "max_chainring_1x", "dropout", "internal_storage", "base_build_usd", "frameset_usd", "location")
+specs_cols <- c("estimated_rider_height", "specified_rider_height", "kmeans_style", "material", "fork", "handlebar", "top_tube_effective_length", "top_tube_effective_length_est", "reach", "stack", "standover", "head_tube_angle", "seat_tube_angle","chainstay_length", "front_center", "bottom_bracket_drop", "trail", "trail_45", "udh", "tire_width_max_700c", "tire_width_max_650b", "fork_class", "axle_spacing", "stealth_dropper", "seatpost_diameter", "max_chainring_1x", "dropout", "internal_storage", "base_build_usd", "frameset_usd", "location")
 
 
 # ── WIDE TABLE (model, frame_size) ──────────────────────────────────────────
