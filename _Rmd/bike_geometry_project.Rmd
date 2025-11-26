@@ -4032,6 +4032,10 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
       bike_i[!is.na(frameset), frameset_usd := cad_2_usd * frameset]
       bike_i[!is.na(base_build), base_build_usd := cad_2_usd * base_build]
    }
+    if(!is.na(currency) & (currency == "aud" | currency == "AUD")){
+      bike_i[!is.na(frameset), frameset_usd := aud_2_usd * frameset]
+      bike_i[!is.na(base_build), base_build_usd := aud_2_usd * base_build]
+   }
     
     # Stuff for filters
     
@@ -4219,11 +4223,13 @@ if(import_it != TRUE){
     gbp_2_usd <- convert_currencies(1, "GBP", "USD")
     dkk_2_usd <- convert_currencies(1, "DKK", "USD")
     cad_2_usd <- convert_currencies(1, "CAD", "USD")
+    aud_2_usd <- convert_currencies(1, "AUD", "USD")
   }else{
     eur_2_usd <- 1.152452 # 31 Oct 2025
     gbp_2_usd <- 1.310659 # 31 Oct 2025
     dkk_2_usd <- 0.154319 # 31 Oct 2025
     cad_2_usd <- 0.7132362 # 31 Oct 2025
+    aud_2_usd <- 0.65 # 26 Nov 2025
   }
   exchange_rates <- list(eur = eur_2_usd, gbp = gbp_2_usd, dkk = dkk_2_usd)
 
