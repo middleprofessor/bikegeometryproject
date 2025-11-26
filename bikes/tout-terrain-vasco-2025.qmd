@@ -1,15 +1,15 @@
 ---
-title: "Tout Terrain Scrambler 28 2022"
+title: "Tout Terrain Vasco 2025"
 format:
   html:
     toc: false
 freeze: auto
 template_version: 1
 params:
-  brand: "Tout"
-  model: "Terrain Scrambler 28"
-  year: "2022"
-  slug: "tout-terrain-scrambler-28-2022"
+  brand: "Tout Terrain"
+  model: "Vasco"
+  year: "2025"
+  slug: "tout-terrain-vasco-2025"
   data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
   site_base_url: "https://thegravelbikegeometryproject.com"
 ---
