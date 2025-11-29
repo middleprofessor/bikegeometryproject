@@ -4066,11 +4066,25 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     bike_i[fork == "rigid" & axle_crown >= min_2 & axle_crown < min_3, fork_class := "40 mm"]
     bike_i[fork == "rigid" & axle_crown >= min_3 & axle_crown < min_4, fork_class := "50 mm"]
     bike_i[fork == "rigid" & axle_crown >= min_4 & axle_crown < min_5, fork_class := "60 mm"]
-    bike_i[fork == "rigid" & axle_crown >= 471 & axle_crown < 489, fork_class := "100 mm"]
-    bike_i[fork == "rigid" & axle_crown >= 489 & axle_crown < 507, fork_class := "120 mm"]
-    bike_i[fork == "suspension", fork_class := paste(suspension_corrected, "mm")]
-    # make a factor and order
-    fork_classes <- c("0 mm", "20 mm", "30 mm", "40 mm", "50 mm", "60 mm", "100 mm", "120 mm")
+    
+# mtbikes
+    bike_i[!is.na(suspension_corrected) & axle_crown > 471,
+           fork_class := paste(suspension_corrected, "mm")]
+    
+    bike_i[is.na(fork_class) &
+             fork == "rigid" &
+             axle_crown >= 471 &
+             axle_crown < 489, fork_class := "100 mm"]
+    bike_i[is.na(fork_class) &
+             fork == "rigid" &
+             axle_crown >= 489 &
+             axle_crown < 513, fork_class := "120 mm"]
+    bike_i[is.na(fork_class) &
+             fork == "rigid" &
+             axle_crown >= 513, fork_class := "130 mm"]
+
+        # make a factor and order
+    fork_classes <- c("0 mm", "20 mm", "30 mm", "40 mm", "50 mm", "60 mm", "100 mm", "110 mm", "120 mm", "130 mm")
     bike_i[, fork_class := factor(fork_class, levels = fork_classes)]
     
     # bind it
