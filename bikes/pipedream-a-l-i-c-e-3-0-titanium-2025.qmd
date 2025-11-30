@@ -1,0 +1,19 @@
+---
+title: "Pipedream A.L.I.C.E 3.0 Titanium 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Pipedream"
+  model: "A.L.I.C.E 3.0 Titanium"
+  year: "2025"
+  slug: "pipedream-a-l-i-c-e-3-0-titanium-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../_Rmd/bike_template.qmd"}
+```
+

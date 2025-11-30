@@ -787,7 +787,7 @@ get_frame_size_numbers <- function(frame_size){
     }
   }
   if(frame_size_numbers == ""){
-    frame_size_numbers <- as.numeric(NA)
+    frame_size_numbers <- NA_real_
   }
   frame_size_numbers <- as.numeric(frame_size_numbers)
 
@@ -921,21 +921,28 @@ read_geometry <- function(bike_label = "Alchemy Lycos 2023",
            sqrt(front_center^2 - bottom_bracket_drop^2)]
   }
 
+  if(!("fork_travel" %in% colnames(bike))){
+    bike[, fork_travel := NA_real_]
+  }
+  if(!("fork_sag" %in% colnames(bike))){
+    bike[, fork_sag := NA_real_]
+  }
+
   if(!("frame_weight" %in% colnames(bike))){
-    bike[, frame_weight := as.numeric(NA)]
+    bike[, frame_weight := NA_real_]
   }
   if(!("rider_min" %in% colnames(bike))){
-    bike[, rider_min := as.numeric(NA)]
-    bike[, rider_max := as.numeric(NA)]
+    bike[, rider_min := NA_real_]
+    bike[, rider_max := NA_real_]
   }
   if(!("trail" %in% colnames(bike))){
-    bike[, trail := as.numeric(NA)]
+    bike[, trail := NA_real_]
   }
   if("axle_to_crown" %in% colnames(bike)){
     setnames(bike, old = "axle_to_crown", new = "axle_crown")
   }
   if(!("axle_crown" %in% colnames(bike))){
-    bike[, axle_crown := as.numeric(NA)]
+    bike[, axle_crown := NA_real_]
   }
   bike[, axle_crown_in_data := ifelse(!is.na(axle_crown), TRUE, FALSE)]
 
@@ -944,6 +951,7 @@ read_geometry <- function(bike_label = "Alchemy Lycos 2023",
                   "head_tube_length", "seat_tube_angle", "head_tube_angle",
                   "chainstay_length", "wheelbase", "bottom_bracket_drop", "frame_weight",
                   "fork_offset_rake", "axle_crown_in_data", "axle_crown", "trail",
+                  "fork_travel", "fork_sag",
                   "standover", "stem_length", "handlebar_width", "crank_length",
                   "wheel_size", "tire_width_spec", "tire_width_max",
                   "rider_min", "rider_max"
@@ -998,10 +1006,8 @@ clean_and_compute <- function(bike){
   bike[mounts_rack_rear == "yes", mounts_rack_rear := "YES"]
   bike[mounts_rack_rear == "optional", mounts_rack_rear := "Optional"]
  
-  # suspension
-  bike[, suspension_corrected := ifelse(!is.na(suspension_corrected), as.numeric(suspension_corrected), 0.0)]
-  bike[, fork_suspension := ifelse(!is.na(fork_suspension), as.numeric(fork_suspension), 0.0)]
-  
+  # suspension correction
+
   # this should be temporary with only the old style where tire width is taken from geometry chart
   bike[is.na(tire_width_max_700c) & (wheel_size == 700 | wheel_size == 29), tire_width_max_700c := tire_width_max]
   bike[is.na(tire_width_max_650b) & (wheel_size == 650), tire_width_max_650b := tire_width_max]
@@ -1130,6 +1136,9 @@ clean_and_compute <- function(bike){
               top_tube_length^2 - 
               top_tube_effective_length^2)/ 
              (2*top_tube_length*top_tube_effective_length)) * 180/pi]
+  
+  # fork sag
+  
   
   # constructed measures
   ## trail
@@ -3666,7 +3675,7 @@ convert_multi_files <- function(){
       }
       new_row <- data.table(
         colnames = colnames(bike_geo),
-        frame_weight = as.numeric(NA)
+        frame_weight = NA_real_
       ) |>
         transpose(make.names = 1)
       new_row[, frame_size := "frame_weight"]
@@ -4068,23 +4077,11 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     bike_i[fork == "rigid" & axle_crown >= min_4 & axle_crown < min_5, fork_class := "60 mm"]
     
 # mtbikes
-    bike_i[!is.na(suspension_corrected) & axle_crown > 471,
+    bike_i[axle_crown >= 471,
            fork_class := paste(suspension_corrected, "mm")]
-    
-    bike_i[is.na(fork_class) &
-             fork == "rigid" &
-             axle_crown >= 471 &
-             axle_crown < 489, fork_class := "100 mm"]
-    bike_i[is.na(fork_class) &
-             fork == "rigid" &
-             axle_crown >= 489 &
-             axle_crown < 513, fork_class := "120 mm"]
-    bike_i[is.na(fork_class) &
-             fork == "rigid" &
-             axle_crown >= 513, fork_class := "130 mm"]
 
         # make a factor and order
-    fork_classes <- c("0 mm", "20 mm", "30 mm", "40 mm", "50 mm", "60 mm", "100 mm", "110 mm", "120 mm", "130 mm")
+    fork_classes <- c("0 mm", "20 mm", "30 mm", "40 mm", "50 mm", "60 mm", "100 mm", "100-120 mm", "120 mm", "120-130 mm", "130 mm")
     bike_i[, fork_class := factor(fork_class, levels = fork_classes)]
     
     # bind it
@@ -4152,22 +4149,22 @@ import_bike_list <- function(style = "gravel", exchange_rates){
   geobike[handlebar == "flat bar" &
             tire_width_max_700c >= mtb_tire_width &
             rear_axle == "148" &
-            suspension_corrected >= 100,
+            axle_crown >= 471,
           class := "MTB"]
   geobike[(handlebar == "drop bar" | 
             handlebar == "both") &
             tire_width_max_700c >= mtb_tire_width &
             rear_axle == "148" &
-            suspension_corrected >= 100,
+            axle_crown >= 471,
           class := "Drop Bar MTB"]
   geobike[handlebar == "flat bar" &
             tire_width_max_700c >= mtb_tire_width &
-            suspension_corrected < 100,
+            axle_crown < 471,
           class := "ATB"]
   geobike[(handlebar == "drop bar" | 
             handlebar == "both") &
             tire_width_max_700c >= mtb_tire_width &
-            suspension_corrected < 100,
+            axle_crown < 471,
           class := "Drop Bar ATB"]
   geobike[handlebar == "flat bar" &
             tire_width_max_700c < mtb_tire_width,
