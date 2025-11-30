@@ -9,7 +9,7 @@ source_path <- here::here("bike_geometry_project.R")
 source(source_path)
 ```
 
-Current number of bike models in the database: `r length(unique(geobike[, model]))`!
+Current number of bike models in the database: `r length(unique(geobike[, model]))`! See individual bike pages at the [Complete Bike Index](bikes/bike_index.html)
 
 Click on an image to explore.
 

@@ -1,15 +1,15 @@
 ---
-title: "Pipedreams A.L.I.C.E 3.0 2025"
+title: "Marin Pine Mountain 2 2025"
 format:
   html:
     toc: false
 freeze: auto
 template_version: 1
 params:
-  brand: "Pipedreams"
-  model: "A.L.I.C.E 3.0"
+  brand: "Marin"
+  model: "Pine Mountain 2"
   year: "2025"
-  slug: "pipedreams-a-l-i-c-e-3-0-2025"
+  slug: "marin-pine-mountain-2-2025"
   data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
   site_base_url: "https://thegravelbikegeometryproject.com"
 ---
