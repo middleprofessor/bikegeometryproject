@@ -803,6 +803,18 @@ clean_frame_size <- function(bike){
   
   # preprocess specific models
   
+  # Pipedreams Sirius
+  bike[frame_size == "Longish (S)", frame_size := "S"]
+  bike[frame_size == "Long (M)", frame_size := "M"]
+  bike[frame_size == "Longer (L)", frame_size := "L"]
+  
+  # Cotic Solaris
+  bike[frame_size == "C1", frame_size := "XS"]
+  bike[frame_size == "C2", frame_size := "S"]
+  bike[frame_size == "C3", frame_size := "M"]
+  bike[frame_size == "C4", frame_size := "L"]
+  bike[frame_size == "C5", frame_size := "XL"]
+
   # Norco search
   bike[frame_size == "S1", frame_size := "XS"]
   bike[frame_size == "S2", frame_size := "S"]
