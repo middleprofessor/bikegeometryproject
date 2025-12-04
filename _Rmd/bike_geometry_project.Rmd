@@ -1129,6 +1129,11 @@ clean_and_compute <- function(bike){
   }
   bike[is.na(axle_crown), axle_crown := axle_crown_mean]
   
+  # sag estimate
+  bike[fork_travel == 100, fork_sag_est := (505 - axle_crown)/100*100]
+  bike[fork_travel == 120, fork_sag_est := (530 - axle_crown)/120*100]
+  bike[fork_travel == 130, fork_sag_est := (540 - axle_crown)/130*100]
+  
   # more stuff
 
   # effective lengths
