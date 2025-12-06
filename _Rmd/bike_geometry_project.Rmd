@@ -444,28 +444,33 @@ estimate_axle_crown <- function(bike, material){
   hta <- bike[, head_tube_angle]
   wb <- bike[, wheelbase]
   rc <- bike[, rear_center]
+  bbd <- bike[, bottom_bracket_drop]
   reach <- bike[, reach]
-  headtube_h <- bike[, head_h]
+  stack <- bike[, stack]
+  head_h <- bike[, head_h]
+  head_v <- bike[, head_v]
   # would really need headset info, integrated vs zero stack vs external
   if(material == "carbon" | material == "aluminum"){
-    headset_l <- 2
+    headset_l <- 0
   }
   if(material == "titanium" | material == "steel"){
-    headset_l <- 10
+    headset_l <- 14
   }
-  headset_h <- headset_l * cos(hta * pi/180)
-  rake_h <- compute_offset_h(bike)
-  zero_offset_fork_h <- wb - rc - reach - headtube_h - headset_h - rake_h # fork h wi
-  fork_v <- tan(hta * pi/180) * zero_offset_fork_h
-  fork_h <- zero_offset_fork_h + rake_h
-  axle_crown <- sqrt(fork_v^2 + fork_h^2)
+
+  crown_x <- rc + reach + head_h
+  crown_y <- stack - bbd - head_v
+  fork_top_x <- headset_l * cos(hta * pi/180) + crown_x
+  fork_top_y <- crown_y - headset_l * sin(hta * pi/180)
+
+  axle_crown <- sqrt((wb - fork_top_x)^2 + fork_top_y^2)
+
 #  axle_crown <- rep(mean(axle_crown), length(axle_crown))
   return(axle_crown)
 
 }
 ```
 
-## geometery checker
+## geometry checker
 
 ```{r}
 geom_checker <- function(chainstay_length, # chainstay length
@@ -510,333 +515,6 @@ effective_st_check <- function(geobike){
 ```
 
 # Add sus fork modifications
-```{r rotational-angle-chatgpt}
-
-compute_frame_rotation <- function(crown_frame,
-                                   unit_vector_leg,
-                                   fork_leg_length_sagged,
-                                   wheel_radius) {
-
-  # Front axle relative to frame before rotation
-  axle_frame <- crown_frame + fork_leg_length_sagged * unit_vector_leg
-
-  A <- axle_frame[1]
-  B <- axle_frame[2]
-
-  R_mag <- sqrt(A^2 + B^2)
-  delta_angle <- atan2(B, A)
-
-  # Solve A sin(α) + B cos(α) = wheel_radius
-  frame_rotation_alpha <-
-    asin(wheel_radius / R_mag) - delta_angle
-
-  list(
-    frame_rotation_alpha  = frame_rotation_alpha,
-    axle_frame_coordinates = axle_frame
-  )
-}
-
-
-# 3. FUNCTION: compute effective leg length and leg tilt angle
-
-compute_fork_leg_geometry <- function(rigid_ac_length_mm,
-                                      fork_offset_mm,
-                                      fork_sag_mm) {
-
-  # Effective fork-leg length before applying sag
-  fork_leg_length_unsagged <- rigid_ac_length_mm
-
-  # Effective fork-leg length after sag (shortened along fork-leg axis)
-  fork_leg_length_sagged <- rigid_ac_length_mm - fork_sag_mm
-
-  # Leg tilt angle β from offset geometry:
-  #   offset = L * sin(beta)
-  # → beta = asin(offset / L)
-  fork_leg_tilt_relative_to_steerer <-
-    asin(fork_offset_mm / rigid_ac_length_mm)
-
-  list(
-    fork_leg_length_unsagged         = fork_leg_length_unsagged,
-    fork_leg_length_sagged           = fork_leg_length_sagged,
-    fork_leg_tilt_relative_to_steerer = fork_leg_tilt_relative_to_steerer
-  )
-}
-
-
-# 7. Rotate all frame-fixed points
-
-rotate_point <- function(point_frame, rotation_matrix) {
-  as.vector(rotation_matrix %*% point_frame)
-}
-
-```
-
-```{r chatgpt-sus, eval=FALSE}
-# --- Frame geometry (all in frame-fixed coordinates, origin = rear axle) ---
-# These must come from your dataset or geometric model
-rear_axle_frame   <- c(0, 0)
-crown_frame       <- c(frame[, crown_x], frame[, crown_y])       # fork crown coordinates in frame
-bb_frame          <- c(frame[, bottom_x], frame[, bottom_y])             # bottom bracket
-head_top_frame    <- c(frame[, head_x], frame[, head_y]) # top of head tube
-
-# Head tube and seat tube angles (radians)
-head_tube_angle_old <- frame[, head_tube_angle] * pi/180
-seat_tube_angle_old <- frame[, seat_tube_angle] * pi/180
-
-# Wheel radius
-wheel_radius <- (622 + 45*2)/2
-
-# 2. OLD AND NEW FORK PARAMETERS
-# Each fork parameter set must contain:
-#   rigid_ac_length_mm: unsagged crown–axle distance
-#   fork_travel_mm:     total available travel
-#   fork_offset_mm:     rake/offset
-#   fork_sag_mm:        sag along fork leg axis
-
-fork_old <- list(
-  rigid_ac_length_mm = frame[, axle_crown] + 14,
-  fork_travel_mm     = frame[, fork_travel],
-  fork_offset_mm     = frame[, fork_offset_rake],
-  fork_sag_mm        = 0
-)
-
-fork_new <- list(
-  rigid_ac_length_mm = 531,
-  fork_travel_mm     = 120,
-  fork_offset_mm     = 44,
-  fork_sag_mm        = 0
-)
-
-# Compute geometric parameters for each fork
-old_fork_geo <- compute_fork_leg_geometry(
-  fork_old$rigid_ac_length_mm,
-  fork_old$fork_offset_mm,
-  fork_old$fork_sag_mm
-)
-
-new_fork_geo <- compute_fork_leg_geometry(
-  fork_new$rigid_ac_length_mm,
-  fork_new$fork_offset_mm,
-  fork_new$fork_sag_mm
-)
-
-# Fork leg axis angle relative to ground:
-#   φ = θ_head − β
-fork_leg_angle_old <- head_tube_angle_old -
-  old_fork_geo$fork_leg_tilt_relative_to_steerer
-
-fork_leg_angle_new <- head_tube_angle_old -
-  new_fork_geo$fork_leg_tilt_relative_to_steerer
-
-# Unit vectors along each fork-leg axis
-unit_vector_leg_old <- c(cos(fork_leg_angle_old),
-                         sin(fork_leg_angle_old))
-
-unit_vector_leg_new <- c(cos(fork_leg_angle_new),
-                         sin(fork_leg_angle_new))
-
-# Rotation angle α for the new fork
-rotation_new <- compute_frame_rotation(
-  crown_frame          = crown_frame,
-  unit_vector_leg      = unit_vector_leg_new,
-  fork_leg_length_sagged = new_fork_geo$fork_leg_length_sagged,
-  wheel_radius         = wheel_radius
-)
-
-frame_rotation_alpha <- rotation_new$frame_rotation_alpha
-
-rotation_matrix <- matrix(
-  c(cos(frame_rotation_alpha), -sin(frame_rotation_alpha),
-    sin(frame_rotation_alpha),  cos(frame_rotation_alpha)),
-  nrow = 2,
-  byrow = TRUE
-)
-
-crown_world     <- rotate_point(crown_frame, rotation_matrix)
-bb_world        <- rotate_point(bb_frame, rotation_matrix)
-head_top_world  <- rotate_point(head_top_frame, rotation_matrix)
-
-# New wheelbase = x-coordinate of the new front axle
-front_axle_world <-
-  rotate_point(rotation_new$axle_frame_coordinates, rotation_matrix)
-
-new_wheelbase <- front_axle_world[1]
-
-# 8. Updated angles
-
-head_tube_angle_new <- (head_tube_angle_old - frame_rotation_alpha) * 180/pi
-seat_tube_angle_new <- (seat_tube_angle_old - frame_rotation_alpha) * 180/pi
-
-bb_height_new <- bb_world[2]
-
-# 9. RETURN ALL RESULTS AS A CLEAN LIST
-
-geometry_change_results <- list(
-  frame_rotation_alpha       = frame_rotation_alpha,
-  wheelbase_new              = new_wheelbase,
-  bottom_bracket_height_new  = bb_height_new,
-  head_tube_angle_new        = head_tube_angle_new,
-  seat_tube_angle_new        = seat_tube_angle_new,
-  front_axle_world           = front_axle_world,
-  crown_world                = crown_world,
-  bb_world                   = bb_world,
-  head_top_world             = head_top_world
-)
-
-geometry_change_results
-
-```
-
-```{r}
-compute_geometry_change_with_headset <- function(
-  # Frame-fixed coordinates (rear axle is rotation origin)
-  rear_axle_frame,
-  front_axle_old_frame,
-  crown_frame,
-  bb_frame,
-  head_top_frame,
-  
-  # Angles (radians), frame-fixed
-  head_tube_angle_old,
-  seat_tube_angle_old,
-  
-  # OLD fork parameters
-  fork_ac_old_mm,
-  fork_lower_headset_stack_old_mm,
-  fork_sag_old_mm,
-  
-  # NEW fork parameters
-  fork_ac_new_mm,
-  fork_lower_headset_stack_new_mm,
-  fork_sag_new_mm
-) {
-  
-  ####--------------------------------------------------------------------
-  #### 1. Fork-leg axis direction from old geometry (robust & exact)
-  ####--------------------------------------------------------------------
-  fork_leg_vector_old <- front_axle_old_frame - crown_frame
-  fork_leg_length_old_coord <- sqrt(sum(fork_leg_vector_old^2))
-  fork_leg_unit_vector <- fork_leg_vector_old / fork_leg_length_old_coord
-  
-  
-  ####--------------------------------------------------------------------
-  #### 2. Effective fork-leg lengths (AC + headset stack − sag)
-  ####--------------------------------------------------------------------
-  effective_leg_length_old <-
-    fork_ac_old_mm + fork_lower_headset_stack_old_mm - fork_sag_old_mm
-  
-  effective_leg_length_new <-
-    fork_ac_new_mm + fork_lower_headset_stack_new_mm - fork_sag_new_mm
-  
-  
-  ####--------------------------------------------------------------------
-  #### 3. New front axle position BEFORE frame rotation
-  ####--------------------------------------------------------------------
-  front_axle_new_frame <- crown_frame +
-    effective_leg_length_new * fork_leg_unit_vector
-  
-  
-  ####--------------------------------------------------------------------
-  #### 4. Solve rotation α so NEW front axle sits on ground (y = 0)
-  ####     We want: A*sin(α) + B*cos(α) = 0
-  ####--------------------------------------------------------------------
-  A <- front_axle_new_frame[1]
-  B <- front_axle_new_frame[2]
-  frame_rotation_alpha <- atan2(-B, A)
-  
-  
-  ####--------------------------------------------------------------------
-  #### 5. Rotation matrix and point-rotation helper
-  ####--------------------------------------------------------------------
-  rotation_matrix <- matrix(
-    c(cos(frame_rotation_alpha), -sin(frame_rotation_alpha),
-      sin(frame_rotation_alpha),  cos(frame_rotation_alpha)),
-    nrow = 2,
-    byrow = TRUE
-  )
-  
-  rotate_point <- function(point) as.vector(rotation_matrix %*% point)
-  
-  
-  ####--------------------------------------------------------------------
-  #### 6. Rotate all relevant frame points
-  ####--------------------------------------------------------------------
-  rear_axle_world      <- rotate_point(rear_axle_frame)
-  front_axle_new_world <- rotate_point(front_axle_new_frame)
-  bb_world             <- rotate_point(bb_frame)
-  head_top_world       <- rotate_point(head_top_frame)
-  
-  
-  ####--------------------------------------------------------------------
-  #### 7. Updated geometry outputs
-  ####--------------------------------------------------------------------
-  
-  # New wheelbase (world coordinates)
-  wheelbase_new <- front_axle_new_world[1] - rear_axle_world[1]
-  
-  # New BB height (world y)
-  bb_height_new <- bb_world[2]
-  
-  # New angles = old angle minus frame rotation (rigid body rotation)
-  head_tube_angle_new <- head_tube_angle_old - frame_rotation_alpha
-  seat_tube_angle_new <- seat_tube_angle_old - frame_rotation_alpha
-  
-  
-  ####--------------------------------------------------------------------
-  #### 8. Return all results as a clean list
-  ####--------------------------------------------------------------------
-  return(list(
-    # rotation
-    frame_rotation_alpha_radians = frame_rotation_alpha,
-    frame_rotation_alpha_degrees = frame_rotation_alpha * 180 / pi,
-    
-    # geometry outcomes
-    wheelbase_new_mm             = wheelbase_new,
-    bottom_bracket_height_new_mm = bb_height_new,
-    head_tube_angle_new_radians  = head_tube_angle_new,
-    head_tube_angle_new_degrees  = head_tube_angle_new * 180 / pi,
-    seat_tube_angle_new_radians  = seat_tube_angle_new,
-    seat_tube_angle_new_degrees  = seat_tube_angle_new * 180 / pi,
-    
-    # world coordinates
-    rear_axle_world              = rear_axle_world,
-    front_axle_new_world         = front_axle_new_world,
-    bb_world                     = bb_world,
-    head_top_world               = head_top_world,
-    
-    # debugging / verification
-    fork_leg_unit_vector         = fork_leg_unit_vector,
-    effective_leg_length_old_mm  = effective_leg_length_old,
-    effective_leg_length_new_mm  = effective_leg_length_new
-  ))
-}
-
-```
-
-```{r}
-result <- compute_geometry_change_with_headset(
-  rear_axle_frame      = c(0, 0),
-  front_axle_old_frame = c(frame[, front_x], frame[, front_y]),
-  crown_frame          = c(frame[, crown_x], frame[, crown_y]),
-  bb_frame             = c(frame[, bottom_x], frame[, bottom_y])
-  head_top_frame       = c(frame[, head_x], frame[, head_y]),
-  
-  head_tube_angle_old  = 67 * pi/180,
-  seat_tube_angle_old  = sta_old_radians,
-  
-  fork_ac_old_mm               = 507,
-  fork_lower_headset_stack_old_mm = 14,
-  fork_sag_old_mm              = 0,
-  
-  fork_ac_new_mm               = 531,
-  fork_lower_headset_stack_new_mm = 14,
-  fork_sag_new_mm              = 0
-)
-
-print(result$frame_rotation_alpha_degrees)
-print(result$head_tube_angle_new_degrees)
-print(result$wheelbase_new_mm)
-```
 
 
 ```{r rotational-angle}
@@ -848,32 +526,30 @@ rotational_angle <- function(fork_length_0,
                              wheelbase_0,
                              fork_length_1,
                              rake_1,
-                             travel_1,
-                             sag_1){
+                             travel_1 = 0,
+                             sag_1 = 0){
+  
+  # old fork
   if(is.na(travel_0)){travel_0 <- 0}
   if(is.na(sag_0)){sag_0 <- 0}
   working_fork_length_0 <- fork_length_0 - sag_0 * travel_0
   a1 <- hta_0 * pi/180 # head tube angle
   a2 <- a1 - asin(rake_0/working_fork_length_0) # fork angle
-  # using r and a5
-  # virtual bottom tube length
-  r = sqrt(wheelbase_0^2 + working_fork_length_0^2 - 2 * wheelbase_0 * working_fork_length_0 * cos(a2))
-   # angle at bottom tube-crown-fork
-  a5 <- acos(-(wheelbase_0^2 - r^2 - working_fork_length_0^2)/(2 * r * working_fork_length_0))
-  
-  # new geometry
+  fork0_v <- sin(a2) * working_fork_length_0
+  fork0_h <- cos(a2) * working_fork_length_0
+ 
+  # new fork
   working_fork_length_1 <- fork_length_1 - sag_1*travel_1
-  # wheelbase
-  wheelbase_1 <- sqrt(r^2 + working_fork_length_1^2 - 2 * r * working_fork_length_1 * cos(a5))
-  # rotation angle
-  a4_0 <- acos(-(fork_length_0^2 - r^2 - wheelbase_0^2)/(2 * r * wheelbase_0))
-  a4_1 <- acos(-(working_fork_length_1^2 - r^2 - wheelbase_1^2)/(2 * r * wheelbase_1))
-  
-  # new front axle location
-  dx <- cos(a2) * (working_fork_length_1 - working_fork_length_0)
-  dy <- -sin(a2) * (working_fork_length_1 - working_fork_length_0)
+  a2 <- a1 - asin(rake_1/working_fork_length_1) # fork angle
+  fork1_v <- sin(a2) * working_fork_length_1
+  fork1_h <- cos(a2) * working_fork_length_1
 
-  alpha <- a4_1 - a4_0 # - is counterclockwise
+  dx <- fork1_h - fork0_h
+  dy <- fork1_v - fork0_v
+  front_axle_1_x <- wheelbase_0 + dx
+  front_axle_1_y <- dy
+
+  alpha <- atan(front_axle_1_y/front_axle_1_x)
   
   return(c(alpha = alpha, dx = dx, dy = dy))
 }  
@@ -881,7 +557,8 @@ rotational_angle <- function(fork_length_0,
 
 ```
 
-```{r}
+
+```{r rotate-frame}
 rotate_frame <- function(frame, alpha, dx, dy, rake){
   hta <- frame[, head_tube_angle] * pi/180
   sta <- frame[, seat_tube_angle] * pi/180
@@ -937,7 +614,7 @@ rotate_frame <- function(frame, alpha, dx, dy, rake){
 
 ```
 
-```{r}
+```{r geometry-with-sus-fork}
 geometry_with_sus_fork <- function(frame,
                                    sus_length = 435,
                                    sus_travel = 40,
@@ -961,7 +638,7 @@ geometry_with_sus_fork <- function(frame,
                                  dy = rot_angle[3],
                                  rake = sus_rake)
   
-  rigid_measures <- c(axle_crown = sus_length - sus_sag*sus_travel,
+  rigid_measures <- c(axle_crown_sag = sus_length - sus_sag*sus_travel,
                       rigid_measures)
   return(rigid_measures)
 }
@@ -1115,13 +792,13 @@ fork_length_new <- 531
 fork_rake_new <- 44
 fork_travel_new <- 120
 sag_new <- 0
-rot_angle <- rotational_angle(fork_length_0 = frame[1, axle_crown],
+rot_angle <- rotational_angle(fork_length_0 = frame[1, axle_crown]+14,
                              rake_0 = frame[1, fork_offset_rake],
                              travel_0 = frame[1, fork_travel],
                              sag_0 = 0,
                              hta_0 = frame[1, head_tube_angle],
                              wheelbase_0 = frame[1, wheelbase],
-                             fork_length_1 = fork_length_new,
+                             fork_length_1 = fork_length_new+14,
                              rake_1 = fork_rake_new,
                              travel_1 = fork_travel_new,
                              sag_1 = sag_new)
@@ -1130,21 +807,9 @@ rigid_measures <- rotate_frame(frame,
                                dx = rot_angle[2],
                                dy = rot_angle[3],
                                rake = fork_rake_new)
-rigid_measures <- c(axle_crown = fork_length_new - sag_new*fork_travel_new,
+rigid_measures <- c(axle_crown = fork_length_new -
+                      sag_new*fork_travel_new,
                     rigid_measures)
-
-frame_rigid <- copy(frame)
-frame_rigid[, axle_crown := rigid_measures["axle_crown"]]
-frame_rigid[, wheelbase := rigid_measures["wheelbase"]]
-frame_rigid[, stack := rigid_measures["stack"]]
-frame_rigid[, reach := rigid_measures["reach"]]
-frame_rigid[, head_tube_angle := rigid_measures["hta"]]
-frame_rigid[, seat_tube_angle := rigid_measures["sta"]]
-frame_rigid[, bottom_bracket_drop := rigid_measures["bb_drop"]]
-frame_rigid[, rear_center := rigid_measures["rc"]]
-frame_rigid[, front_center := rigid_measures["fc"]]
-frame_rigid[, trail := rigid_measures["trail"]]
-
 
   
   data.table(

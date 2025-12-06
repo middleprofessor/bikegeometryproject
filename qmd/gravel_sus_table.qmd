@@ -217,7 +217,7 @@ filter_ui <- filter_select(id = "fsid",
 
 ```
 
-```{js}
+```{js echo=FALSE}
 function filter_default() {
     document.getElementById("Model").getElementsByClassName("selectized") 
 [0].selectize.setValue("3T Extrema Italia 2025", false);
