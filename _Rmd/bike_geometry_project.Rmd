@@ -645,142 +645,6 @@ geometry_with_sus_fork <- function(frame,
 
 ```
 
-```{r}
-geometry_with_sus_fork_old <- function(frame,
-                                   sus_length = 435,
-                                   sus_travel = 40,
-                                   sus_rake = 45,
-                                   sus_sag = 0.1, # fraction, not percent
-                                   headset_stack = 0){
-  
-  # note headset stack doesn't matter for this
-  # AC length 30 mm is 425
-  # AC length 40 mm is 435
-  # Rockshox Rudy: 5% sag recommended. 435 - .05*40 = 433
-  # Fox Taper-Cast: 15-20% sag recommended. 435 - 0.15*40 = 429
-  # Cane Creek Invert has a PSI recommend but not a sag recommend
-  # Lauf fork spec is 419 mm sagged at 6%, so 425 mm AC
-  # 30 mm travel
-  # Rudy: 425 - 0.05*30 = 423.5
-  # Fox TC: 425 - 0.2*30 = 419
-  # Cane Creek = Fox TC
-  # Lauf 419 mm AC, 47mm rake
-  # 40 mm travel
-  # Rudy: 435 - 0.05*40 = 433
-  # Fox TC: 435 - 0.2*40 = 427
-  # Cane Creek = Fox TC
-  # 50 mm travel
-  # Fox: 445 - .2*50 = 435
-  
-  # frame <- geobike[model == "BMC URS AL 2022" & frame_size == "M", ]
-  # frame <- geobike[model == "Sklar SS Ti 2025" & frame_size == "ML", ]
-  # frame <- geobike[model == "Santa Cruz Stigmata CC 2023" & frame_size == "M", ]
-  # check geom
-  # stack = bbdrop + fork.v + headtube.v
-  
-  hta <- frame[1, head_tube_angle]
-  sta <- frame[1, seat_tube_angle]
-  rake <- frame[1, fork_offset_rake]
-  wheelbase <- frame[1, wheelbase]
-  fork_length <- frame[1, axle_crown]
-  headtube_length <- frame[1, head_tube_length]
-  bb_drop <- frame[1, bottom_bracket_drop]
-  front_center <- frame[1, front_center]
-  rear_center <- frame[1, rear_center]
-  stack <- frame[1, stack]
-  reach <- frame[1, reach]
- 
-  
-  hta_r <- hta * pi/180
-  fork_angle_r <- hta_r - asin(rake/fork_length)
-  fork_angle <- fork_angle_r * 180/pi
-  
-  headtube.h <- headtube_length * cos(hta_r)
-  headtube.v <- headtube_length * sin(hta_r)
-  headset_h <- headset_stack * cos(hta_r)
-  headset_v <- headset_stack * sin(hta_r)
-  fork.h <- fork_length * cos(fork_angle_r)
-  fork.v <- fork_length * sin(fork_angle_r)
-  # check geom
-  # bb_drop + fork.v + headtube.v + headset_v # computed stack
-  # stack
-  # rear_center + reach + headtube.h + headset_h + fork.h
-  # wheelbase
-  
-  # check geom
-  # stack = bbdrop + fork.v + headtube.v
-  
-
-  # new fork
-  sag_length <- sus_length - sus_sag * sus_travel
-  sus_fork_angle_r <- hta_r - asin(sus_rake/sag_length)
-  sus_fork_angle <- sus_fork_angle_r * 180/pi # axle is now below horizon
-  fork.h.new <- sag_length * cos(sus_fork_angle_r)
-  fork.v.new<- sag_length * sin(sus_fork_angle_r)
-  # sqrt(fork.x.new^2 + fork.y.new^2)
-
-  dv = fork.v.new - fork.v
-  dh = fork.h.new - fork.h
-
-  alpha_r <- atan(dv/(wheelbase + dh)) # angle of rotation about rear axle
-  alpha <- alpha_r * 180/pi
-  wheelbase.new <- sqrt(dv^2 + (wheelbase + dh)^2)
-  d_bb_drop <- rear_center/wheelbase * dv
-  d_stack <- (rear_center+reach)/wheelbase * dv
-  
-  # rotate frame coordinates by alpha_r
-  x_coords <- frame[1, .SD, .SDcols = paste0("x", 1:7)] |>
-    as.numeric()
-  y_coords <- frame[1, .SD, .SDcols = paste0("y", 1:7)] |>
-    as.numeric()
-  bike_coords <- matrix(c(x_coords, y_coords), ncol = 2)
-  row.names(bike_coords) <- c("rear_axle", "top_effect_seat_tube", "top_head_tube",
-                              "top_crown", "front_axle", "bottom_bracket",
-                              "top_seat_tube")
-  H = matrix(c(cos(alpha_r), -sin(alpha_r), sin(alpha_r), cos(alpha_r)),
-             nrow = 2)
-  new_coords <- bike_coords %*% H
-  stack.new <- new_coords["top_head_tube", 2] - new_coords["bottom_bracket", 2]
-  reach.new <- new_coords["top_head_tube", 1] - new_coords["bottom_bracket", 1]
-  hta.new <- hta - alpha
-  sta.new <- sta - alpha
-  bb_drop.new <- -new_coords["bottom_bracket", 2]
-  rear_center.new <- new_coords["bottom_bracket", 1]
-  front_center.new <- wheelbase.new - rear_center.new
-
-  # trail
-  tire_width <- 45
-  radius <- (ifelse(frame$wheel_size == 700 | frame$wheel_size == 29, 622, 584) +
-               tire_width*2)/2
-  offset_h <- sus_rake/sin(deg_2_rad(hta.new))
-
-  trail_45.new <- radius/tan(hta_r) - offset_h
-  
-  # rear_axle = 1, top_seat = 2, top_head_tube = 3, top_crown = 4,
-  # front_axle = 5, bottom_bracket = 6, top_seat_tube = 7
-  
-  measure_set <- c(
-    sag_length = sag_length,
-    wheelbase = wheelbase.new,
-    stack = stack.new,
-    reach = reach.new,
-    hta = hta.new,
-    sta = sta.new,
-    bb_drop = bb_drop.new,
-    rc = rear_center.new,
-    fc = front_center.new,
-    trail_45 = trail_45.new
-  )
-  names(measure_set) <- c("axle_crown_sag", "wheelbase", "stack", "reach", "hta", "sta", "bb_drop", "rc", "fc", "trail_45")
-
-  return(measure_set)
-
-
-}  
-
-  
-```
-
 ```{r sus-checker, eval=FALSE}
 frame <- geobike[model == "Fairlight Holt 2.0 2025" & frame_size == "M"]
 
@@ -818,7 +682,19 @@ rigid_measures <- c(axle_crown = fork_length_new -
     orig = orig_measures |> as.numeric()
   )
 ```
+```{r mtb-fork-stats}
+temp <- data.table(
+  geobike[my_fit == TRUE &
+          fork_travel == 120, .SD, .SDcols = 
+          c("model", "axle_crown", "axle_crown_est",
+            "fork_sag", "fork_sag_est")],
+  "20%" = 530 - .2*120,
+  "25%" = 530 - .25*120,
+  "30%" = 530 - .3*120
+)
+```
 
+# seat tube angle
 ```{r eval=FALSE}
 # seat tube angle explore
 sta_0 <- 66
@@ -1312,11 +1188,17 @@ clean_and_compute <- function(bike){
   bike[is.na(axle_crown), axle_crown := axle_crown_mean]
   
   # sag estimate
-  bike[fork_travel == 80, fork_sag_est := (486 - axle_crown)/80*100]
-  bike[fork_travel == 100, fork_sag_est := (506 - axle_crown)/100*100]
-  bike[fork_travel == 120, fork_sag_est := (530 - axle_crown)/120*100]
-  bike[fork_travel == 130, fork_sag_est := (540 - axle_crown)/130*100]
-  bike[abs(fork_sag_est) < 4, fork_sag_est := 0]
+  bike[fork_travel == 80, fork_sag_est := (486 - axle_crown_est)/80*100]
+  bike[fork_travel == 100, fork_sag_est := (506 - axle_crown_est)/100*100]
+  bike[fork_travel == 120, fork_sag_est := (530 - axle_crown_est)/120*100]
+  bike[fork_travel == 130, fork_sag_est := (540 - axle_crown_est)/130*100]
+  
+  bike[abs(fork_sag_est) < 2, fork_sag_est := 0]
+  bike[fork_sag_est > 8 & fork_sag_est < 12, fork_sag_est := 10]
+  bike[fork_sag_est > 18 & fork_sag_est < 22, fork_sag_est := 20]
+  bike[fork_sag_est > 23 & fork_sag_est < 27, fork_sag_est := 25]
+  bike[fork_sag_est > 28 & fork_sag_est < 32, fork_sag_est := 30]
+
   
   # more stuff
 
