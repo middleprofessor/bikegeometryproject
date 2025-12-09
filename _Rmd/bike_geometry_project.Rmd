@@ -545,12 +545,12 @@ rotational_angle <- function(fork_length_0,
   fork1_h <- cos(a2) * working_fork_length_1
 
   dx <- fork1_h - fork0_h
-  dy <- fork1_v - fork0_v
+  dy <- fork0_v - fork1_v # shorter fork should be positive
   front_axle_1_x <- wheelbase_0 + dx
-  front_axle_1_y <- dy
+  front_axle_1_y <- dy 
 
-  alpha <- atan(front_axle_1_y/front_axle_1_x)
-  
+  alpha <- -atan(front_axle_1_y/front_axle_1_x) 
+
   return(c(alpha = alpha, dx = dx, dy = dy))
 }  
 
@@ -567,23 +567,24 @@ rotate_frame <- function(frame, alpha, dx, dy, rake){
   y_coords <- frame[1, .SD, .SDcols = paste0("y", 1:7)] |>
     as.numeric()
   bike_coords <- matrix(c(x_coords, y_coords), ncol = 2)
-  row.names(bike_coords) <- c("rear_axle", "top_effect_seat_tube", "top_head_tube",
-                              "top_crown", "front_axle", "bottom_bracket",
-                              "top_seat_tube")
-  bike_coords["front_axle", 1] <- bike_coords["front_axle", 1] + dx
-  bike_coords["front_axle", 2] <- bike_coords["front_axle", 2] + dy
+  row.names(bike_coords) <- c("rear", "seattube", "head",
+                              "crown", "front", "bottom",
+                              "seat")
+  bike_coords["front", 1] <- bike_coords["front", 1] + dx
+  bike_coords["front", 2] <- bike_coords["front", 2] + dy
   H = matrix(c(cos(alpha), -sin(alpha), sin(alpha), cos(alpha)),
              nrow = 2)
   new_coords <- bike_coords %*% H
-  stack.new <- new_coords["top_head_tube", 2] - new_coords["bottom_bracket", 2]
-  reach.new <- new_coords["top_head_tube", 1] - new_coords["bottom_bracket", 1]
-  bb_drop.new <- -new_coords["bottom_bracket", 2]
-  rear_center.new <- new_coords["bottom_bracket", 1]
-  wheelbase.new <- new_coords["front_axle", 1]
-  top_tube_effective_length_est.new <- new_coords["top_head_tube", 1] - new_coords["top_seat_tube", 1]
+  stack.new <- new_coords["head", 2] - new_coords["bottom", 2]
+  reach.new <- new_coords["head", 1] - new_coords["bottom", 1]
+  bb_drop.new <- -new_coords["bottom", 2]
+  rear_center.new <- new_coords["bottom", 1]
+  wheelbase.new <- new_coords["front", 1]
   front_center.new <- wheelbase.new - rear_center.new
   hta.new <- hta - alpha
   sta.new <- sta - alpha
+  layback.new <- stack.new/tan(sta.new)
+  top_tube_effective_length_est.new <- layback.new + reach.new
   
   # trail
   tire_width <- 45
@@ -623,10 +624,10 @@ geometry_with_sus_fork <- function(frame,
                                    sus_rake = 45,
                                    sus_sag = 0.1){ # fraction, not percent
   
-  rot_angle <- rotational_angle(fork_length_0 = frame[1, axle_crown],
+  rot_angle <- rotational_angle(fork_length_0 = frame[1, axle_crown_rigid],
                                 rake_0 = frame[1, fork_offset_rake],
                                 travel_0 = frame[1, fork_travel],
-                                sag_0 = 0,
+                                sag_0 = frame[1, fork_sag]/100,
                                 hta_0 = frame[1, head_tube_angle],
                                 wheelbase_0 = frame[1, wheelbase],
                                 fork_length_1 = sus_length,
@@ -684,7 +685,7 @@ rigid_measures <- c(axle_crown = fork_length_new -
     orig = orig_measures |> as.numeric()
   )
 ```
-```{r mtb-fork-stats}
+```{r mtb-fork-stats, eval=FALSE}
 temp <- data.table(
   geobike[my_fit == TRUE &
           fork_travel == 120, .SD, .SDcols = 
@@ -1190,6 +1191,7 @@ clean_and_compute <- function(bike){
   bike[is.na(axle_crown), axle_crown := axle_crown_mean]
   
   # rigid axle crown
+  bike[, axle_crown_rigid := axle_crown]
   bike[fork_travel == 80, axle_crown_rigid := 486]
   bike[fork_travel == 100, axle_crown_rigid := 505]
   bike[fork_travel == 120, axle_crown_rigid := 530.5]
@@ -3642,16 +3644,6 @@ t <- geobike[material == "aluminum" & frame_weight < 2000, .SD, .SD = c("model",
 t |> knitr::kable(digits = c(0,0,0)) |> kableExtra::kable_styling()
 ```
 
-```{r output-as-R-file}
-# highlight and run to put update into R folder
-write_it_as_R <- FALSE
-if(write_it_as_R == TRUE){
-  knitr::purl("bike_geometry_project.Rmd")
-  file_name <- "bike_geometry_project.R"
-  r_path <- here::here(file_name)
-  file.rename(file_name, r_path)
-}
-```
 
 # Modify Excel files
 
@@ -4298,7 +4290,7 @@ import_bike_list <- function(style = "gravel", exchange_rates){
 
 
 ```{r import-gravel, eval=TRUE}
-import_it <-  TRUE # make false when creating .R file below!
+import_it <- TRUE # make false when creating .R file below!
 
    classifier_cols <- c(
       "stack",
@@ -4462,7 +4454,17 @@ quarto::quarto_render(
 )
 ```
 
-
+# output R file
+```{r output-as-R-file}
+# highlight and run to put update into R folder
+write_it_as_R <- FALSE
+if(write_it_as_R == TRUE){
+  knitr::purl("bike_geometry_project.Rmd")
+  file_name <- "bike_geometry_project.R"
+  r_path <- here::here(file_name)
+  file.rename(file_name, r_path)
+}
+```
 
 
 

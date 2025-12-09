@@ -1,0 +1,386 @@
+---
+title: "Hardtail Suspension"
+subtitle: "The data your bike's geometry chart (probably) isn't giving you"
+---
+::: {.callout-tip title="How to search for a specific model and size!"}
+1. Use the Bike Model pop-up box at the upper-left to search for a specific bike model and size.
+2. If there is already a model in the pop-up box then
+i. click in the box
+ii. hit the delete key
+iii. start typing model name.
+:::
+
+::: {.callout-tip}
+More notes at the bottom!
+:::
+
+
+```{r hardtail-sus-setup, echo=FALSE, warning=FALSE, message=FALSE}
+source_path <- here::here("bike_geometry_project.R")
+source(source_path)
+
+```
+
+```{r sus-one-bike-long, echo=FALSE}
+sus_one_bike_long <- function(old_geo, new_ac, new_travel, new_rake, new_sag){
+  new_geo <- copy(old_geo)
+  sus_measures <- geometry_with_sus_fork(
+    old_geo[1], new_ac, new_travel, new_rake, new_sag)
+  new_geo[1, axle_crown := sus_measures["axle_crown_sag"]]
+  new_geo[1, wheelbase := sus_measures["wheelbase"]]
+  new_geo[1, stack := sus_measures["stack"]]
+  new_geo[1, reach := sus_measures["reach"]]
+  new_geo[1, top_tube_effective_length_est := sus_measures["ttel"]]
+  new_geo[1, head_tube_angle := sus_measures["hta"]]
+  new_geo[1, seat_tube_angle := sus_measures["sta"]]
+  new_geo[1, bottom_bracket_drop := sus_measures["bb_drop"]]
+  new_geo[1, rear_center := sus_measures["rc"]]
+  new_geo[1, front_center := sus_measures["fc"]]
+  new_geo[1, trail_45 := sus_measures["trail_45"]]
+  
+  return(new_geo)
+}
+```
+
+```{r sus-all-bikes-long, echo=FALSE}
+sus_all_bikes_long <- function(old_geo, new_ac, new_travel, new_rake, new_sag){
+  new_geo <- copy(old_geo)
+  for(row_i in 1:nrow(bike_dt)){
+    sus_measures <- geometry_with_sus_fork(
+      old_geo[row_i], new_ac, new_travel, new_rake, new_sag)
+    new_geo[row_i, axle_crown := sus_measures["axle_crown_sag"]]
+    new_geo[row_i, wheelbase := sus_measures["wheelbase"]]
+    new_geo[row_i, stack := sus_measures["stack"]]
+    new_geo[row_i, reach := sus_measures["reach"]]
+    new_geo[row_i, top_tube_effective_length_est := sus_measures["ttel"]]
+    new_geo[row_i, head_tube_angle := sus_measures["hta"]]
+    new_geo[row_i, seat_tube_angle := sus_measures["sta"]]
+    new_geo[row_i, bottom_bracket_drop := sus_measures["bb_drop"]]
+    new_geo[row_i, rear_center := sus_measures["rc"]]
+    new_geo[row_i, front_center := sus_measures["fc"]]
+    new_geo[row_i, trail_45 := sus_measures["trail_45"]]
+  }
+  return(new_geo)
+}
+```
+
+```{r sus-all-bikes-wide, echo=FALSE}
+sus_all_bikes_wide <- function(bike_dt, new_ac, new_travel, new_rake, new_sag){
+  for(row_i in 1:nrow(bike_dt)){
+    sus_specs = paste(new_travel, new_rake, sep = "_")
+    sus_measures <- geometry_with_sus_fork(
+      bike_dt[row_i], new_ac, new_travel, new_rake, new_sag)
+    bike_dt[row_i, (paste("axle_crown", sus_specs)) :=
+           sus_measures["axle_crown_sag"]]
+    bike_dt[row_i, (paste("wheelbase", sus_specs)) :=
+           sus_measures["wheelbase"]]
+    bike_dt[row_i, (paste("stack", sus_specs)) :=
+           sus_measures["stack"]]
+    bike_dt[row_i, (paste("reach", sus_specs)) :=
+           sus_measures["reach"]]
+    bike_dt[row_i, (paste("top_tube_effective_length_est", sus_specs)) :=
+           sus_measures["ttel"]]
+    bike_dt[row_i, (paste("head_tube_angle", sus_specs)) :=
+           sus_measures["hta"]]
+    bike_dt[row_i, (paste("seat_tube_angle", sus_specs)) :=
+           sus_measures["sta"]]
+    bike_dt[row_i, (paste("bottom_bracket_drop", sus_specs)) :=
+           sus_measures["bb_drop"]]
+    bike_dt[row_i, (paste("rear_center", sus_specs)) :=
+           sus_measures["rc"]]
+    bike_dt[row_i, (paste("front_center", sus_specs)) :=
+           sus_measures["fc"]]
+    bike_dt[row_i, (paste("trail_45", sus_specs)) :=
+           sus_measures["trail_45"]]
+  }
+  
+}
+```
+
+```{r hardtail-sus-data, echo=FALSE}
+
+table_cols <- c("axle_crown", "stack", "reach", "top_tube_effective_length_est", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "wheelbase", "front_center", "rear_center", "trail_45")
+keep_cols <- c("model_size", "fork", "suspension_corrected","axle_crown_est", "axle_crown_rigid", "head_tube_length", "material", "fork_travel", "fork_offset_rake", "fork_sag", "fork_sag_est", "wheel_size", paste0("x", 1:7), paste0("y", 1:7), table_cols)
+clean_cols <- c("Rigid AC", "Stack", "Reach", "Effective Top Tube", "Head Tube Angle", "Effective Seat Tube Angle", "BB drop", "Wheelbase", "Front Center (horiz)", "Rear Center (horiz)", "Trail (45mm)")
+
+hardtails <- geobike[axle_crown > 480, .SD, .SDcols = keep_cols]
+
+# rigid axle crown
+hardtails[fork == "rigid", axle_crown_rigid := axle_crown]
+
+hardtails[, sag_working := ifelse(is.na(fork_sag), fork_sag_est, fork_sag)]
+
+# i <- 141 # Fairlight Holt 2.0 M
+
+# rigid 100
+sus_dt <- data.table(NULL)
+for(i in 1:nrow(hardtails)){
+  # i <- 141 # Fairlight Holt 2.0 2025 M
+  old_geo <- hardtails[i]
+  new_ac <- 505
+  new_travel <- 100
+  new_rake <- 44
+  new_sag <- 0
+  new_geo <- sus_one_bike_long(old_geo, new_ac, new_travel, new_rake, new_sag)
+  sus_dt <- rbind(sus_dt,new_geo)
+}
+fork_wide <- data.table(
+  fork = "100mm (0% sag)",
+  sus_dt
+)
+
+# rigid 120
+sus_dt <- data.table(NULL)
+for(i in 1:nrow(hardtails)){
+  # i <- 141 # Fairlight Holt 2.0 2025 M
+  old_geo <- hardtails[i]
+  new_ac <- 530.5
+  new_travel <- 120
+  new_rake <- 44
+  new_sag <- 0
+  new_geo <- sus_one_bike_long(old_geo, new_ac, new_travel, new_rake, new_sag)
+  sus_dt <- rbind(sus_dt,new_geo)
+}
+fork_wide <- rbind(
+  fork_wide,
+  data.table(
+    fork = "120mm (0% sag)",
+    sus_dt)
+)
+
+# rigid 130
+sus_dt <- data.table(NULL)
+for(i in 1:nrow(hardtails)){
+  # i <- 141 # Fairlight Holt 2.0 2025 M
+  old_geo <- hardtails[i]
+  new_ac <- 540.5
+  new_travel <- 130
+  new_rake <- 44
+  new_sag <- 0
+  new_geo <- sus_one_bike_long(old_geo, new_ac, new_travel, new_rake, new_sag)
+  sus_dt <- rbind(sus_dt,new_geo)
+}
+fork_wide <- rbind(
+  fork_wide,
+  data.table(
+    fork = "130mm (0% sag)",
+    sus_dt)
+)
+
+# sagged 100
+sus_dt <- data.table(NULL)
+for(i in 1:nrow(hardtails)){
+  # i <- 141 # Fairlight Holt 2.0 2025 M
+  old_geo <- hardtails[i]
+  new_ac <- 505
+  new_travel <- 100
+  new_rake <- 44
+  new_sag <- 0.2
+  new_geo <- sus_one_bike_long(old_geo, new_ac, new_travel, new_rake, new_sag)
+  sus_dt <- rbind(sus_dt,new_geo)
+}
+fork_wide <- rbind(
+  fork_wide,
+  data.table(
+    fork = "100mm (20% sag)",
+    sus_dt)
+)
+
+# sagged 120
+sus_dt <- data.table(NULL)
+for(i in 1:nrow(hardtails)){
+  # i <- 141 # Fairlight Holt 2.0 2025 M
+  old_geo <- hardtails[i]
+  new_ac <- 530.5
+  new_travel <- 120
+  new_rake <- 44
+  new_sag <- 0.2
+  new_geo <- sus_one_bike_long(old_geo, new_ac, new_travel, new_rake, new_sag)
+  sus_dt <- rbind(sus_dt,new_geo)
+}
+fork_wide <- rbind(
+  fork_wide,
+  data.table(
+    fork = "120mm (20% sag)",
+    sus_dt)
+)
+
+# sagged 130
+sus_dt <- data.table(NULL)
+for(i in 1:nrow(hardtails)){
+  # i <- 141 # Fairlight Holt 2.0 2025 M
+  old_geo <- hardtails[i]
+  new_ac <- 540.5
+  new_travel <- 130
+  new_rake <- 44
+  new_sag <- 0.2
+  new_geo <- sus_one_bike_long(old_geo, new_ac, new_travel, new_rake, new_sag)
+  sus_dt <- rbind(sus_dt,new_geo)
+}
+fork_wide <- rbind(
+  fork_wide,
+  data.table(
+    fork = "130mm (20% sag)",
+    sus_dt)
+)
+
+```
+
+```{r hardtail-sus-table, echo=FALSE}
+table_cols <- c("axle_crown", "stack", "reach", "top_tube_effective_length_est", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "wheelbase", "front_center", "rear_center", "trail_45")
+keep_cols <- c("model_size", "fork", "suspension_corrected","axle_crown_est", "axle_crown_rigid", "fork_travel", "fork_offset_rake", "fork_sag", "fork_sag_est", "wheel_size", paste0("x", 1:7), paste0("y", 1:7), table_cols)
+clean_cols <- c("fork length", "stack", "reach", "effective top tube", "head tube angle", "seat tube angle", "BB drop", "wheelbase", "front center (horiz)", "rear center (horiz)", "trail (45mm)")
+setnames(fork_wide, old = table_cols, new = clean_cols)
+fork_long <- melt(fork_wide,
+                  id.vars = c("model_size", "fork"),
+                  measure.vars = clean_cols,
+                  variable.name = "measure",
+                  value.name = "value")
+fork_long[, value := round(value, 1)]
+fork_long <- setorder(fork_long, model_size, fork, measure)
+
+# column of frame measures
+measures_shared <- SharedData$new(fork_long, group = "measures")
+measures <- datatable(fork_long,
+                      rownames = FALSE,
+                      options = list(
+                        # searching = TRUE, # cannot filter without this
+                        dom = 'lrtp', # see help page
+                        lengthChange = FALSE,
+                        paging = TRUE, # this has to stay TRUE
+                        pageLength =  length(clean_cols),
+                        pagingType = "simple",
+                        columnDefs = list(
+                          list(visible = FALSE, targets = c(0, 1, 3)),
+                          list(className = 'dt-center', targets = "_all")
+                        )
+                      ))
+
+
+# Column 1
+hardtail_1_shared <- SharedData$new(fork_long, group = "hardtail_1")
+table_1 <- datatable(hardtail_1_shared,
+                     rownames = FALSE,
+                     options = list(
+                       # searching = TRUE, # cannot filter without this
+                       dom = 'lrtp', # see help page
+                       lengthChange = FALSE,
+                       paging = TRUE, # this has to stay TRUE
+                       pageLength =  length(clean_cols),
+                       pagingType = "simple",
+                       columnDefs = list(
+                         list(visible = FALSE, targets = 0:2),
+                         list(className = 'dt-center', targets = "_all")
+                       )
+                     ))
+filter_1.1 <- filter_select(id = "fsid1.1",
+                          label = "Bike Model", 
+                          sharedData = hardtail_1_shared, 
+                          group = ~model_size,
+                          multiple = FALSE
+)
+filter_1.2 <- filter_select(id = "fsid1.2",
+                          label = "Fork", 
+                          sharedData = hardtail_1_shared, 
+                          group = ~fork,
+                          multiple = FALSE
+)
+
+# Column 2
+hardtail_2_shared <- SharedData$new(fork_long, group = "hardtail_2")
+table_2 <- datatable(hardtail_2_shared,
+                     rownames = FALSE,
+                     options = list(
+                       # searching = TRUE, # cannot filter without this
+                       dom = 'lrtp', # default is lrftip. this hides the search box by removing (f) for filtering
+                       lengthChange = FALSE,
+                       paging = TRUE, # this has to stay TRUE
+                       pageLength =  length(clean_cols),
+                       pagingType = "simple",
+                       columnDefs = list(
+                         list(visible = FALSE, targets = 0:2),
+                         list(className = 'dt-center', targets = "_all")
+                       )
+                     ))
+filter_2.1 <- filter_select(id = "fsid2.1",
+                          label = "Bike Model", 
+                          sharedData = hardtail_2_shared, 
+                          group = ~model_size,
+                          multiple = FALSE
+)
+filter_2.2 <- filter_select(id = "fsid2.2",
+                          label = "Fork", 
+                          sharedData = hardtail_2_shared, 
+                          group = ~fork,
+                          multiple = FALSE
+)
+
+# Column 3
+hardtail_3_shared <- SharedData$new(fork_long, group = "hardtail_3")
+table_3 <- datatable(hardtail_3_shared,
+                     rownames = FALSE,
+                     options = list(
+                       # searching = TRUE, # cannot filter without this
+                       dom = 'lrtp', # default is lrftip. this hides the search box by removing (f) for filtering
+                       lengthChange = FALSE,
+                       paging = TRUE, # this has to stay TRUE
+                       pageLength =  length(clean_cols),
+                       pagingType = "simple",
+                       columnDefs = list(
+                         list(visible = FALSE, targets = 0:2),
+                         list(className = 'dt-center', targets = "_all")
+                       )
+                     ))
+filter_3.1 <- filter_select(id = "fsid3.1",
+                          label = "Bike Model", 
+                          sharedData = hardtail_3_shared, 
+                          group = ~model_size,
+                          multiple = FALSE
+)
+filter_3.2 <- filter_select(id = "fsid3.2",
+                          label = "Fork", 
+                          sharedData = hardtail_3_shared, 
+                          group = ~fork,
+                          multiple = FALSE
+)
+
+# align rows by standaridizing column height
+col_width <- '50px'
+measures <- measures |>
+  formatStyle(
+    columns = names(fork_long),
+    height = col_width    # Set a specific pixel height
+  )
+table_1 <- table_1 |>
+  formatStyle(
+    columns = names(fork_long),
+    height = col_width    # Set a specific pixel height
+  )
+table_2 <- table_2 |>
+  formatStyle(
+    columns = names(fork_long),
+    height = col_width    # Set a specific pixel height
+  )
+table_3 <- table_3 |>
+  formatStyle(
+    columns = names(fork_long),
+    height = col_width    # Set a specific pixel height
+  )
+
+
+bscols(widths = c(3,3,3,3), NULL, filter_1.1, filter_2.1, filter_3.1)
+bscols(widths = c(3,3,3,3), NULL, filter_1.2, filter_2.2, filter_3.2)
+bscols(widths = c(3,3,3,3), measures, table_1, table_2, table_3)
+
+# bscols(widths = c(4, 4, 4), filter_1.1, filter_2.1, filter_3.1)
+# bscols(widths = c(4, 4, 4), filter_1.2, filter_2.2, filter_3.2)
+# bscols(widths = c(4, 4, 4), table_1, table_2, table_3)
+
+```
+
+::: {.callout-note}
+The suspension fork length and geometry is based on the average of the axle_crown lengths of the Rockshox Sid and Fox SC forks for 29" wheels.
+:::
+
+
+

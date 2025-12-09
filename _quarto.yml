@@ -22,6 +22,7 @@ project:
     - qmd/gravel_scatter.qmd
     - qmd/gravel_sus_table.qmd
     - qmd/gravel_sus_scatter.qmd
+    - qmd/hardtail_sus_compare.qmd
     - qmd/navigate.qmd
     - bikes/bike_index.qmd   # the list of all bikes
     - bikes/*.qmd            # all per-bike pages
@@ -57,6 +58,7 @@ website:
         menu:
           - qmd/gravel_sus_table.qmd
           - qmd/gravel_sus_scatter.qmd
+          - qmd/hardtail_sus_compare.qmd
       - text: "More Info"
         menu:
           - text: "How to navigate this site"

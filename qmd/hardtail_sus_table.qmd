@@ -1,8 +1,9 @@
 ---
-title: "How does a suspension fork change bike geometry -- Tables of data"
+title: "Wait, what's the geometry with 20% Sag? (Hardtail remix)"
+subtitle: "The data your bike's geometry chart (probably) isn't giving you"
 ---
 ::: {.callout-tip title="How to search for a specific model and size!"}
-1. Use the pop-up box at the upper-left to search for a specific bike model and size.
+1. Use the Bike Model pop-up box at the upper-left to search for a specific bike model and size.
 2. If there is already a model in the pop-up box then
 i. click in the box
 ii. hit the delete key
@@ -99,282 +100,180 @@ sus_all_bikes_wide <- function(bike_dt, new_ac, new_travel, new_rake, new_sag){
 ```{r hardtail-sus-data, echo=FALSE}
 
 table_cols <- c("axle_crown", "stack", "reach", "top_tube_effective_length_est", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "wheelbase", "front_center", "rear_center", "trail_45")
-keep_cols <- c("model_size", "fork", "suspension_corrected","axle_crown_est", "axle_crown_rigid", "fork_travel", "fork_offset_rake", "fork_sag", "fork_sag_est", "wheel_size", paste0("x", 1:7), paste0("y", 1:7), table_cols)
-clean_cols <- c("sagged fork length", "stack", "reach", "head tube angle", "seat tube angle", "BB drop", "wheelbase", "front center (horiz)", "rearcenter (horiz)", "trail (45mm)")
+keep_cols <- c("model_size", "fork", "suspension_corrected","axle_crown_est", "axle_crown_rigid", "head_tube_length", "material", "fork_travel", "fork_offset_rake", "fork_sag", "fork_sag_est", "wheel_size", paste0("x", 1:7), paste0("y", 1:7), table_cols)
+clean_cols <- c("Rigid AC", "Stack", "Reach", "Effective Top Tube", "Head Tube Angle", "Effective Seat Tube Angle", "BB drop", "Wheelbase", "Front Center (horiz)", "Rear Center (horiz)", "Trail (45mm)")
 
 hardtails <- geobike[axle_crown > 480, .SD, .SDcols = keep_cols]
-
-# fill in data for bikes with rigid forks
-    #geobike[my_fit == TRUE & fork == "rigid" & axle_crown > 480, .SD, .SDcols = c("model", "axle_crown", "fork_travel")]
 
 # rigid axle crown
 hardtails[fork == "rigid", axle_crown_rigid := axle_crown]
 
 hardtails[, sag_working := ifelse(is.na(fork_sag), fork_sag_est, fork_sag)]
 
-# unsag any sagged bike. This produces rigid spec suspension fork
+# i <- 141 # Fairlight Holt 2.0 M
+
+# rigid 100
 sus_dt <- data.table(NULL)
 for(i in 1:nrow(hardtails)){
   # i <- 141 # Fairlight Holt 2.0 2025 M
   old_geo <- hardtails[i]
-  if(old_geo[, fork_travel] > 0 & old_geo[, sag_working] != 0){
-    new_ac <- old_geo[, axle_crown_rigid]
-    new_travel <- old_geo[, fork_travel]
-    new_rake <- old_geo[, fork_offset_rake]
-    new_sag <- 0
-    new_geo <- sus_one_bike_long(old_geo, new_ac, new_travel, new_rake, new_sag)
-  }else{
-    new_geo <- copy(old_geo)
-  }
+  new_ac <- 505
+  new_travel <- 100
+  new_rake <- 44
+  new_sag <- 0
+  new_geo <- sus_one_bike_long(old_geo, new_ac, new_travel, new_rake, new_sag)
   sus_dt <- rbind(sus_dt,new_geo)
 }
-fork_dt <- data.table(
-  fork = "Rigid",
+fork_wide <- data.table(
+  fork = "100mm (0% sag)",
   sus_dt
 )
 
-# spec fork with 20% sag
+# rigid 120
 sus_dt <- data.table(NULL)
 for(i in 1:nrow(hardtails)){
   # i <- 141 # Fairlight Holt 2.0 2025 M
   old_geo <- hardtails[i]
-  new_ac <- old_geo[, axle_crown_rigid]
-  new_travel <- old_geo[, fork_travel]
-  new_rake <- old_geo[, fork_offset_rake]
+  new_ac <- 530.5
+  new_travel <- 120
+  new_rake <- 44
+  new_sag <- 0
+  new_geo <- sus_one_bike_long(old_geo, new_ac, new_travel, new_rake, new_sag)
+  sus_dt <- rbind(sus_dt,new_geo)
+}
+fork_wide <- rbind(
+  fork_wide,
+  data.table(
+    fork = "120mm (0% sag)",
+    sus_dt)
+)
+
+# rigid 130
+sus_dt <- data.table(NULL)
+for(i in 1:nrow(hardtails)){
+  # i <- 141 # Fairlight Holt 2.0 2025 M
+  old_geo <- hardtails[i]
+  new_ac <- 540.5
+  new_travel <- 130
+  new_rake <- 44
+  new_sag <- 0
+  new_geo <- sus_one_bike_long(old_geo, new_ac, new_travel, new_rake, new_sag)
+  sus_dt <- rbind(sus_dt,new_geo)
+}
+fork_wide <- rbind(
+  fork_wide,
+  data.table(
+    fork = "130mm (0% sag)",
+    sus_dt)
+)
+
+# sagged 100
+sus_dt <- data.table(NULL)
+for(i in 1:nrow(hardtails)){
+  # i <- 141 # Fairlight Holt 2.0 2025 M
+  old_geo <- hardtails[i]
+  new_ac <- 505
+  new_travel <- 100
+  new_rake <- 44
   new_sag <- 0.2
   new_geo <- sus_one_bike_long(old_geo, new_ac, new_travel, new_rake, new_sag)
   sus_dt <- rbind(sus_dt,new_geo)
 }
-fork_dt <- rbind(data.table(
-  fork = "20%",
-  sus_dt
+fork_wide <- rbind(
+  fork_wide,
+  data.table(
+    fork = "100mm (20% sag)",
+    sus_dt)
 )
-)
 
-
-
-```
-
-```{r geom-table, echo=FALSE, eval=TRUE}
-
-row_i <- 573 # sklar ML
-table_cols <- c("axle_crown", "stack", "reach", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "wheelbase", "front_center", "rear_center", "trail_45")
-clean_cols <- c("fork length", "stack", "reach", "head tube angle", "seat tube angle", "BB drop", "wheelbase", "frontcenter", "rearcenter", "trail (45mm)")
-
-geom_table <- data.table(NULL)
-
-#for(row_i in 1:nrow(geobike)){
-for(row_i in 1:nrow(geobike)){
-  rigid <- geobike[row_i, .SD, .SDcols = table_cols] |> as.numeric()
-  # rigid[1] <- round(rigid[1], 0) # make axle-crown an integer
-  rudy_30_45 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "30 45")] |> as.numeric()
-  rudy_30_51 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "30 51")] |> as.numeric()
-  rudy_40_45 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "40 45")] |> as.numeric()
-  rudy_40_51 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "40 51")] |> as.numeric()
-  fox_50_45 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "50 45")] |> as.numeric()
-  fox_50_50 <- geobike[row_i, .SD, .SDcols = paste(table_cols, "50 50")] |> as.numeric()
-  value_table <- data.table(
-    rigid,
-      rudy_30_45,
-      rudy_30_51,
-      rudy_40_45,
-      rudy_40_51,
-      fox_50_45,
-      fox_50_50
-  ) |>
-    round(1)
-  value_table <- apply(value_table, 2, as.character)
-  for(i in c(1:3,6:10)){
-    x <- value_table[i, ]
-    x <- str_remove(x, "\\..*")
-    value_table[i, ] <- x
-  }
-  colnames(value_table) <- c(
-    "Rigid",
-    "30 mm Travel, 45 mm Offset",
-    "30 mm Travel, 51 mm Offset",
-    "40 mm Travel, 45 mm Offset",
-    "40 mm Travel, 51 mm Offset",
-    "50 mm Travel, 45 mm Offset",
-    "50 mm Travel, 50 mm Offset"
-  )
-  
-  geom_table <- rbind(
-    geom_table,
-    data.table(
-      Model = geobike[row_i, model_size],
-      Measure = clean_cols,
-#      Rigid = rigid,
-      value_table
-    ))
+# sagged 120
+sus_dt <- data.table(NULL)
+for(i in 1:nrow(hardtails)){
+  # i <- 141 # Fairlight Holt 2.0 2025 M
+  old_geo <- hardtails[i]
+  new_ac <- 530.5
+  new_travel <- 120
+  new_rake <- 44
+  new_sag <- 0.2
+  new_geo <- sus_one_bike_long(old_geo, new_ac, new_travel, new_rake, new_sag)
+  sus_dt <- rbind(sus_dt,new_geo)
 }
-
-# 1) a soft highlight color for the hovered column (body + header)
-hover_css <- tags$style(HTML("
-  table.dataTable tbody td.col-hover,
-  table.dataTable thead th.col-hover {
-    background-color: #fff3cd !important; /* pale amber */
-  }
-"))
-
-# 2) JS to add/remove the .col-hover class based on the cell under the cursor
-hover_js <- JS("
-  table.on('mouseenter', 'td', function() {
-    var idx = table.cell(this).index().column;
-    // clear any previous highlights
-    $(table.cells().nodes()).removeClass('col-hover');
-    $(table.columns().header()).removeClass('col-hover');
-    // add to this column (body + header)
-    $(table.column(idx).nodes()).addClass('col-hover');
-    $(table.column(idx).header()).addClass('col-hover');
-  });
-  table.on('mouseleave', function() {
-    // remove when pointer leaves the table
-    $(table.cells().nodes()).removeClass('col-hover');
-    $(table.columns().header()).removeClass('col-hover');
-  });
-")
-
-# --- 1) Column-hover style (header + body) ---
-col_css <- tags$style(HTML("
-  table.dataTable thead th.col-hover,
-  table.dataTable tbody td.col-hover {
-    background-color: rgba(255, 243, 205, 0.85) !important; /* pale amber */
-  }
-"))
-
-# --- 2) JS: highlight column on hover (body *and* header) ---
-col_js <- JS("
-  function clearHighlights() {
-    $(table.cells().nodes()).removeClass('col-hover');
-    $(table.columns().header()).removeClass('col-hover');
-    var fh = $('.fixedHeader-floating thead th');
-    if (fh.length) fh.removeClass('col-hover');
-  }
-
-  // BODY: hover over a data cell -> highlight its column
-  table.on('mouseenter', 'tbody td', function() {
-    var c = table.cell(this).index().column;  // DataTables column index
-    clearHighlights();
-    $(table.column(c).nodes()).addClass('col-hover');     // body
-    $(table.column(c).header()).addClass('col-hover');    // header
-    var fh = $('.fixedHeader-floating thead th');         // FixedHeader support
-    if (fh.length) fh.eq(table.column(c).index()).addClass('col-hover');
-  });
-
-  // HEADER: hover over a header cell -> highlight its column
-  table.on('mouseenter', 'thead th', function() {
-    // Use visible-index to handle ColReorder; map to the column
-    var visibleIdx = $(this).index();
-    var col = table.column(visibleIdx + ':visible');  // select that visible column
-    clearHighlights();
-    $(col.nodes()).addClass('col-hover');             // body
-    $(col.header()).addClass('col-hover');            // header
-    var fh = $('.fixedHeader-floating thead th');     // FixedHeader support
-    if (fh.length) fh.eq(visibleIdx).addClass('col-hover');
-  });
-
-  // When pointer leaves the table area, clear
-  table.on('mouseleave', function() { clearHighlights(); });
-  table.on('mouseleave', 'thead', function() { clearHighlights(); });
-")
-
-# --- 1) Styles: column + row only (no intersection styling) ---
-rc_hover_css <- tags$style(HTML("
-  /* column (body + header) */
-  table.dataTable tbody td.col-hover,
-  table.dataTable thead th.col-hover {
-    background-color: rgba(255, 243, 205, 0.85) !important; /* pale amber */
-  }
-  /* row (entire row across columns) */
-  table.dataTable tbody tr.row-hover > td {
-    background-color: rgba(205, 235, 255, 0.35) !important; /* pale blue */
-  }
-"))
-
-# --- 2) JS: add/remove only row + column classes (no cell-focus) ---
-rc_hover_js <- JS("
-  table.on('mouseenter', 'tbody td', function() {
-    var cell = table.cell(this);
-    var idx  = cell.index();
-    var r = idx.row, c = idx.column;
-
-    // clear previous
-    $(table.cells().nodes()).removeClass('col-hover');
-    $(table.rows().nodes()).removeClass('row-hover');
-    $(table.columns().header()).removeClass('col-hover');
-
-    // add row highlight
-    $(table.row(r).nodes()).addClass('row-hover');
-
-    // add column highlight (body + header)
-    $(table.column(c).nodes()).addClass('col-hover');
-    $(table.column(c).header()).addClass('col-hover');
-  });
-
-  table.on('mouseleave', function() {
-    $(table.cells().nodes()).removeClass('col-hover');
-    $(table.rows().nodes()).removeClass('row-hover');
-    $(table.columns().header()).removeClass('col-hover');
-  });
-")
-
-first_bike <- geom_table$model_size[1] # pick the first bike name
-
-geom_table_shared <- SharedData$new(geom_table, group = "model_group")
-
-fig <- datatable(geom_table_shared,
-                 rownames = FALSE,
-                 options = list(
-                   autoWidth = TRUE,
-                   columnDefs = list(
-                     list(visible = FALSE, targets = c(0))
-                   )
-                 ),
-                 callback = col_js
-) |> htmlwidgets::prependContent(col_css)
-
-
-filter_ui <- filter_select(id = "fsid", 
-                           label = "Model", 
-                           sharedData = geom_table_shared, 
-                           group = ~Model,
-                           multiple = FALSE
+fork_wide <- rbind(
+  fork_wide,
+  data.table(
+    fork = "120mm (20% sag)",
+    sus_dt)
 )
 
- p <- bscols(widths = c(2, 10), filter_ui, fig
-  )
-  
- p
-
-
+# sagged 130
+sus_dt <- data.table(NULL)
+for(i in 1:nrow(hardtails)){
+  # i <- 141 # Fairlight Holt 2.0 2025 M
+  old_geo <- hardtails[i]
+  new_ac <- 540.5
+  new_travel <- 130
+  new_rake <- 44
+  new_sag <- 0.2
+  new_geo <- sus_one_bike_long(old_geo, new_ac, new_travel, new_rake, new_sag)
+  sus_dt <- rbind(sus_dt,new_geo)
+}
+fork_wide <- rbind(
+  fork_wide,
+  data.table(
+    fork = "130mm (20% sag)",
+    sus_dt)
+)
 
 ```
 
-```{js echo=FALSE}
-function filter_default() {
-    document.getElementById("Model").getElementsByClassName("selectized") 
-[0].selectize.setValue("3T Extrema Italia 2025", false);
- }
-window.onload = filter_default;
+```{r hardtail-sus-table, echo=FALSE}
+table_cols <- c("axle_crown", "stack", "reach", "top_tube_effective_length_est", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "wheelbase", "front_center", "rear_center", "trail_45")
+keep_cols <- c("model_size", "fork", "suspension_corrected","axle_crown_est", "axle_crown_rigid", "fork_travel", "fork_offset_rake", "fork_sag", "fork_sag_est", "wheel_size", paste0("x", 1:7), paste0("y", 1:7), table_cols)
+clean_cols <- c("fork length", "stack", "reach", "effective top tube", "head tube angle", "seat tube angle", "BB drop", "wheelbase", "front center (horiz)", "rear center (horiz)", "trail (45mm)")
+setnames(fork_wide, old = table_cols, new = clean_cols)
+fork_long <- melt(fork_wide,
+                  id.vars = c("model_size", "fork"),
+                  measure.vars = clean_cols,
+                  variable.name = "measure",
+                  value.name = "value")
+fork_long[, value := round(value, 1)]
+fork_table <- dcast(fork_long,
+                    model_size + measure ~ fork,
+                    value.var = "value")
+
+hardtail_table_shared <- SharedData$new(fork_table, group = "hardtail")
+
+table_1 <- datatable(hardtail_table_shared,
+                     rownames = FALSE,
+                     options = list(
+                       # searching = TRUE, # cannot filter without this
+                       dom = 'lrtip', # default is lrftip. this hides the search box by removing (f) for filtering
+                       paging =TRUE,
+                       lengthChange = FALSE,
+                       pageLength =  length(clean_cols),
+                       columnDefs = list(
+                         list(visible = FALSE, targets = c(0)),
+                         list(className = 'dt-center', targets = "_all")
+                       )
+                     ))
+
+filter_model <- filter_select(id = "fsid",
+                              label = "Bike Model", 
+                              sharedData = hardtail_table_shared, 
+                              group = ~model_size,
+                              multiple = FALSE
+)
+
+bscols(widths = c(6, 6), filter_model)
+table_1
+ # p <- bscols(widths = c(3, 9), filter_model, table_1)
+ # p
+ 
 ```
 
 ::: {.callout-note}
-The suspension fork length and geometry is based on 20% sag: fork_length - 0.2*travel
+The suspension fork length and geometry is based on the average of the axle_crown lengths of the Rockshox Sid and Fox SC forks for 29" wheels.
 :::
 
-::: {.callout-warning title="A Rudy Fork geometry corrector"}
-Rockshox recommends 5% sag on the Rudy fork while Fox, Cane Creek, and Lauf recommend (or are tuned for) 20% sag. The sus geometry for a 30 mm Rudy fork will be about 1/2 way between the 30 mm and 40 mm measures (for the same offset). The sus geometry for a 40 mm Rudy fork will be about 3/5 way between the 40 mm and 50 mm measures (for the same offset).
-:::
 
-::: {.callout-warning title="Is your frame suspension corrected?"}
-Several companies are calling their frame suspension corrected, or sell a suspension fork with a build, but their rigid Axle-Crown length is far short (by > 10 mm and often > 15 mm) the sagged length of a 30 mm fork.
-:::
-
-::: {.callout-tip title="Gravel forks"}
-1. Cane Creek Invert has two models: 30 mm (425 mm axle-crown) and 40 (435 mm axle-crown) mm travel. Both models have 45 mm offset
-2. Rockshox Rudy has four models: 30 mm (425 mm axle-crown) and 40 (435 mm axle-crown) mm travel, each with either 45 mm or 51 mm offset.
-3. Fox 32 TC Factory has four models: 40 (435.5 mm axle-crown) mm and 50 (445.5 mm axle-crown) mm travel, each with either 45 mm or 50 mm offset.
-4. Lauf has one model with 30 mm travel (425 Axle Crown and 47 mm offset)
-:::
 
