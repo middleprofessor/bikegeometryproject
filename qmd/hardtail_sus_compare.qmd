@@ -110,8 +110,6 @@ hardtails[fork == "rigid", axle_crown_rigid := axle_crown]
 
 hardtails[, sag_working := ifelse(is.na(fork_sag), fork_sag_est, fork_sag)]
 
-# i <- 141 # Fairlight Holt 2.0 M
-
 # rigid 100
 sus_dt <- data.table(NULL)
 for(i in 1:nrow(hardtails)){
@@ -371,6 +369,7 @@ table_3 <- table_3 |>
 bscols(widths = c(3,3,3,3), NULL, filter_1.1, filter_2.1, filter_3.1)
 bscols(widths = c(3,3,3,3), NULL, filter_1.2, filter_2.2, filter_3.2)
 bscols(widths = c(3,3,3,3), measures, table_1, table_2, table_3)
+
 
 # bscols(widths = c(4, 4, 4), filter_1.1, filter_2.1, filter_3.1)
 # bscols(widths = c(4, 4, 4), filter_1.2, filter_2.2, filter_3.2)
