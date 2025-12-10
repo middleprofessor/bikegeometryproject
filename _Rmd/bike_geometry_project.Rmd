@@ -1569,15 +1569,9 @@ assign_std_size_pred <- function(geobike){
   ticks <- seq(150, 200, by = 1)
   for (h in ticks) {
     col <- paste0("h", h)
-    geobike[, (col) := ifelse(rider_min <= h & rider_max >= h, as.character(h), NA_character_)]
+    geobike[, (col) := ifelse(rider_min_pred <= h & rider_max_pred >= h, as.character(h), NA_character_)]
   }
-  # create columns for all in heights
-  geobike[, h0 := "all"]
-  ticks <- seq(150, 200, by = 1)
-  for (h in ticks) {
-    col <- paste0("h", h)
-    geobike[, (col) := ifelse(rider_min <= h & rider_max >= h, as.character(h), NA_character_)]
-  }
+  # create columns for all inch heights
   ticks <- seq(59, 79, by = 0.5)
   for (h in ticks) {
     col <- paste0("h", h)
@@ -4032,6 +4026,11 @@ geobike[rider_max_too_big, .SD, .SDcols = c("model", "frame_size", "rider_max", 
 
 ```
 
+```{r what-models-dont-have-std-sizes}
+na_models <- geobike[ , .(all_na = all(is.na(h176))), by = model][all_na == TRUE, model]
+
+```
+
 # Import bikes
 
 ```{r import-bikes-excel-single}
@@ -4166,7 +4165,7 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
            fork_class := paste(suspension_corrected, "mm")]
 
         # make a factor and order
-    fork_classes <- c("0 mm", "20 mm", "30 mm", "40 mm", "50 mm", "60 mm", "100 mm", "100-120 mm", "120 mm", "100-130 mm", "120-130 mm", "130 mm")
+    fork_classes <- c("0 mm", "20 mm", "30 mm", "40 mm", "50 mm", "60 mm", "100 mm", "110", "100-110", "100-120 mm", "120 mm", "100-130 mm", "120-130 mm", "130 mm")
     bike_i[, fork_class := factor(fork_class, levels = fork_classes)]
     
     # bind it
