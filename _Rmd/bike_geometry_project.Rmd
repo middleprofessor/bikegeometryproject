@@ -4026,7 +4026,7 @@ geobike[rider_max_too_big, .SD, .SDcols = c("model", "frame_size", "rider_max", 
 
 ```
 
-```{r what-models-dont-have-std-sizes}
+```{r what-models-dont-have-std-sizes, eval=FALSE}
 na_models <- geobike[ , .(all_na = all(is.na(h176))), by = model][all_na == TRUE, model]
 
 ```
