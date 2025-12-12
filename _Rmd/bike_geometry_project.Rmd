@@ -2000,7 +2000,10 @@ get_centroids <- function(Y, cluster){
 ```
 
 ```{r d_scores}
-d_scores <- function(Y, class_dt, cluster_col = "init_cluster", prefix = "kmeans"){
+d_scores <- function(Y,
+                     class_dt,
+                     cluster_col = "init_cluster",
+                     prefix = "kmeans"){
   # projections onto axis through cluster centroid. Y is the matrix of data
   # and must be centered at the origin. The results are exactly the same as
   # r_scores, which computes the axes from the correlations between cluster and variable.
@@ -2028,19 +2031,19 @@ d_scores <- function(Y, class_dt, cluster_col = "init_cluster", prefix = "kmeans
   # apply(scores_scaled, 2, max) # check!
 
   # assign style to axes
-  style_levels <- c("racy", "relaxed", "rowdy", "allroad")[1:k]
+  style_levels <- c("racy", "relaxed", "rowdy", "xtra_rowdy")[1:k]
   relaxed <- which.max(loadings[rownames(loadings) == "rear_center"])
   relaxed <- class_dt[model == "Tumbleweed Stargazer Gen 2 2025", init_cluster]
   colnames(scores_scaled)[relaxed] <- "relaxed"
-  rowdy <- which.max(loadings[rownames(loadings) == "front_center"])
-  rowdy <- class_dt[model == "Specialized Chisel 2025", init_cluster]
-  colnames(scores_scaled)[rowdy] <- "rowdy"
+  xtra_rowdy <- which.max(loadings[rownames(loadings) == "front_center"])
+  xtra_rowdy <- class_dt[model == "Specialized Chisel 2025", init_cluster]
+  colnames(scores_scaled)[xtra_rowdy] <- "xtra_rowdy"
   racy <- which.max(loadings[rownames(loadings) == "head_tube_angle"])
   racy <- class_dt[model == "Time ADHX 2025", init_cluster]
   colnames(scores_scaled)[racy] <- "racy"
   if(k==4){
-    allroad <- setdiff(1:4, c(racy, relaxed, rowdy))
-    colnames(scores_scaled)[allroad] <- "allroad"
+    rowdy <- setdiff(1:4, c(racy, relaxed, xtra_rowdy))
+    colnames(scores_scaled)[rowdy] <- "rowdy"
   }
     scores_scaled <- data.table(scores_scaled)
   
@@ -2048,7 +2051,7 @@ d_scores <- function(Y, class_dt, cluster_col = "init_cluster", prefix = "kmeans
   class_dt[get(cluster_col) == relaxed, style := "relaxed"]
   class_dt[get(cluster_col) == rowdy, style := "rowdy"]
   if(k==4){
-    class_dt[get(cluster_col) == allroad, style := "allroad"]
+    class_dt[get(cluster_col) == xtra_rowdy, style := "xtra_rowdy"]
   }
   
   scores_out <- data.table(
@@ -2147,7 +2150,6 @@ mclust_classifier <- function(dt,
 }
 ```
 
-
 ```{r kmeans-classifier}
 kmeans_classifier <- function(dt,
                               k = 3,
@@ -2202,40 +2204,6 @@ kmeans_classifier <- function(dt,
   # kmeans_scores[, c("mds1", "mds2") := mds_coords[, 1:2]]
   kmeans_scores[, mds1 := mds_coords[, 1]]
   kmeans_scores[, mds2 := mds_coords[, 2]]
-
-  if(nested == TRUE){
-  # dt should be my_fit
-    if(reclass == "all"){
-      reclassifier_cols <- classifier_cols
-    }else{
-      reclassifier_cols <- c("stack_reach", "chainstay_length")
-    }
-    subset_rows <- which(kmeans_scores$kmeans_style == "relaxed")
-    dt_sub <- dt[subset_rows]
-    dt_info <- dt_sub[, .SD,.SDcols = c("model", "frame_size")]
-    model <- dt_info[, model]
-    Y <- dt_sub[, .SD, .SDcols = reclassifier_cols] |>
-      scale()
-    row.names(Y) <- model
-    
-    kmeans_result <- kmeans(Y, centers = 2)
-    rkm_result <- ktaucenters(Y, 2)
-    explore_table <- data.table(
-      dt_info,
-      km_cluster = kmeans_result$cluster,
-      rkm_cluster = rkm_result$cluster
-    )
-    # cor(cbind(explore_table$km_cluster, explore_table$rkm_cluster, Y))
-    relaxed <- explore_table[model == "Tumbleweed Stargazer Gen 2 2025", rkm_cluster]
-    explore_table[, kmeans_restyle := ifelse(rkm_cluster == relaxed, "relaxed", "rowdy")]
-    old_scores <- kmeans_scores
-    kmeans_scores[kmeans_style == "rowdy", kmeans_style := "xtra rowdy"]
-    kmeans_scores <- merge(old_scores, 
-                            explore_table[, .SD, .SDcol = c("model", "frame_size", "kmeans_restyle")], 
-                            by = c("model", "frame_size"),
-                            all.x = TRUE)
-    kmeans_scores[kmeans_style == "relaxed", kmeans_style := kmeans_restyle]
-  }
   
   # make kmeans_scores = mds scores
   min1 <- min(kmeans_scores$mds1)
@@ -4339,60 +4307,29 @@ if(import_it != TRUE){
   geobike <- find_similar_bikes(geobike)
   
   # classify bikes by kmeans
-  k <- 3
-  style_levels <- c("racy", "relaxed", "rowdy", "allroad")[1:k]
-  
-  # kmeans nested-all
-  kmeans_classes_all <- kmeans_classifier(
-    geobike[my_fit == TRUE],
-    k = k,
-    method = "rkm", # km or rkm where rkm is robust
-    nested = TRUE,
-    reclass = "all"
-  )
-  setnames(kmeans_classes_all, old = "kmeans_style", new = "kmeans_style_all")
-  geobike <- merge(geobike,
-                   kmeans_classes_all[, .SD, .SDcols = c("model", "kmeans_style_all")],
-                   by = c("model"), all.x = TRUE)
-
-  # kmeans nested-sub
-  do_kmeans_classes_sub <- FALSE
-  if(do_kmeans_classes_sub == TRUE){
-    kmeans_classes_sub <- kmeans_classifier(
-      geobike[my_fit == TRUE],
-      k = k,
-      method = "rkm", # km or rkm where rkm is robust
-      nested = TRUE,
-      reclass = "sub"
-    )
-    setnames(kmeans_classes_sub, old = "kmeans_style", new = "kmeans_style_sub")
-    geobike <- merge(geobike,
-                     kmeans_classes_sub[, .SD, .SDcols = c("model", "kmeans_style_sub")],
-                     by = c("model"), all.x = TRUE)
-  }
- 
+  k <- 4
+  style_levels <- c("racy", "relaxed", "rowdy", "xtra rowdy")
+  style_cols <- c("racy", "relaxed", "rowdy", "xtra_rowdy")
   # kmeans 4 classes
-  kmeans_classes_4 <- kmeans_classifier(
+  kmeans_classes <- kmeans_classifier(
     geobike[my_fit == TRUE],
     k = 4,
     method = "rkm", # km or rkm where rkm is robust
     nested = FALSE
   )
-  kmeans_classes_4[kmeans_style == "rowdy", kmeans_style := "xtra rowdy"]
-  kmeans_classes_4[kmeans_style == "allroad", kmeans_style := "rowdy"]
-  setnames(kmeans_classes_4, old = "kmeans_style", new = "kmeans_style_4")
+  # change "xtra_rowdy" to "xtra rowdy"
+  kmeans_classes[kmeans_style == "xtra_rowdy", kmeans_style := "xtra rowdy"]
   geobike <- merge(geobike,
-                   kmeans_classes_4[, .SD, .SDcols = c("model", "kmeans_style_4")],
+                   kmeans_classes[, .SD, .SDcols = c("model", "kmeans_style")],
                    by = c("model"), all.x = TRUE)
 
   # set kmeans_style
-  geobike[, kmeans_style := kmeans_style_4 |> 
-            factor(levels = c("racy", "relaxed", "rowdy", "xtra rowdy"))]
-  kmeans_classes <- kmeans_classes_4
+  geobike[, kmeans_style := kmeans_style |> 
+            factor(levels = style_levels)]
   geobike <- merge(geobike,
                    kmeans_classes[, .SD,
                                   .SDcols = c("model", "frame_size",
-                                              paste0("kmeans_", style_levels),
+                                              paste0("kmeans_", style_cols),
                                               "mds1", "mds2")],
                    by = c("model", "frame_size"), all.x = TRUE)
 
