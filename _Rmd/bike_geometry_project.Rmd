@@ -1192,8 +1192,16 @@ clean_and_compute <- function(bike){
   
   # rigid axle crown
   bike[, axle_crown_rigid := axle_crown]
+  bike[, fork_suspension := as.numeric(fork_suspension)]
+  bike[is.na(fork_travel) & !is.na(fork_suspension),
+       fork_travel := fork_suspension]
+  bike[fork_travel == 30, axle_crown_rigid := 425]
+  bike[fork_travel == 40, axle_crown_rigid := 435]
+  bike[fork_travel == 50, axle_crown_rigid := 445]
+  bike[fork_travel == 60, axle_crown_rigid := 470]
   bike[fork_travel == 80, axle_crown_rigid := 486]
   bike[fork_travel == 100, axle_crown_rigid := 505]
+  bike[fork_travel == 110, axle_crown_rigid := 516]
   bike[fork_travel == 120, axle_crown_rigid := 530.5]
   bike[fork_travel == 130, axle_crown_rigid := 540.5]
   
@@ -1202,6 +1210,8 @@ clean_and_compute <- function(bike){
          (axle_crown_rigid - axle_crown_est)/80*100]
   bike[fork_travel == 100, fork_sag_est :=
          (axle_crown_rigid - axle_crown_est)/100*100]
+  bike[fork_travel == 110, fork_sag_est :=
+         (axle_crown_rigid - axle_crown_est)/110*100]
   bike[fork_travel == 120, fork_sag_est :=
          (axle_crown_rigid - axle_crown_est)/120*100]
   bike[fork_travel == 130, fork_sag_est :=
@@ -2163,9 +2173,13 @@ kmeans_classifier <- function(dt,
                                 "seat_tube_angle",
                                 "trail_45"
                               ),
+                              sag = FALSE,
                               nested = FALSE,
                               reclass = "all"
                               ){
+  if(sag == TRUE){
+    classifier_cols <- paste(classifier_cols, "sag", sep = "_")
+  }
   # dt should be my_fit
   dt_info <- dt[, .SD,.SDcols = c("model", "frame_size")]
   model <- dt_info[, model]
@@ -2876,6 +2890,52 @@ gravel_scores <- function(data, y_cols){
   return(data)
 }
 
+```
+
+# Sag frames with suspension forks
+
+```{r create-sag-cols}
+sag_cols <- function(geobike){
+  # creates columns of sagged geometry for all bikes. For bikes with a rigid fork, these retain rigid geometry
+  # used for 1) similarity 2) classification
+  # purpose is to compare apples to apples
+  n <- nrow(geobike)
+  for(i in 1:n){
+    if(is.na(geobike[i, fork_suspension])){
+      # keep rigid geometry
+# "stack","reach","front_center","rear_center","head_tube_angle","seat_tube_angle","trail_45"     
+      geobike[i, stack_sag := stack]
+      geobike[i, reach_sag := reach]
+      geobike[i, front_center_sag := front_center]
+      geobike[i, rear_center_sag := rear_center]
+      geobike[i, head_tube_angle_sag := head_tube_angle]
+      geobike[i, seat_tube_angle_sag := seat_tube_angle]
+      geobike[i, trail_45_sag := trail_45]
+      geobike[i, wheelbase_sag := wheelbase]
+      geobike[i, top_tube_effective_length_est_sag := top_tube_effective_length_est]
+      geobike[i, bottom_bracket_drop_sag := bottom_bracket_drop]
+    }else{
+      # rotate frames
+      old_geo <- geobike[i]
+      new_ac <- geobike[i, axle_crown_rigid]
+      new_travel <- geobike[i, fork_travel]
+      new_rake <- geobike[i, fork_offset_rake]
+      new_sag <- 0.2
+      sag_measures <- geometry_with_sus_fork(old_geo, new_ac, new_travel, new_rake, new_sag) 
+      geobike[i, stack_sag := sag_measures["stack"]]
+      geobike[i, reach_sag := sag_measures["reach"]]
+      geobike[i, front_center_sag := sag_measures["fc"]]
+      geobike[i, rear_center_sag := sag_measures["rc"]]
+      geobike[i, head_tube_angle_sag := sag_measures["hta"]]
+      geobike[i, seat_tube_angle_sag := sag_measures["sta"]]
+      geobike[i, trail_45_sag := sag_measures["trail_45"]]
+      geobike[i, wheelbase_sag := sag_measures["wheelbase"]]
+      geobike[i, top_tube_effective_length_sag := sag_measures["ttel"]]
+      geobike[i, bottom_bracket_drop_sag := sag_measures["bb_drop"]]
+    }
+  }
+  return(geobike)
+}
 ```
 
 # Similarity list
@@ -4254,8 +4314,6 @@ import_bike_list <- function(style = "gravel", exchange_rates){
 }
 ```
 
-
-
 ```{r import-gravel, eval=TRUE}
 import_it <- TRUE # make false when creating .R file below!
 
@@ -4303,6 +4361,9 @@ if(import_it != TRUE){
   geobike_import <- copy(geobike)
   # geobike <- geobike_import
   
+  # create sc (suspension corrected) cols prior to classification
+  geobike <- sag_cols(geobike)
+  
   # Find similar bikes
   geobike <- find_similar_bikes(geobike)
   
@@ -4315,6 +4376,7 @@ if(import_it != TRUE){
     geobike[my_fit == TRUE],
     k = 4,
     method = "rkm", # km or rkm where rkm is robust
+    sag = TRUE,
     nested = FALSE
   )
   # change "xtra_rowdy" to "xtra rowdy"
