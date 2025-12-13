@@ -2942,7 +2942,7 @@ sag_cols <- function(geobike){
 
 ```{r}
 find_similar_bikes <- function(geobike){
-  d_cols <- c("reach", "stack", "seat_tube_angle", "head_tube_angle", "rear_center", "front_center", "bottom_bracket_drop", "axle_crown", "trail_45", "tire_width_max_700c")
+  d_cols <- c("reach_sag", "stack_sag", "seat_tube_angle_sag", "head_tube_angle_sag", "rear_center_sag", "front_center_sag", "bottom_bracket_drop_sag", "axle_crown_rigid", "trail_45_sag", "tire_width_max_700c")
   # , "tire_width_max_700c"
   Y <- scale(geobike[my_fit == TRUE,.SD, .SDcols = d_cols])
   D <- dist(Y, method = "euclidean") |> as.matrix()
