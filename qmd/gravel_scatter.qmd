@@ -14,9 +14,8 @@ format:
 4. Click on popup icon-bar over legend to zoom in/out and pan.
 :::
 
-::: {.callout-tip title="Tips for size boxes"}
-1. Use the Small/Medium/Large box to see only a single size per model
-2. Use the Rider Height boxes to see all model sizes that fit you
+::: {.callout-note title="Sagged Measures"}
+1. Measures for bikes with suspension forks are at 20% sag.
 :::
 
 ::: {.callout-tip title="More notes!"}
@@ -37,14 +36,14 @@ geobike_shared <- SharedData$new(geobike, key = ~model_size, group = "2dscatter"
 
 p1 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
-                  x_col = "reach", y_col = "stack",
+                  x_col = "reach_sag", y_col = "stack_sag",
                   x_label = "Reach (mm)", y_label = "Stack (mm)",
                   g_col = "model_size",
                   same_xy_scale = FALSE)
 
 p2 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
-                  x_col = "seat_tube_angle", y_col = "head_tube_angle",
+                  x_col = "seat_tube_angle_sag", y_col = "head_tube_angle_sag",
                   x_label = "Seat Tube Angle (°)", y_label = "Head Tube Angle (°)",
                   x_info = "STA", y_info = "HTA", digits = 1,
                   g_col = "model_size",
@@ -52,9 +51,9 @@ p2 <- scatter_fig(shared_data = geobike_shared,
 
 p3 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
-                  x_col = "top_tube_effective_length", y_col = "seat_tube_effective_length",
+                  x_col = "top_tube_effective_length_est_sag", y_col = "seat_tube_length",
                   x_label = "Effective Top Tube Length (mm)",
-                  y_label = "Effective Seat Tube Length (mm)",
+                  y_label = "Seat Tube Length (mm)",
                   x_info = "ETTL", y_info = "ESTL", digits = 1,
                   g_col = "model_size",
                   same_xy_scale = FALSE)
@@ -62,7 +61,7 @@ p3 <- scatter_fig(shared_data = geobike_shared,
 
 p4 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
-                  x_col = "front_center", y_col = "rear_center",
+                  x_col = "front_center_sag", y_col = "rear_center_sag",
                   x_label = "Front Center (horizontal) (mm)", y_label = "Rear Center (horizontal) (mm)",
                   x_info = "FC", y_info = "RC",
                   g_col = "model_size",
@@ -70,7 +69,7 @@ p4 <- scatter_fig(shared_data = geobike_shared,
 
 p5 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
-                  x_col = "wheelbase", y_col = "bottom_bracket_drop",
+                  x_col = "wheelbase_sag", y_col = "bottom_bracket_drop_sag",
                   x_label = "Wheelbase (mm)", y_label = "Bottom Bracket Drop (mm)",
                   x_info = "WB", y_info = "BB drop",
                   g_col = "model_size",
@@ -78,7 +77,7 @@ p5 <- scatter_fig(shared_data = geobike_shared,
 
 p6 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
-                  x_col = "trail", y_col = "trail_45",
+                  x_col = "trail_sag", y_col = "trail_45_sag",
                   x_label = "Trail (mm)", y_label = "Trail (45 mm tire) (mm)",
                   x_info = "Trail", y_info = "Trail-45", digits = 1,
                   g_col = "model_size",
@@ -86,7 +85,7 @@ p6 <- scatter_fig(shared_data = geobike_shared,
 
 p7 <- scatter_fig(shared_data = geobike_shared,
                   link_group = "2dscatter",
-                  x_col = "sta_hta", y_col = "stack_reach",
+                  x_col = "sta_hta_sag", y_col = "stack_reach_sag",
                   x_label = "STA/HTA", y_label = "Stack/Reach",
                   x_info = "STA/HTA", y_info = "Stack/Reach", digits = 2,
                   g_col = "model_size",

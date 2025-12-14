@@ -100,7 +100,7 @@ sus_all_bikes_wide <- function(bike_dt, new_ac, new_travel, new_rake, new_sag){
 ```{r hardtail-sus-data, echo=FALSE}
 
 table_cols <- c("axle_crown", "stack", "reach", "top_tube_effective_length_est", "head_tube_angle", "seat_tube_angle", "bottom_bracket_drop", "wheelbase", "front_center", "rear_center", "trail_45")
-keep_cols <- c("model_size", "fork", "suspension_corrected","axle_crown_est", "axle_crown_rigid", "head_tube_length", "material", "fork_travel", "fork_offset_rake", "fork_sag", "fork_sag_est", "wheel_size", paste0("x", 1:7), paste0("y", 1:7), table_cols)
+keep_cols <- c("model_size", "fork", "suspension_corrected","axle_crown_est", "axle_crown_rigid", "head_tube_length", "material", "fork_travel", "fork_offset_rake", "fork_sag", "fork_sag_est", "wheel_size", "tire_width_spec", paste0("x", 1:7), paste0("y", 1:7), table_cols)
 clean_cols <- c("Rigid AC", "Stack", "Reach", "Effective Top Tube", "Head Tube Angle", "Effective Seat Tube Angle", "BB drop", "Wheelbase", "Front Center (horiz)", "Rear Center (horiz)", "Trail (45mm)")
 
 hardtails <- geobike[axle_crown > 480, .SD, .SDcols = keep_cols]

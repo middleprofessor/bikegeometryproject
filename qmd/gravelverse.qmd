@@ -23,7 +23,7 @@ geobike_mds_shared <- SharedData$new(medium_fit, key = ~model_size, group = "mds
 p1 <- scatter_fig(shared_data = geobike_mds_shared,
                   link_group = "mds",
                   x_col = "mds1", y_col = "mds2",
-                  x_label = "Rowdiness", y_label = "Relaxedness",
+                  x_label = "More Rowdy -->", y_label = "More Relaxed -->",
                   g_col = "model_size",
                   digits = 1,
                   hover_info = "filters",
@@ -53,5 +53,6 @@ bscols( widths = c(3, 9), filters, p1)
 ::: {.callout-note}
 1. The two axes were computed by [multidimensional scaling](https://en.wikipedia.org/wiki/Multidimensional_scaling){target="_blank"}.
 2. Classification of gravel bikes is based on a frame size that fits a 175 cm high rider (generally frame size M or 54), according to manufacturer's charts.
+3. All bikes with suspension are at 20% sag
 :::
 

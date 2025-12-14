@@ -587,12 +587,18 @@ rotate_frame <- function(frame, alpha, dx, dy, rake){
   top_tube_effective_length_est.new <- layback.new + reach.new
   
   # trail
-  tire_width <- 45
-  radius <- (ifelse(frame$wheel_size == 700 | frame$wheel_size == 29, 622, 584) +
-               tire_width*2)/2
+  tire_width <- frame[,tire_width_spec]
+  tire_width_45 <- 45
   offset_h <- rake/sin(hta.new)
+  radius <- (ifelse(frame$wheel_size == 700 |
+                         frame$wheel_size == 29,
+                    622, 584) + tire_width*2)/2
+  radius_45 <- (ifelse(frame$wheel_size == 700 |
+                         frame$wheel_size == 29,
+                    622, 584) + tire_width_45*2)/2
   
-  trail_45.new <- radius/tan(hta.new) - offset_h
+  trail.new <- radius/tan(hta.new) - offset_h
+  trail_45.new <- radius_45/tan(hta.new) - offset_h
   
   # rear_axle = 1, top_seat = 2, top_head_tube = 3, top_crown = 4,
   # front_axle = 5, bottom_bracket = 6, top_seat_tube = 7
@@ -607,9 +613,10 @@ rotate_frame <- function(frame, alpha, dx, dy, rake){
     bb_drop = bb_drop.new,
     rc = rear_center.new,
     fc = front_center.new,
+    trail = trail.new,
     trail_45 = trail_45.new
   )
-  names(measure_set) <- c("wheelbase", "stack", "reach", "ttel", "hta", "sta", "bb_drop", "rc", "fc", "trail_45")
+  names(measure_set) <- c("wheelbase", "stack", "reach", "ttel", "hta", "sta", "bb_drop", "rc", "fc", "trail", "trail_45")
   
   return(measure_set)
   
@@ -1066,6 +1073,12 @@ clean_and_compute <- function(bike){
   # dropout
   bike[is.na(dropout), dropout := "fixed"]
   bike[dropout == "0", dropout := "fixed"]
+  bike[!is.na(as.numeric(dropout)), dropout_numeric := as.numeric(dropout)]
+  bike[, chainstay_mid := ifelse(is.na(dropout_numeric), chainstay_length, chainstay_length + dropout_numeric/2)]
+  bike[, chainstay_table := 
+         ifelse(is.na(dropout_numeric),
+                chainstay_length,
+                paste(chainstay_length, chainstay_length + dropout_numeric, sep = " - "))]
  
   # fender
   bike[is.na(mounts_fender), mounts_fender := "No/Unknown"]
@@ -2928,10 +2941,13 @@ sag_cols <- function(geobike){
       geobike[i, rear_center_sag := sag_measures["rc"]]
       geobike[i, head_tube_angle_sag := sag_measures["hta"]]
       geobike[i, seat_tube_angle_sag := sag_measures["sta"]]
+      geobike[i, trail_sag := sag_measures["trail"]]
       geobike[i, trail_45_sag := sag_measures["trail_45"]]
       geobike[i, wheelbase_sag := sag_measures["wheelbase"]]
       geobike[i, top_tube_effective_length_sag := sag_measures["ttel"]]
       geobike[i, bottom_bracket_drop_sag := sag_measures["bb_drop"]]
+      geobike[i, stack_reach_sag := stack_sag/reach_sag]
+      geobike[i, sta_hta_sag := seat_tube_angle_sag/head_tube_angle_sag]
     }
   }
   return(geobike)
