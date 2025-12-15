@@ -361,7 +361,8 @@ compute_wheelbase <- function(bike){
   # wheelbase <- chainstay_h + reach + steering_h + offset_h
   steering_h <- compute_steering_h(bike)
   offset_h <- compute_offset_h(bike)
-  chainstay_h <- compute_chainstay_h(bike)
+#  chainstay_h <- compute_chainstay_h(bike)
+  chainstay_h <- bike[, rear_center]
   reach <- bike[, reach]
   wheelbase <- chainstay_h + reach + steering_h + offset_h
   return(wheelbase)
@@ -1155,8 +1156,8 @@ clean_and_compute <- function(bike){
   bike[is.na(head_tube_length), head_tube_length :=
          compute_head_tube_length(bike[is.na(head_tube_length), ])]
   
-  # need this
-  bike[, rear_center := sqrt(chainstay_length^2 - bottom_bracket_drop^2)] # horizontal
+  # rear center is the horizontal component of chainstay
+  bike[, rear_center := sqrt(chainstay_length^2 - bottom_bracket_drop^2)] # use chainstay_mid
   
   # seat_tube_v and seat_tube_h are decomp of seat tube
   bike[, seat_tube_v := seat_tube_length *
@@ -1257,10 +1258,10 @@ clean_and_compute <- function(bike){
               top_tube_effective_length^2)/ 
              (2*top_tube_length*top_tube_effective_length)) * 180/pi]
   
-  # fork sag
-  
-  
-  # constructed measures
+  bike[, front_center := wheelbase - rear_center] # horizontal distance from bb to front axle
+  bike[, front_end := front_center - reach] # horizontal distance from head tube to front axle
+  bike[, seat_center := stack/tan(deg_2_rad(seat_tube_angle))]
+
   ## trail
   radius <- (ifelse(bike$wheel_size == 700 | bike$wheel_size == 29, 622, 584) + bike$tire_width_spec*2)/2
   # offset <- bike[, fork_offset_rake]
@@ -1291,11 +1292,7 @@ clean_and_compute <- function(bike){
   ## bb height
   bike[, bb_height := radius - bottom_bracket_drop]
 
-  
   bike[, model_size := paste(model, frame_size)]
-  bike[, front_center := wheelbase - rear_center] # horizontal distance from bb to front axle
-  bike[, front_end := front_center - reach] # horizontal distance from head tube to front axle
-  bike[, seat_center := stack/tan(deg_2_rad(seat_tube_angle))]
   
   # ratios
   bike[, stack_reach := stack/reach]
@@ -2248,142 +2245,6 @@ kmeans_classifier <- function(dt,
 }
 ```
 
-
-```{r kmeans-classifier-4}
-kmeans_classifier_4 <- function(dt,
-                              k = 3,
-                              classifier_cols = c(
-                                "stack",
-                                "reach",
-                                "front_center",
-                                "rear_center",
-                                "head_tube_angle",
-                                "seat_tube_angle",
-                                "trail_45"
-                              )){
-  # dt should be my_fit
-  dt_info <- dt[, .SD,.SDcols = c("model", "frame_size")]
-  model <- dt_info[, model]
-  Y <- dt[my_fit == TRUE, .SD, .SDcols = classifier_cols] |>
-    scale()
-  row.names(Y) <- model
-
-  kmeans_result <- kmeans(Y, centers = k)
-  okm_result <- okm(Y, centers = k) # overlapping kmeans
-  rkm_result <- ktaucenters(Y, k)
-  explore_table <- data.table(
-    dt_info,
-    km_cluster = kmeans_result$cluster,
-    rkm_cluster = rkm_result$cluster
-  )
-
-  kmeans_class <- data.table(
-    dt_info,
-    init_cluster = rkm_result$cluster
-  )
-  
-  # scores
-  kmeans_scores <- d_scores(Y, kmeans_class,
-                            cluster_col = "init_cluster",
-                            prefix = "kmeans")
-  kmeans_scores[is.na(kmeans_style), kmeans_style := "group_4"]
-  
-    # multidimensional scaling
-  # these are scores but I'm using the d-scores below
-  # Step 2: Classical MDS (k=2 for 2D plot)
-  D <- dist(Y, method = "euclidean")
-  mds_coords <- cmdscale(D, k = 3) # two dimensions for three groups
-  # kmeans_scores[, c("mds1", "mds2") := mds_coords[, 1:2]]
-  kmeans_scores[, mds1 := mds_coords[, 1]]
-  kmeans_scores[, mds2 := mds_coords[, 2]]
-  kmeans_scores[, mds3 := mds_coords[, 3]]
-  
-  gg1 <- ggplot(data = kmeans_scores,
-               aes(x = mds1, y = mds2, color = kmeans_style)) +
-    geom_point()
-  gg2 <- ggplot(data = kmeans_scores,
-               aes(x = mds1, y = mds3, color = kmeans_style)) +
-    geom_point()
-  gg3 <- ggplot(data = kmeans_scores,
-               aes(x = mds2, y = mds3, color = kmeans_style)) +
-    geom_point()
-  plot_grid(gg1, gg2, gg3)
-  cor(c(kmeans_scores[,mds3]), Y)
-  kmeans_scores[mds3 < -1 & (kmeans_style == "racy" | kmeans_style == "relaxed"), model]
-  kmeans_scores[mds3 > 1 & (kmeans_style == "racy" | kmeans_style == "relaxed"), model]
-
-  return(kmeans_scores)
-  
-
-}
-```
-
-```{r nested-kmeans-classifier}
-nested_km_classifier <- function(dt){
-  
-  A_cols = c(
-    "stack",
-    "reach",
-    "front_center",
-    "rear_center",
-    "head_tube_angle",
-    "seat_tube_angle",
-    "trail_45"
-  )
-  B_cols = c("stack_reach", "seat_tube_angle")
-  
-  # First find A and B groups
-  # dt should be my_fit
-  dt_info <- dt[, .SD,
-                         .SDcols = c("model", "frame_size")]
-  model <- dt_info[, model]
-  Y <- dt[my_fit == TRUE, .SD, .SDcols = A_cols] |>
-    scale()
-  row.names(Y) <- model
-
-  kmeans_result <- kmeans(Y, centers = 2)
-
-  kmeans_class <- data.table(
-    dt_info,
-    cut1 = kmeans_result$cluster
-  )
-  # which class is santa cruz stigmata?
-  rowdy_class <- kmeans_class[model == "Santa Cruz Stigmata CC 2023", cut1]
-  if(rowdy_class == 1){
-    # switch cluster id
-    kmeans_class[, cut1 := ifelse(cut1 == 1, 2, 1)]
-    rowdy_class <- 2
-  }
-  
-  dt_info <- dt[kmeans_class[, cut1] == rowdy_class, .SD, .SDcols = c("model", "frame_size")]
-  model <- dt_info[, model]
-  
-  Y2 <- dt[kmeans_class[, cut1] == rowdy_class, .SD, .SDcols = B_cols] |>
-    scale()
-  row.names(Y2) <- model
-
-  kmeans_result <- kmeans(Y2, centers = 2)
-  kmeans_class_B <- data.table(
-    dt_info,
-    cut2 = kmeans_result$cluster
-  )
-  rowdy_class <- kmeans_class_B[model == "Santa Cruz Stigmata CC 2023", cut2]
-  if(rowdy_class == 1){
-    # switch cluster id
-    kmeans_class_B[, cut2 := ifelse(cut2 == 1, 2, 1)]
-    rowdy_class <- 2
-  }
-  kmeans_class_B[, cut2 := cut2+1]
-  kmeans_class <- merge(kmeans_class, kmeans_class_B, by = c("model", "frame_size"), all.x = TRUE)
-  kmeans_class[, init_cluster := ifelse(cut1 == 1, 1, cut2)]
-
-  kmeans_scores <- d_scores(Y, kmeans_class,
-                            cluster_col = "init_cluster",
-                            prefix = "nkmeans")
-  return(kmeans_scores)
-
-}
-```
 
 ```{r kmeans-explore}
 kmeans_classifier_explore <- function(dt){
@@ -4074,6 +3935,13 @@ geobike[rider_max_too_big, .SD, .SDcols = c("model", "frame_size", "rider_max", 
 na_models <- geobike[ , .(all_na = all(is.na(h176))), by = model][all_na == TRUE, model]
 
 ```
+
+```{r compare-short-mid-chainstay, eval=FALSE}
+x <- merge(geobike_short[my_fit == TRUE, .SD, .SDcols = c("model", "kmeans_style")],
+           geobike_mid[my_fit == TRUE, .SD, .SDcols = c("model", "kmeans_style")],
+           by = "model")
+```
+
 
 # Import bikes
 
