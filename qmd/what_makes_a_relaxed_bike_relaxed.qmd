@@ -31,7 +31,7 @@ cor(geobike[my_fit==TRUE &
 ```{r make-plots, echo=FALSE}
 
 relaxed_shared <- SharedData$new(geobike[my_fit == TRUE &
-                                           (kmeans_style == "relaxed" | kmeans_style == "rowdy")],
+                                           (kmeans_style == "relaxed" | kmeans_style == "racy")],
                                  key = ~model_size, group = "2drelaxed")
 add_regression <- TRUE
 

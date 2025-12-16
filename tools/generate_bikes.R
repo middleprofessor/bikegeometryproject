@@ -76,7 +76,7 @@ write_wrapper_qmd <- function(path_abs, brand, model, year, slug,
     "  data_path: ",     jsonlite::toJSON(data_rds_abs, auto_unbox = TRUE), "\n",
     "  site_base_url: ", jsonlite::toJSON(site_base_url, auto_unbox = TRUE), "\n",
     "---\n\n",
-    "```{r, child=\"../_Rmd/bike_template.qmd\"}\n",
+    "```{r, child=\"../qmd/bike_template.qmd\"}\n",
     "```\n"
   )
   

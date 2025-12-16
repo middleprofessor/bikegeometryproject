@@ -21,10 +21,10 @@ get_param <- function(nm, default = NULL) {
 }
 
 # Pull values (do NOT assign into `params`)
-brand_val <- get_param("brand",         Sys.getenv("BRAND",         "DEBUG_BRAND"))
-model_val <- get_param("model",         Sys.getenv("MODEL",         "DEBUG_MODEL"))
-year_val  <- get_param("year",          Sys.getenv("YEAR",          "DEBUG_YEAR"))
-slug_val  <- get_param("slug",          Sys.getenv("SLUG",          "debug-slug"))
+brand_val <- get_param("brand", Sys.getenv("BRAND", "DEBUG_BRAND"))
+model_val <- get_param("model", Sys.getenv("MODEL",         "DEBUG_MODEL"))
+year_val  <- get_param("year", Sys.getenv("YEAR",          "DEBUG_YEAR"))
+slug_val  <- get_param("slug", Sys.getenv("SLUG",          "debug-slug"))
 data_path <- get_param("data_path",     Sys.getenv("DATA_PATH",     "data/geobike.rds"))
 site_base <- get_param("site_base_url", Sys.getenv("SITE_BASE_URL", "https://example.com"))
 
@@ -84,7 +84,7 @@ if (!is.na(img_url) && nzchar(img_url)) {
 ```{r table, echo=FALSE}
 options(knitr.kable.NA = '')
 # spec columns present in geobike
-specs_cols <- c("frame_size","estimated_rider_height", "specified_rider_height", "class", "kmeans_style", "material", "fork", "handlebar", "fork_class", "top_tube_effective_length", "top_tube_effective_length_est", "reach", "stack", "standover", "head_tube_angle", "seat_tube_angle","chainstay_length", "front_center", "bottom_bracket_drop", "trail", "trail_45", "udh", "tire_width_max_700c", "tire_width_max_650b", "axle_spacing", "stealth_dropper", "seatpost_diameter", "max_chainring_1x", "dropout", "internal_storage", "frame_weight", "base_build_usd", "frameset_usd", "location")
+specs_cols <- c("frame_size","estimated_rider_height", "specified_rider_height", "class", "kmeans_style", "material", "fork", "handlebar", "fork_class", "top_tube_effective_length", "top_tube_effective_length_est", "reach", "stack", "standover", "head_tube_angle", "seat_tube_angle","chainstay_table", "front_center", "bottom_bracket_drop", "trail", "trail_45", "udh", "tire_width_max_700c", "tire_width_max_650b", "axle_spacing", "stealth_dropper", "seatpost_diameter", "max_chainring_1x", "dropout", "internal_storage", "frame_weight", "base_build_usd", "frameset_usd", "location")
 keep_cols <- intersect(specs_cols, names(bike))
 
 # Order by numeric size where possible
@@ -92,18 +92,19 @@ keep_cols <- intersect(specs_cols, names(bike))
 kb <- bike[, ..keep_cols]
 kb <- kb[order(reach)]
 
-setnames(
-  kb,
-  old = c("kmeans_style", "fork_class", "top_tube_effective_length_est"),
-  new = c("style", "suspension_correction", "effective_top_tube_length_(est)")
-)
-
 # Rounding / currency
+kb[, top_tube_effective_length_est := round(top_tube_effective_length_est, 3)]
 kb[, front_center := round(front_center, 0)]
 kb[, trail := round(trail, 0)]
 kb[, trail_45 := round(trail_45, 0)]
 kb[, frameset_usd := ifelse(is.na(frameset_usd), frameset_usd, paste0("$", round(frameset_usd, 0)))]
 kb[, base_build_usd := ifelse(is.na(base_build_usd), base_build_usd, paste0("$", round(base_build_usd,0)))]
+
+setnames(
+  kb,
+  old = c("kmeans_style", "fork_class", "top_tube_effective_length_est", "chainstay_table"),
+  new = c("style", "suspension_correction", "effective_top_tube_length_(est)", "chainstay length")
+)
 
 kb <- t(kb)
 spec_col <- rownames(kb)
