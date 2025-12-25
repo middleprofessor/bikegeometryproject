@@ -4015,7 +4015,7 @@ x <- merge(geobike_short[my_fit == TRUE, .SD, .SDcols = c("model", "kmeans_style
            by = "model")
 ```
 
-```{r compare kmeans_relaxed vs mds2}
+```{r compare kmeans_relaxed vs mds2, eval=FALSE}
 y_cols <- c("mds1", "mds2", "kmeans_rowdy", "kmeans_relaxed")
 cor(geobike[my_fit == TRUE, .SD, .SDcols = y_cols])
 ```
