@@ -1,15 +1,15 @@
 ---
-title: "Niner RLT 9 RDO 2022"
+title: "Polygon Tambora (speed gravel carbon) 2025"
 format:
   html:
     toc: false
 freeze: auto
 template_version: 1
 params:
-  brand: "Niner"
-  model: "RLT 9 RDO"
-  year: "2022"
-  slug: "niner-rlt-9-rdo-2022"
+  brand: "Polygon"
+  model: "Tambora (speed gravel carbon)"
+  year: "2025"
+  slug: "polygon-tambora-speed-gravel-carbon-2025"
   data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
   site_base_url: "https://thegravelbikegeometryproject.com"
 ---

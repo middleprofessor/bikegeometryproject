@@ -2051,15 +2051,19 @@ d_scores <- function(Y,
   # apply(scores_scaled, 2, max) # check!
 
   # assign style to axes
+  loading_names <- rownames(loadings)
+  rc <- loading_names[4]
+  fc <- loading_names[3]
+  hta <- loading_names[5]
   style_levels <- c("racy", "relaxed", "xtra_rowdy", "rowdy")[1:k]
-  relaxed <- which.max(loadings[rownames(loadings) == "rear_center"])
-  relaxed <- class_dt[model == "Curve GXR4 (AKA Kevin) 2025", init_cluster]
+  relaxed <- which.max(loadings[rownames(loadings) == rc])
+#  relaxed <- class_dt[model == "Curve GXR4 (AKA Kevin) 2025", init_cluster]
   colnames(scores_scaled)[relaxed] <- "relaxed"
-  xtra_rowdy <- which.max(loadings[rownames(loadings) == "front_center"])
-  xtra_rowdy <- class_dt[model == "Specialized Chisel 2025", init_cluster]
+  xtra_rowdy <- which.max(loadings[rownames(loadings) == fc])
+#  xtra_rowdy <- class_dt[model == "Specialized Chisel 2025", init_cluster]
   colnames(scores_scaled)[xtra_rowdy] <- "xtra_rowdy"
-  racy <- which.max(loadings[rownames(loadings) == "head_tube_angle"])
-  racy <- class_dt[model == "Time ADHX 2025", init_cluster]
+  racy <- which.max(loadings[rownames(loadings) == hta])
+#  racy <- class_dt[model == "Time ADHX 2025", init_cluster]
   colnames(scores_scaled)[racy] <- "racy"
   if(k==4){
     rowdy <- setdiff(1:4, c(racy, relaxed, xtra_rowdy))
@@ -4146,15 +4150,15 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
     bike_i[axle_crown >= min_3 & axle_crown < min_4, fork_class := "50 mm"]
     bike_i[axle_crown >= min_4 & axle_crown < min_5, fork_class := "60 mm"]
     
-    bike_i[fork == "rigid" & axle_crown >= 480 & axle_crown < 490, fork_class := "100 mm"]
-    bike_i[fork == "rigid" & axle_crown >= 502 & axle_crown < 512, fork_class := "120 mm"]
+    bike_i[fork == "rigid" & axle_crown >= 475 & axle_crown < 490, fork_class := "100 mm"]
+    bike_i[fork == "rigid" & axle_crown >= 494 & axle_crown < 512, fork_class := "120 mm"]
     
 # mtbikes
     bike_i[fork == "suspension" & axle_crown >= 471,
            fork_class := paste(suspension_corrected, "mm")]
 
         # make a factor and order
-    fork_classes <- c("0 mm", "20 mm", "30 mm", "40 mm", "50 mm", "60 mm", "100 mm", "110 mm", "100-110 mm", "100-120 mm", "120 mm", "100-130 mm", "120-130 mm", "130 mm")
+    fork_classes <- c("0 mm", "20 mm", "30 mm", "40 mm", "50 mm", "60 mm", "80-120 mm", "100 mm", "110 mm", "100-110 mm", "100-120 mm", "120 mm", "100-130 mm", "120-130 mm", "130 mm", "100-140 mm")
     bike_i[, fork_class := factor(fork_class, levels = fork_classes)]
     
     # bind it
