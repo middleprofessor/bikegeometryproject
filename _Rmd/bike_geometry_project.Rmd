@@ -2057,13 +2057,13 @@ d_scores <- function(Y,
   hta <- loading_names[5]
   style_levels <- c("racy", "relaxed", "xtra_rowdy", "rowdy")[1:k]
   relaxed <- which.max(loadings[rownames(loadings) == rc])
-#  relaxed <- class_dt[model == "Curve GXR4 (AKA Kevin) 2025", init_cluster]
+  relaxed <- class_dt[model == "Salsa Vaya 2022", init_cluster]
   colnames(scores_scaled)[relaxed] <- "relaxed"
   xtra_rowdy <- which.max(loadings[rownames(loadings) == fc])
-#  xtra_rowdy <- class_dt[model == "Specialized Chisel 2025", init_cluster]
+  xtra_rowdy <- class_dt[model == "Specialized Chisel 2025", init_cluster]
   colnames(scores_scaled)[xtra_rowdy] <- "xtra_rowdy"
   racy <- which.max(loadings[rownames(loadings) == hta])
-#  racy <- class_dt[model == "Time ADHX 2025", init_cluster]
+  racy <- class_dt[model == "Factor Aluto 2025", init_cluster]
   colnames(scores_scaled)[racy] <- "racy"
   if(k==4){
     rowdy <- setdiff(1:4, c(racy, relaxed, xtra_rowdy))

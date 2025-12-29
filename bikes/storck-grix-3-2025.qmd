@@ -1,0 +1,19 @@
+---
+title: "Storck Grix.3 2025"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Storck"
+  model: "Grix.3"
+  year: "2025"
+  slug: "storck-grix-3-2025"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../qmd/bike_template.qmd"}
+```
+
