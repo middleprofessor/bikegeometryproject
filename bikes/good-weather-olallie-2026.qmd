@@ -1,0 +1,19 @@
+---
+title: "Good Weather Olallie 2026"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Good Weather"
+  model: "Olallie"
+  year: "2026"
+  slug: "good-weather-olallie-2026"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../qmd/bike_template.qmd"}
+```
+

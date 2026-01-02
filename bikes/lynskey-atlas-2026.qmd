@@ -1,0 +1,19 @@
+---
+title: "Lynskey Atlas 2026"
+format:
+  html:
+    toc: false
+freeze: auto
+template_version: 1
+params:
+  brand: "Lynskey"
+  model: "Atlas"
+  year: "2026"
+  slug: "lynskey-atlas-2026"
+  data_path: "/Users/walker/Documents/Github/Bike Geometry Project/rds/geobike.Rds"
+  site_base_url: "https://thegravelbikegeometryproject.com"
+---
+
+```{r, child="../qmd/bike_template.qmd"}
+```
+

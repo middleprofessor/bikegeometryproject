@@ -374,7 +374,8 @@ compute_head_tube_length <- function(bike){
   bbd <- bike[, bottom_bracket_drop] # bb drop
   ac <- bike[, axle_crown] # axle_crown
   rake <- bike[, fork_offset_rake]
-  cr <- ifelse(bike[1, material] == "steel" | bike[1, material] == "titanium", 10, 0)
+  cr <- ifelse(bike[1, material] == "steel" | bike[1, material] == "titanium", 14, 0)
+  cr <- bike[, lower_headset_stack]
   cr.v <- cr * sin(hta)
   beta <- acos(rake/ac)
   delta <- pi/2 - hta
@@ -457,6 +458,7 @@ estimate_axle_crown <- function(bike, material){
   if(material == "titanium" | material == "steel"){
     headset_l <- 14
   }
+  headset_l <- bike[, lower_headset_stack]
 
   crown_x <- rc + reach + head_h
   crown_y <- stack - bbd - head_v
@@ -1055,6 +1057,15 @@ clean_and_compute <- function(bike){
   bike[udh == "no", udh := "NO/Unknown"]
   bike[udh == "yes", udh := "YES"]
   bike[udh == "optional", udh := "YES"]
+  
+  # headset stack
+  bike[is.na(headset_lower) & material == "carbon", lower_headset_stack := 1]
+  bike[is.na(headset_lower) & material == "aluminum", lower_headset_stack := 1]
+  bike[is.na(headset_lower) & material == "steel", lower_headset_stack := 13]
+  bike[is.na(headset_lower) & material == "titanium", lower_headset_stack := 13]
+  bike[!is.na(headset_lower) & substr(headset_lower,1,4) == "IS52", lower_headset_stack := 1]
+  bike[!is.na(headset_lower) & substr(headset_lower,1,2) == "EC", lower_headset_stack := 13]
+  bike[!is.na(headset_lower) & substr(headset_lower,1,2) == "ZS", lower_headset_stack := 3]
 
   # axle spacing
   bike[, axle_spacing := rear_axle]
