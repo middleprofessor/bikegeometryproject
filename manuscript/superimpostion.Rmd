@@ -1,0 +1,894 @@
+---
+title: "Superimposition"
+author: "Jeffrey Walker"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+library(geomorph) # ols fit
+```
+
+# Figure to matrix functions
+
+```{r morphometric-functions, echo=FALSE}
+matrix_2_vector <- function(x){
+  # x is a matrix of n rows and p*2 columns of shape data
+  # the output, y, is a vector in order x1, y1, x2, y2, ..., xp, yp
+  n <- dim(x)[1]
+  p <- dim(x)[2]/2
+  y <- c(t(x))
+  return(y)
+}
+
+matrix_2_array <- function(x){
+  # x is a matrix of n rows and p*2 columns of shape data
+  # in column order x1, y1, x2, y2, ..., xp, yp
+  # the output, y, is in the format for plotshapes in the shapes package
+  # dim = p, 2, n where p = no. landmarks and n = n_figures
+  n <- dim(x)[1]
+  p <- dim(x)[2]/2
+  y <- array(0, c(p, 2, n))
+  for(i in 1:n){
+    l <- 0
+    for(j in 1:p){
+      l <- l + 1
+      y[j, 1, i] <- x[i, l]
+      l <- l + 1
+      y[j, 2, i] <- x[i, l]
+    }
+  }
+  return(y)
+}
+
+array_2_matrix <- function(x){
+  # converts array to matrix - see matrix2array
+  n <- dim(x)[3]
+  p <- dim(x)[1]
+  y <- matrix(0, n, p*2)
+  for(i in 1:n){
+    l <- 0
+    for(j in 1:p){
+      l <- l + 1
+      y[i, l] <- x[j, 1, i]
+      l <- l + 1
+      y[i, l] <- x[j, 2, i]
+    }
+  }
+  return(y)
+}
+
+```
+# general functions
+
+```{r odd}
+odd <- function(x){
+  odd_values <- x[lapply(x, "%%", 2) != 0]
+  return(odd_values)
+}
+```
+
+```{r}
+euclid<-function(p1,p2){		#euclidean distance between two points
+  d <- 0
+  for(m in 1:length(p1)){
+    d <- d + (p1[m] - p2[m])^2
+  }
+  euclid <- sqrt(d)
+}
+
+midpoint <- function(x){
+  # midpoint of successive pairs of numbers in a vector
+  mp <- numeric((length(x) - 1))
+  mp <- (x[-1] + x[-length(x)]) / 2
+  return(mp)
+}
+```
+
+# Two-point Registration
+
+```{r morphometric-functions, echo=FALSE}
+tpr <- function(x, lm1, lm2){
+  # input is an array
+  n <- dim(x)[3]
+  p <- dim(x)[1]
+  tpr_mat <- x
+  for(i in 1:n){
+    xbxa <- (x[lm2, 1, i] - x[lm1, 1, i])
+    xcxa <- (x[, 1, i] - x[lm1, 1, i])
+    ybya <- (x[lm2, 2, i] - x[lm1, 2, i])
+    ycya <- (x[, 2, i] - x[lm1, 2, i])
+    tpr_mat[, 1, i] <- (xbxa*xcxa + ybya*ycya)/(xbxa^2 + ybya^2)
+    tpr_mat[, 2, i] <- (xbxa*ycya - ybya*xcxa)/(xbxa^2 + ybya^2)
+  }
+  return(tpr_mat)
+}
+```
+
+# OLS functions
+
+```{r morphometric-functions, echo=FALSE}
+mean_figure_old <- function(y_array){ # y is an array
+  ybar <- matrix(0, dim(y_array)[1], dim(y_array)[2])
+  for(i in 1:dim(y_array)[1]){
+    for(j in 1:dim(y_array)[2]){
+      ybar[i, j] <- mean(y_array[i, j,])
+    }
+  }
+  return(ybar)
+}
+
+mean_figure <- function(y_array){ # y is an array
+  ybar <- matrix(0, dim(y_array)[1], dim(y_array)[2])
+  ybar[, 1] <- apply(y_array[,1,], 1, mean)
+  ybar[, 2] <- apply(y_array[,2,], 1, mean)
+  return(ybar)
+}
+
+
+centroid_size <- function(coords){
+  # centroid size of a figure
+  x <- coords[,1]
+  y <- coords[,2]
+  xbar <- mean(x)
+  ybar <- mean(y)
+  cs <- sqrt(sum((x-xbar)^2 + (y-ybar)^2))
+  return(cs)
+}
+
+centroid_size_flat <- function(coords){
+  # centroid size of a figure formatted x1, y1, x2, y2
+  cols <- 1:length(coords)
+  even_col <- cols[lapply(cols, "%%", 2) == 0]
+  odd_col <- cols[lapply(cols, "%%", 2) != 0]
+  x <- coords[even_col]
+  y <- coords[odd_col]
+  xbar <- mean(x)
+  ybar <- mean(y)
+  cs <- sqrt(sum((x-xbar)^2 + (y-ybar)^2))
+  return(cs)
+}
+
+translate <- function(y, t){	#y is the row vector to translate by t
+  for(j in 1:dim(y)[1]){
+    y[j, ] <- y[j, ]-t
+  }
+  y
+}
+
+translate_ols <- function(y_i){	#y is the row vector to translate by t
+  p <- nrow(y_i)
+  centroid <- apply(y_i, 2, mean)
+  y_i <- y_i - t(matrix(centroid, ncol = p, nrow = 2))
+  return(y_i)
+}
+
+scale_ols <- function(y_i){	#y is the row vector to translate by t
+  p <- nrow(y_i)
+  cs <- centroid_size(y_i)
+  y_i <- y_i/cs
+  return(y_i)
+}
+
+rotate_ols <- function(ref_figure, y_i){
+  # updated 01/12/26
+  k <- dim(ref_figure)[2]
+  xtx <- t(ref_figure) %*% y_i
+  svd_xtx <- svd(xtx)
+  v <- svd_xtx$v
+  u <- svd_xtx$u
+  d <- svd_xtx$d
+  s <- diag(k)
+  diag(s) <- sign(d)
+  h <- v %*% s %*% t(u)
+  y_i_rot <- y_i %*% h
+  return(y_i_rot)
+}
+
+
+ols <- function(y_array, ref = "mean"){ #fits the figures in y_array to ref
+  p <- nrow(y_array[,,1])
+  if(ref == "mean"){
+    ref_figure <- mean_figure(y_array) |>
+      translate_ols() |>
+      scale_ols()
+  }else{
+    ref_figure <- y_array[,, ref] |>
+      translate_ols() |>
+      scale_ols()
+  }
+  y_ols <- array(NA_real_, dim = dim(y_array)) # create array for superimposed data
+  n <- dim(y_array)[3]
+  for(i in 1:n){ 		# number of figures in y
+    y_i <- y_array[, , i]
+    y_i <- translate_ols(y_i)
+    y_i <- scale_ols(y_i)
+    y_i <- rotate_ols(ref_figure, y_i)
+    y_ols[, , i] <- y_i
+  }
+  return(y_ols)
+}
+
+procrustes_d <- function(ref, y){
+  d <- sqrt(sum((y - ref)^2))
+  return(d)
+}
+
+gols <- function(y_array){
+  # generalized ols
+  # y_array is an array
+  convergence<-0.001
+  ybar <- mean_figure(y_array) |>
+    translate_ols() |>
+    scale_ols()
+  tol <- 0.001
+  done <- FALSE
+  y_ols <- copy(y_array)
+  d_old <- 1000
+  while(done == FALSE){
+    y_ols <- ols(y_ols)
+    ystar <- mean_figure(y_ols)
+    d <- procrustes_d(ybar, ystar)
+    iter_d <- abs(d - d_old)
+    iter_d
+    if(iter_d < convergence){
+      done <- TRUE
+    } else{
+      d_old <- d
+      ybar <- ystar
+    }
+  }
+  return(y_ols)
+}
+
+```
+
+# RF functions
+
+```{r morphometric-functions, echo=FALSE}
+
+median_figure<-function(y){
+  ybar <- matrix(0, dim(y)[1], dim(y)[2])
+  for(i in 1:dim(y)[1]){
+    for(j in 1:dim(y)[2]){
+      ybar[i, j] <- median(y[i, j,])
+    }
+  }
+  return(ybar)
+}
+
+median_size <- function(y){
+  #finds the median size of a figure
+  n <- dim(y)[1] # number of landmarks
+  p <- n*(n-1)/2 # number of interlandmark distances
+  t <- numeric(p)
+  l <- 0
+  for(i in 1:(n-1)){
+    for(j in (i + 1):n){
+      l <- l + 1
+      t[l] <- euclid(y[i, ], y[j, ])
+    }
+  }
+  return(median(t))
+}
+
+twoDangle <- function(a, b){
+  #a and b are vectors with start at 0, 0 and end at [1]=x,  [2]=y
+  aa <- atan(a[2]/a[1])
+  if(a[1]<0 & a[2]>0){
+    aa <- pi+aa
+  } else if (a[1]<0 & a[2]<0){
+    aa <- pi+aa
+  } else if (a[1]>0 & a[2]<0){
+    aa <- 2*pi+aa
+  }
+  
+  ab <- atan(b[2]/b[1])
+  if(b[1]<0 & b[2]>0){
+    ab  <- pi+ ab
+  } else if(b[1]<0 & b[2]<0){
+    ab  <- pi+ ab
+  } else if(b[1]>0 & b[2]<0){
+    ab  <- 2*pi+ ab
+  }
+  
+  twoDangle <- ab-aa
+  if(twoDangle>=pi){twoDangle <- twoDangle-2*pi}
+  twoDangle
+}
+
+rfscale <- function(x, y){			#find the resistant fit scale factor
+  t <- numeric(dim(y)[1]-1)
+  tau <- numeric(dim(y)[1])
+  for(j in 1:dim(y)[1]){
+    l <- 0
+    for(k in 1:dim(y)[1]){
+      if(j!=k){
+        l <- l+1
+        dx <- euclid(x[j, ],  x[k, ])
+        dy <- euclid(y[j, ],  y[k, ])
+        t[l] <- dx/dy
+      }
+    }
+    tau[j] <- median(t)
+  }
+  rfscale <- 1/median(tau)
+}
+
+rftranslate <- function(x, y){				#find the resistant fit translation parameter
+  t <- numeric(dim(y)[1])
+  out <- numeric(dim(y)[2])
+  for(k in 1:dim(y)[2]){
+    for(j in 1:dim(y)[1]){
+      t[j] <- y[j, k]-x[j, k]
+    }
+    out[k] <- median(t)
+  }
+  rftranslate <- out
+}
+
+rfrotate <- function(x, y){				#find the resistant fit rotation parameter
+  t1 <- numeric(dim(y)[1]-1)
+  t2 <- numeric(dim(y)[1])
+  xvec <- numeric(dim(y)[2])
+  yvec <- numeric(dim(y)[2])
+  H <- matrix(0, 2, 2)
+  for(j in 1:dim(y)[1]){
+    l <- 0
+    for(k in 1:dim(y)[1]){
+      if(k!=j){
+        l <- l+1
+        for(m in 1:dim(y)[2]){
+          xvec[m] <- x[k, m]-x[j, m]
+          yvec[m] <- y[k, m]-y[j, m]
+        }
+        t1[l] <- twoDangle(xvec, yvec)
+      }
+    }
+    t2[j] <- median(t1)
+  }
+  theta <- median(t2)
+  H[1, 1] <-  cos(theta)
+  H[1, 2] <-  -sin(theta)
+  H[2, 1] <-  sin(theta)
+  H[2, 2] <- cos(theta)
+  rfrotate <- H
+}
+
+
+rf <- function(x, y){ 			#fits the figures in y to x
+  yt <- array(0, dim = dim(y))
+  for(i in 1:dim(y)[3]){ 		# number of figures in y
+    yy <- y[, , i]
+    yy <- yy / (rfscale(x, yy))
+    yy <- yy %*% rfrotate(x, yy)
+    #t <- rftranslate(x, yy)
+    # yt <- apply(yy, 1, function(x)(x-t)) # this seems to give the transpose of the correct result
+    yy <- translate(yy,  rftranslate(x, yy))
+    yt[, , i] <- yy
+  }
+  yt
+}
+
+grf <- function(y){
+  # generalized resistant fit
+  # y is an array
+  convergence <- 0.001
+  #create arrays
+  fit_data <- array(0, dim = dim(y))
+  yorf <- array(0, dim = dim(y))
+  x <- matrix(0, dim(y)[1], dim(y)[2])
+  xstar <- matrix(0, dim(y)[1], dim(y)[2])
+  #the code
+  # I need to write an OLS code because the shapes function procGPA rotated everything by
+  #45 degrees or so. Since my guppies started at TPR alignment, I don't need the 
+  #data <- procGPA(y)$rotated
+  fit_data <- y
+  x <- median_figure(fit_data)
+  x <- x/median_size(x)
+  done <- FALSE
+  while(done == FALSE){
+    fit_data <- rf(x, fit_data)
+    xstar <- median_figure(fit_data)
+    xstar <- xstar/median_size(xstar)
+    d <- abs(xstar - x)
+    c <- median(c(d[, 1], d[, 2]))
+    if(c <- convergence){
+      done <- TRUE
+    } else{
+      x <- xstar
+    }
+  }
+  return(fit_data)
+}
+
+```
+
+# Plot functions
+
+```{r, echo=FALSE}
+plot_shapes <- function(z, color_by = NULL){
+  #z is an array as specified in the shapes package
+  
+  #vectorize x
+  n <- dim(z)[3]
+  p <- dim(z)[1]
+  x <- numeric(n*p)
+  y <- numeric(n*p)
+  r <- 0
+  for(i in 1:n){
+    for(j in 1:p){
+      r <- r+1
+      x[r] <- z[j,1,i]
+      y[r] <-	z[j,2,i]		
+    }
+  }
+  # plot(x,y)
+  plot_data <- data.table(x = x, y = y)
+  gg <- ggplot(data = plot_data,
+               aes(x = x, y = y),
+               color = get(color_by)) +
+    geom_point() +
+    coord_fixed()
+  return(gg)
+}
+```
+
+```{r, echo=FALSE}
+plot_2shapes <- function(z, color_col){
+  #x is an array as specified in the shapes package
+  
+  #vectorize x
+  n <- dim(z)[3]
+  p <- dim(z)[1]
+  x <- numeric(n*p)
+  y <- numeric(n*p)
+  r <- 0
+  for(i in 1:n){
+    for(j in 1:p){
+      r <- r+1
+      x[r] <- z[j,1,i]
+      y[r] <-	z[j,2,i]		
+    }
+  }
+  # plot(x,y)
+  plot_data <- data.table(x = x,
+                          y = y,
+                          group = color_col)
+  
+  gg <- ggplot(data = plot_data,
+               aes(x = x,
+                   y = y,
+                   color = group)) +
+    geom_point() +
+    coord_fixed() +
+    theme_pubr() +
+    scale_color_manual(values = pal_okabe_ito_blue)
+  
+  return(gg)
+}
+
+```
+
+
+```{r plot_difference_vectors, echo=FALSE}
+plot_difference_shapes <- function(
+    ref, # ref figure
+    diff, # difference from ref
+    mag = 1,
+    zoom = 1,
+    start_at_ref = TRUE, # otherwise symmetric on either side of ref
+    show_legend = TRUE,
+    reference_label = "Reference",
+    target_label = "Target"
+){
+  p <- length(ref)
+  x_inc <- (1:p)[odd(1:p)]
+  y_inc <- x_inc + 1
+  x_mean <- ref[x_inc]
+  y_mean <- ref[y_inc]
+  x_diff <- diff[x_inc]
+  y_diff <- diff[y_inc]
+  
+  
+  
+  fig_ref <- data.table(
+    figure = reference_label,
+    x = x_mean - 0.5 * x_diff * mag,
+    y = y_mean - 0.5 * y_diff * mag
+  )
+  fig_target <- data.table(
+    figure = target_label,
+    x = x_mean + 0.5 * x_diff * mag,
+    y = y_mean + 0.5 * y_diff * mag
+  )
+  
+  # add last lm = first lm
+  fig_ref <- rbind(fig_ref,
+                   fig_ref[1,])
+  fig_target <- rbind(fig_target,
+                      fig_target[1,])
+  
+  # combine
+  fig_dots <- rbind(fig_ref, fig_target)
+  fig_dots[, figure := factor(figure,
+                              levels = c(reference_label, target_label))]
+  
+  fig_lines <- fig_dots[-c(12,13,26,27)]
+  
+  gg <- ggplot(data = fig_dots,
+               aes(x = x,
+                   y = y,
+                   color = figure)) +
+    geom_point() +
+    geom_path(data = fig_lines,
+              aes(x = x,
+                  y = y,
+                  color = figure)) +
+    coord_fixed() +
+    xlab("X") +
+    ylab("Y") +
+    theme_void() +
+    scale_color_manual(values = pal_okabe_ito) +
+    NULL
+  if(show_legend == TRUE){
+    gg <- gg + theme(legend.position="top")
+  }
+  return(gg)
+}
+```
+
+```{r plot_difference_vectors, echo=FALSE}
+plot_difference_vectors <- function(
+    ref_fig, # ref figure as vector x1, y1, x2, y2...
+    diff_vec = NULL, # difference from ref
+    target_fig = NULL, # the vectors will end here
+    mag = 1,
+    zoom = 1,
+    start_at_ref = TRUE # otherwise symmetric on either side of ref
+){
+  # either target_fig or diff_vec needs to be given
+  p <- length(ref_fig)
+  x_inc <- (1:p)[odd(1:p)]
+  y_inc <- x_inc + 1
+  
+  if(is.null(diff_vec)){
+    diff_vec <- target_fig - ref_fig
+  }
+  
+  if(start_at_ref == TRUE){
+    vec_dt <- data.table(
+      x = ref_fig[x_inc], # mean x
+      y = ref_fig[y_inc], # mean y
+      dx_1 = ref_fig[x_inc], # begin arrow x
+      dy_1 = ref_fig[y_inc], # begin arrow y
+      dx_2 = ref_fig[x_inc] + 1 * diff_vec[x_inc] * mag, # end arrow x
+      dy_2 = ref_fig[y_inc] + 1 * diff_vec[y_inc] * mag # end arrow y
+    )
+  }else{
+    vec_dt <- data.table(
+      x = ref_fig[x_inc], # mean x
+      y = ref_fig[y_inc], # mean y
+      dx_1 = ref_fig[x_inc] - 0.5 * diff_vec[x_inc] * mag, # begin arrow x
+      dy_1 = ref_fig[y_inc] - 0.5 * diff_vec[y_inc] * mag, # begin arrow y
+      dx_2 = ref_fig[x_inc] + 0.5 * diff_vec[x_inc] * mag, # end arrow x
+      dy_2 = ref_fig[y_inc] + 0.5 * diff_vec[y_inc] * mag # end arrow y
+    )
+  }
+  gg <- ggplot(data = vec_dt,
+               aes(x = x,
+                   y = y)) +
+    geom_point() +
+    geom_segment(aes(x = dx_1,
+                     xend = dx_2,
+                     y = dy_1,
+                     yend = dy_2),
+                 arrow = arrow(length = unit(0.06, "npc"))) +
+    coord_fixed() +
+    xlab("X") +
+    ylab("Y") +
+    theme_minimal() +
+    NULL
+  return(gg)
+}
+```
+
+# Thin plate spline functions
+
+```{r}
+getL <- function(y){
+  p <- dim(y)[1]
+  L <- matrix(0, p + 3,p + 3)
+  for(i in 1:(p-1)){
+    for(j in (i + 1):p){
+      d <- euclid(y[i,], y[j,])
+      r <- d^2 * log(d^2)
+      L[i, j] <- r
+      L[j, i] <- L[i, j]
+    }
+  }
+  L[p + 1, 1:p] <- 1.0
+  L[p + 2, 1:p] <- y[, 1]
+  L[p + 3, 1:p] <- y[, 2]
+  L[1:p, p + 1] <- 1.0
+  L[1:p, p + 2] <- y[, 1]
+  L[1:p, p + 3] <- y[, 2]
+  return(L)
+}
+```
+
+
+```{r}
+tpsaffine <- function(x, Linv){
+  p <- dim(x)[1]
+  a <- matrix(0,3,2)
+  rownames(a) <- c('a1', 'ax', 'ay')
+  a[1,1] <- Linv[p + 1, 1:p] %*% x[1:p, 1] #a1.x
+  a[2,1] <- Linv[p + 2, 1:p] %*% x[1:p, 1] #ax.x
+  a[3,1] <- Linv[p + 3, 1:p] %*% x[1:p, 1] #ay.x
+  
+  a[1,2] <- Linv[p + 1, 1:p] %*% x[1:p, 2] #a1.y
+  a[2,2] <- Linv[p + 2, 1:p] %*% x[1:p, 2] #ax.y
+  a[3,2] <- Linv[p + 3, 1:p] %*% x[1:p, 2] #ay.y
+  return(a)
+}
+```
+
+
+```{r}
+tpsnonaffine <- function(x, Linv){
+  p <- dim(x)[1]
+  w <- matrix(0, p, 2)
+  w <- Linv[1:p, 1:p] %*% x
+}
+```
+
+
+```{r}
+tps.point <- function(a,w,y,pt){		#pt is the 2D cartesion point, y is figure to deform
+  p <- dim(y)[1]
+  loc <- matrix(0,p,2)
+  loc[,1] <- as.numeric(pt[1])
+  loc[,2] <- as.numeric(pt[2])
+  rvec <- sqrt((y[, 1] - loc[, 1])^2 + (y[, 2] - loc[, 2])^2)
+  uvec <- rvec^2 * log((rvec + 1e-16)^2)
+  sum <- t(w) %*% uvec
+  xp <- a[1, 1] + a[2, 1] * loc[1, 1] + a[3, 1] * loc[1, 2] + sum[1]
+  yp <- a[1, 2] + a[2, 2] * loc[1, 1] + a[3, 2] * loc[1,2] + sum[2]
+  return(c(xp,yp))
+}
+```
+
+
+```{r}
+tps.outline <- function(x,ol,s=1){
+  # x is the target in the format of a matrix with p rows and 2 columns
+  # ol is the list of ol coordinates
+  # s is a scale factor (make this big if the ol coordinates are big)
+  p <- dim(x)[1]		# number of landmarks
+  k <- length(ol) - 1		# number of outline segments
+  y <- ol[[1]]/s
+  Linv <- solve(getL(y))
+  w <- tpsnonaffine(x, Linv) 		#affine component
+  a <- tpsaffine(x,Linv)		#unifform component
+  for(i in 1:k){
+    seg <- i + 1
+    for(j in 1:dim(ol[[seg]])[1]){
+      pt <- tps.point(a, w, y, ol[[seg]][j,]/s)
+      if(j>1){
+        segments(opt[1], opt[2], pt[1], pt[2])
+      }
+      opt <- pt
+    }
+  }
+}
+```
+
+
+```{r}
+tps <- function(x,y, gridlines=20, multiple = 1){
+  #x is the target, y is the figure that is deformed
+  x0 <- copy(x)
+  y0 <- copy(y)
+  x <- x0 - (x0 - (x0 + y0)/2) + multiple * (x0 - (x0 + y0)/2)
+  y <- y0 - (y0 - (x0 + y0)/2) + multiple * (y0 - (x0 + y0)/2)
+  #
+  p <- dim(x)[1]
+  where <- numeric(2)
+  loc <- matrix(0, p, 2)
+  Linv <- solve(getL(y))
+  w <- tpsnonaffine(x, Linv) 		#affine component
+  a <- tpsaffine(x, Linv)		#unifform component
+  #draw grid
+  extra <- 0.1
+  minx <- min(y[, 1]) - extra * (max(y[, 1]) - min(y[, 1]))
+  miny <- min(y[, 2]) - extra * (max(y[, 2]) - min(y[, 2]))
+  maxx <- max(y[, 1]) + extra * (max(y[, 1]) - min(y[, 1]))
+  maxy <- max(y[, 2]) + extra * (max(y[, 2]) - min(y[, 2]))
+  dx <- maxx-minx
+  dy <- maxy-miny
+  gridinterval <- max(dx,dy)/(gridlines-1)
+  hlines <- ceiling(dy/gridinterval) + 1
+  vlines <- ceiling(dx/gridinterval) + 1
+  gridx <- matrix(0, hlines, vlines)
+  gridy <- matrix(0,hlines,vlines)
+  for(i in 1:(hlines)){
+    iy <- i-1
+    for(j in 1:(vlines)){
+      ix <- j - 1
+      loc[, 1] <- minx + ix * gridinterval
+      loc[, 2] <- miny + iy * gridinterval
+      rvec <- sqrt((y[,1] - loc[, 1])^2 + (y[, 2] - loc[, 2])^2)
+      uvec <- rvec^2 * log((rvec + 1e-16)^2)
+      sum <- t(w) %*% uvec
+      xp <- a[1, 1] + a[2, 1] * loc[1, 1] + a[3, 1] * loc[1, 2] + sum[1]
+      yp <- a[1, 2] + a[2, 2] * loc[1, 1] + a[3, 2] * loc[1, 2] + sum[2]
+      gridx[i, j] <- xp
+      gridy[i, j] <- yp
+    }
+  }
+  #draw points & grid
+  extra <- 0.2
+  hmin <- min(x[, 1]) - extra * (max(x[, 1]) - min(x[, 1]))
+  hmax <- max(x[, 1]) + extra * (max(x[, 1]) - min(x[, 1]))
+  vmin <- min(x[, 2]) - extra * (max(x[, 2]) - min(x[, 2]))
+  vmax <- max(x[, 2]) + extra * (max(x[, 2]) - min(x[, 2]))
+  plot(x[,1], x[, 2], type='p', asp=1, xlim=c(hmin, hmax),		ylim=c(vmin,vmax))
+  for(i in 1:hlines){
+    lines(gridx[i,], gridy[i,])
+  }
+  for(i in 1:vlines){
+    lines(gridx[,i], gridy[,i])
+  }
+  #draw outline
+}
+```
+
+```{r}
+grid_points <- function(x, y, gridlines=20,  multiple=1){
+    #x is the target, y is the figure that is deformed
+  x0 <- copy(x)
+  y0 <- copy(y)
+  x <- x0 - (x0 - (x0 + y0)/2) + multiple * (x0 - (x0 + y0)/2)
+  y <- y0 - (y0 - (x0 + y0)/2) + multiple * (y0 - (x0 + y0)/2)
+  #
+  p <- dim(x)[1]
+  where <- numeric(2)
+  loc <- matrix(0, p, 2)
+  Linv <- solve(getL(y))
+  w <- tpsnonaffine(x, Linv) 		# affine component
+  a <- tpsaffine(x, Linv)		# uniform component
+  
+  #compute grid
+  extra <- 0.1
+  minx <- min(y[, 1]) - extra * (max(y[, 1]) - min(y[, 1]))
+  miny <- min(y[, 2]) - extra * (max(y[, 2]) - min(y[, 2]))
+  maxx <- max(y[, 1]) + extra * (max(y[, 1]) - min(y[, 1]))
+  maxy <- max(y[, 2]) + extra * (max(y[, 2]) - min(y[, 2]))
+  dx <- maxx - minx
+  dy <- maxy - miny
+  gridinterval <- max(dx, dy)/(gridlines - 1)
+  hlines <- ceiling(dy/gridinterval) + 1
+  vlines <- ceiling(dx/gridinterval) + 1
+  gridx <- matrix(0, hlines, vlines)
+  gridy <- matrix(0,hlines, vlines)
+  for(i in 1:(hlines)){
+    iy <- i - 1
+    for(j in 1:(vlines)){
+      ix <- j - 1
+      loc[,1] <- minx + ix * gridinterval
+      loc[,2] <- miny + iy * gridinterval
+      rvec <- sqrt((y[, 1] - loc[, 1])^2 + (y[, 2] - loc[, 2])^2)
+      uvec <- rvec^2 * log((rvec + 1e-16)^2)
+      sum <- t(w) %*% uvec
+      xp <- a[1, 1] + a[2, 1] * loc[1, 1] + a[3, 1] * loc[1, 2] + sum[1]
+      yp <- a[1, 2] + a[2, 2] * loc[1, 1] + a[3, 2] * loc[1, 2] + sum[2]
+      gridx[i, j] <- xp
+      gridy[i, j] <- yp
+    }
+  }
+return(list(gridx, gridy, gridinterval))
+}
+```
+
+```{r}
+grid_points_2_segments <- function(grid_list){
+  gridx <- grid_list[[1]]
+  gridy <- grid_list[[2]]
+
+  # chatgpt code
+  nr <- nrow(gridx)
+  nc <- ncol(gridx)
+  
+  # ---- horizontal segments: connect (i,j) -> (i,j+1)
+  hseg <- data.table(
+    x    = as.vector(gridx[, -nc, drop = FALSE]),
+    y    = as.vector(gridy[, -nc, drop = FALSE]),
+    xend = as.vector(gridx[, -1,  drop = FALSE]),
+    yend = as.vector(gridy[, -1,  drop = FALSE])
+  )
+  
+  # ---- vertical segments: connect (i,j) -> (i+1,j)
+  vseg <- data.table(
+    x    = as.vector(gridx[-nr, , drop = FALSE]),
+    y    = as.vector(gridy[-nr, , drop = FALSE]),
+    xend = as.vector(gridx[-1,  , drop = FALSE]),
+    yend = as.vector(gridy[-1,  , drop = FALSE])
+  )
+  
+  segments <- rbind(hseg, vseg)
+ 
+  return(segments)
+}
+```
+
+```{r}
+hv_strain <- function(grid_list){
+  # this is the horizontal and vertical strain of each cell. 
+
+  gridx <- grid_list[[1]]
+  gridy <- grid_list[[2]]
+  grid_interval <- grid_list[[3]]
+  n_col <- ncol(gridx)
+  n_row <- nrow(gridx)
+  edge_h <- matrix(NA_real_, nrow = (n_row), ncol = (n_col-1))
+  edge_v <- matrix(NA_real_, nrow = (n_row-1), ncol = (n_col))
+  # lengths of horizontal segments of cell edges
+  for(i in 1:n_row){
+    edge_h[i,] <- diff(gridx[i,])
+  }
+  # lengths of vertical segments of cell edges
+  for(j in 1:n_col){
+    edge_v[,j] <- diff(gridy[,j])
+  }
+  
+  # cell_h <- matrix(NA_real_, nrow = (n_row-1), ncol = (n_col-1))
+  # cell_v <- matrix(NA_real_, nrow = (n_row-1), ncol = (n_col-1))
+  # # average horizontal segment of each cell
+  # for(j in 1:(n_col-1)){
+  #   cell_h[,j] <- midpoint(edge_h[,j])
+  # }
+  # # average vertical segment of each cell
+  # for(i in 1:(n_row-1)){
+  #   cell_v[i,] <- midpoint(edge_v[i,])
+  # }
+  # cell_h <- cell_h/grid_interval
+  # cell_v <- cell_v/grid_interval
+  # 
+}
+```
+
+```{r}
+ggtps <- function(target_fig, deform_fig, gridlines=20, multiple=1){
+  # x is the target, y is the figure that is deformed
+  
+  # matrix of the x coords and y coords of the deformed grid
+  deformed_grid <- grid_points(target_fig, deform_fig, gridlines, multiple)
+  # converting the matrices of coords into  ggplotable line segments
+  grid_segments <- grid_points_2_segments(deformed_grid)
+  
+  # ggplot
+  colnames(target_fig) <- c("x", "y")
+  # ggdata <- data.table(
+  #   "x" = x[, 1],
+  #   "y" = x[, 2]
+  # )
+  gg <- ggplot(data = target_fig,
+               aes(x = x, y = y)) +
+    geom_point()
+  
+  gg <- gg +
+    geom_segment(
+      data = grid_segments,
+      aes(x = x, y = y, xend = xend, yend = yend),
+      linewidth = 0.3
+    )
+  
+  gg <- gg + coord_equal()
+  
+  gg <- gg + theme_void()
+  #draw outline
+  # gg
+  return(gg)
+}
+```

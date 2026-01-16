@@ -1,0 +1,4 @@
+Thoughts
+1. Misunderstanding PCA: reduction in abdomen size inferred from PC1 but this is really abdomen variation contributes to pc1, because abdomen is also "effected" by PC2, 3... so to understand reduction in abdomen size we just need to measure abdomen size and not PC.
+- "Because the PCA is based on so many landmarks and semilandmarks, the resulting PCs describe independent axes of morphological variation that preclude simple definition (i.e., there is not simply a “facial prognathism” axis), although PC1 does a good job of discriminating the crania by sex." This is kinda getting at what I'm getting at. (Smith 2015 "Biomechanical Implications...")
+- modularity has something to do with it - if PCA captures modules, which will be noisy. There must be good simulation of this?

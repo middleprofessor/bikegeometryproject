@@ -4089,7 +4089,7 @@ import_bikes_excel_single <- function(style_folder = "gravel", exchange_rates){
       brand = rep(brand_i, nrow(bike_geo)),
       model_name = rep(model_i, nrow(bike_geo))
     )
-    bike_i <- cbind(model_dt, bike_geo, bike_specs_t )
+    bike_i <- cbind(model_dt, bike_geo, bike_specs_t)
     if(!"location" %in% names(bike_i)){
       bike_i[, location := NA]
     }

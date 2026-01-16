@@ -1,0 +1,804 @@
+---
+title: "What can we learn about the functional morphology of bike geometry using geometric morphometrics?"
+---
+
+```{r setup-ms}
+#| echo: false
+#| eval: true
+  
+# wrangling packages
+library(here) # here makes a project transportable
+library(janitor) # clean_names
+library(readxl) # read excel, duh!
+library(openxlsx) # write excel
+library(data.table) # magical data frames
+library(magrittr) # pipes
+library(stringr) # string functions
+library(forcats) # factor functions
+library(arules) # discretize function
+
+# prediction packages for rider_height
+library(glmnet)
+library(ranger)
+library(xgboost)
+
+# cluster packages
+library(ggdendro) # dendrogram
+library(dendextend) # better dendrogram
+library(bootcluster) # bootstrap dendrogram
+library(fpc) # cluster stability
+library(mclust) # clustering
+library(COveR) # overlapping kmeans
+library(ksharp) # sharpen kmeans
+library(ktaucenters) # robust kmeans
+
+# graphing packages
+library(ggsci) # color palettes
+library(ggpubr) # publication quality plots
+library(ggforce) # better jitter
+library(cowplot) # combine plots
+library(knitr) # kable tables
+library(kableExtra) # kable_styling tables
+library(plotly)
+
+# use here from the here package
+here <- here::here
+# use clean_names from the janitor package
+clean_names <- janitor::clean_names
+# use transpose from data.table
+transpose <- data.table::transpose
+
+# load functions used by this text written by me
+# ggplot_the_model.R needs to be in the folder "R"
+# if you didn't download this and add to your R folder in your
+# project, then this line will cause an error
+#source_path <- here("R", "ggplot_the_model.R")
+#source(source_path)
+
+data_folder <- "data"
+
+pal_okabe_ito <- c(
+  "#E69F00",
+  "#56B4E9",
+  "#009E73",
+  "#F0E442",
+  "#0072B2",
+  "#D55E00",
+  "#CC79A7"
+)
+
+```
+
+# Compute missing measures
+
+```{r deg-2-rad}
+deg_2_rad <- function(x){
+  rad <- x*pi/180
+  return(rad)
+}
+```
+
+```{r}
+compute_offset_h <- function(rake, hta){
+  # the horizontal component of fork offset
+  offset_h <- rake/sin(deg_2_rad(hta))
+  return(offset_h)
+}
+
+```
+
+```{r}
+compute_head_tube_length <- function(hta, fs, bbd, ac, rake, lhss){
+  # head tube angle, frame stack, bb drop, axle crown, lower headset stack
+  hta_rad <- hta*pi/180
+  beta <- acos(rake/ac)
+  delta <- pi/2 - hta_rad
+  gamma <- beta - delta
+  ac.v <- ac * sin(gamma)
+  lhss.v <- lhss * sin(hta_rad)
+
+  h.v <- fs - ac.v - lhss.v - bbd
+  htle <- h.v / sin(hta_rad)
+  return(htle)
+}
+```
+
+Steering is the axis from the top of the head tube to the horizontal line through the wheel axles along the head tube angle
+
+```{r compute-steering}
+compute_steering_v <- function(fs, bbd){
+  # steering_v is the vertical component of the steering axis from top of head tube
+  # to the horizontal line through wheel axles - so height from axle to head tube crown
+  steering_v <- fs - bbd
+  return(steering_v)
+}
+
+compute_steering_h <- function(fs, bbd, hta){
+  steering_v <- compute_steering_v(fs, bbd)
+  steering_h <- steering_v/tan(deg_2_rad(hta))
+  return(steering_h)
+}
+```
+
+```{r compute-wheelbase}
+compute_wheelbase <- function(fs, fr, bbd, hta, rake, rc_h){
+  # stack, reach, bottom_bracket_drop, head_tube_angle, fork_offset_rake, rear_center_h)
+  steering_h <- compute_steering_h(fs, bbd, hta)
+  offset_h <- compute_offset_h(rake, hta)
+  wb <- rc_h + fr + steering_h + offset_h
+  return(wb)
+}
+
+```
+
+# Import and Impute
+
+```{r read-geometry}
+read_geometry <- function(bike_path,
+                          geom_range){
+    bike_wide <- read_excel(bike_path,
+                          range = geom_range) |>
+    data.table()
+    bike_wide <- bike_wide[, -2]
+    bike <- transpose(bike_wide,
+                keep.names = "frame_size",
+                make.names = 1)
+    return(bike)
+}
+```
+
+In order to get frame coordinates we need:
+
+1. chainstay length
+2. top tube effective length
+3. wheelbase
+4. front center
+5. seat tube angle
+6. head tube angle
+7. head tube length
+8. stack
+9. reach
+10. bottom bracket drop
+11. fork axle-crown
+12. fork offset
+13. lower crown stack
+
+```{r create-missing-geom-cols}
+create_missing_geom_cols <- function(bike_geom){
+  measures <- c("chainstay_length", "wheelbase", "front_center", "seat_tube_angle", "head_tube_angle", "head_tube_length", "stack", "reach", "bottom_bracket_drop", "axle_crown", "fork_offset_rake", "lower_headset_stack")
+  
+  in_measures <- colnames(bike_geom)[-1]
+  missing <- setdiff(measures, in_measures)
+  for(j in 1:length(missing)){
+    bike_geom[, v1 := NA_real_]
+    setnames(bike_geom, "v1", missing[j])
+  }
+  
+  bike_geom <- bike_geom[, .SD, .SDcols = c("frame_size", measures)]
+  return(bike_geom)
+}
+
+```
+
+```{r fill-in-missing-geom}
+fill_in_missing_geom <- function(bike){
+  measures <- c("chainstay_length", "wheelbase", "front_center", "seat_tube_angle", "head_tube_angle", "head_tube_length", "stack", "reach", "bottom_bracket_drop", "axle_crown", "fork_offset_rake", "lower_headset_stack")
+
+  # headset stack
+  bike[is.na(headset_lower) & material == "carbon", lower_headset_stack := 1]
+  bike[is.na(headset_lower) & material == "aluminum", lower_headset_stack := 1]
+  bike[is.na(headset_lower) & material == "steel", lower_headset_stack := 13]
+  bike[is.na(headset_lower) & material == "titanium", lower_headset_stack := 13]
+  bike[!is.na(headset_lower) & substr(headset_lower,1,4) == "IS52", lower_headset_stack := 1]
+  bike[!is.na(headset_lower) & substr(headset_lower,1,2) == "EC", lower_headset_stack := 13]
+  bike[!is.na(headset_lower) & substr(headset_lower,1,2) == "ZS", lower_headset_stack := 3]
+
+  # headtube length
+  bike[is.na(head_tube_length), head_tube_length := compute_head_tube_length(head_tube_angle, stack, bottom_bracket_drop, axle_crown, fork_offset_rake, lower_headset_stack)]
+  # bike[is.na(head_tube_length), model] |> unique()
+  
+  # rear_center_h
+  bike[, rear_center_h := sqrt(chainstay_length^2 - bottom_bracket_drop^2)]
+  
+  # wheelbase from front and rear center
+  bike[is.na(wheelbase) & !is.na(front_center), # assume bottom_bracket_drop & chainstay_length
+          wheelbase := rear_center_h + 
+            sqrt(front_center^2 - bottom_bracket_drop^2)]
+  
+  # wheelbase using fork
+  bike[is.na(wheelbase),
+          wheelbase := compute_wheelbase(stack, reach, bottom_bracket_drop,
+                                         head_tube_angle, fork_offset_rake, rear_center_h)]
+  # bike[is.na(wheelbase), model] |> unique()
+  
+  # front center
+  bike[, front_center_h := wheelbase - rear_center_h]
+
+ return(bike)
+}
+```
+
+```{r}
+correct_specs <- function(bike){
+  # bike[is.na(tire_width_max_700c), model] |> unique()
+  bike[!is.na(tire_width_max_700c) & tire_width_max_700c < 5,
+       tire_width_max_700c := as.numeric(tire_width_max_700c) * 25.4]
+  bike[!is.na(tire_width_max_650b) & tire_width_max_650b < 5,
+       tire_width_max_650b := as.numeric(tire_width_max_650b) * 25.4]
+  return(bike)
+}
+```
+
+```{r}
+classify <- function(bike){
+  bike[, axle_crown := sqrt((front.x - fork_top.x)^2 + (front.y - fork_top.y)^2)]
+  bike[, class := "gravel"]
+  bike[axle_crown > 470 & (tire_width_max_700c > 57 | tire_width_max_650b > 57),
+       class := "mtb"]
+  return(bike)
+}
+```
+
+```{r import}
+#| echo: false
+#| eval: true
+import_bike_data <- function(){
+  file_in <- "gravel"
+  filelist_path <- here(data_folder, file_in)
+  bike_list <- list.files(filelist_path, pattern = "\\.xlsx$", full.names = FALSE)
+  bike_list <- bike_list[!grepl("^~\\$", basename(bike_list))] # delete excel hidden
+
+  n_bikes <- length(bike_list)
+  geobike <- data.table(NULL)
+  for(i in 1:n_bikes){
+    bike_file = bike_list[i]
+    bike_path <- here(data_folder, file_in, bike_file)
+    model_data <- read_excel(bike_path, range = "A1:B6", col_names = FALSE,
+                             .name_repair = "unique_quiet") |>
+      data.table()
+
+    model <- transpose(model_data[1:3, 1:2], make.names = 1) |>
+      clean_names()
+    model[, bike := paste(brand, model, model_year)]
+
+    # read geometry
+    geom_range <- read_excel(bike_path, range = "B7:B7",
+                             col_names = FALSE,
+                             .name_repair = "unique_quiet") |>
+      as.character()
+    last_row <- substr(geom_range, (nchar(geom_range)-1),
+                       nchar(geom_range)) |>
+      as.integer()
+    bike_geom <- read_geometry(bike_path, geom_range) |>
+      data.table()
+    bike_geom_clean <- create_missing_geom_cols(bike_geom)
+    
+    # add model data
+    geom_cols <- data.table(
+      model,
+      bike_geom_clean
+    )
+
+    # specs 
+    last_row_of_geom <- substr(geom_range, (nchar(geom_range)-1), nchar(geom_range)) |>
+      as.integer()
+    first_row_of_specs <- last_row_of_geom + 2
+    last_row_of_specs <- first_row_of_specs + 100
+    specs_range <- paste0("a", first_row_of_specs, ":b", last_row_of_specs)
+    bike_specs <- read_excel(bike_path, range = specs_range, col_names = TRUE) |>
+      clean_names() |>
+      data.table()
+    bike_specs <- bike_specs[!apply(is.na(bike_specs), 1, all), ]
+    specs_data <- transpose(bike_specs, make.names = 1)
+    specs_keep <- c("class", "handlebar", "material", "dropout", "rear_axle", "headset_lower", "tire_width_max_700c", "tire_width_max_650b")
+    specs_cols <- specs_data[, .SD, .SDcols = specs_keep]
+
+    # combine
+    bike <- cbind(geom_cols, specs_cols)
+    geobike <- rbind(geobike, bike)
+    
+  }
+  return(geobike)
+}
+  
+  
+```
+
+# Get coordinates
+
+center at rear axle
+
+1. rear axle
+2. front axle
+3. seat
+4. head tube
+5. crown
+6. bottom bracket
+
+```{r compute-bike-coords}
+compute_bike_coords <- function(bike){
+  # tan(sta) = setback_v / setback_h 
+  bike[, setback_v := stack]
+  bike[, setback_h := setback_v /
+            tan(deg_2_rad(seat_tube_angle))]
+  # sin(hta) = headtube_v / head_tube_length 
+  # cos(hta) = headtube_h / head_tube_length 
+  bike[, head_tube_v := head_tube_length *
+            sin(deg_2_rad(head_tube_angle))]
+  bike[, head_tube_h := head_tube_length *
+            cos(deg_2_rad(head_tube_angle))]
+  bike[, crown_race_v := lower_headset_stack *
+            sin(deg_2_rad(head_tube_angle))]
+  bike[, crown_race_h := lower_headset_stack *
+            cos(deg_2_rad(head_tube_angle))]
+  
+  bike[, rear.x := 0]
+  bike[, rear.y := 0]
+  bike[, front.x := wheelbase]
+  bike[, front.y := 0]
+  bike[, seat.x := rear_center_h - setback_h]
+  bike[, seat.y := stack - bottom_bracket_drop]
+  bike[, headtube.x := rear_center_h + reach]
+  bike[, headtube.y := stack - bottom_bracket_drop]
+  bike[, crown.x := headtube.x + head_tube_h]
+  bike[, crown.y := headtube.y - head_tube_v]
+  bike[, fork_top.x := crown.x + crown_race_h]
+  bike[, fork_top.y := crown.y - crown_race_v]
+  bike[, bottom_bracket.x := rear_center_h]
+  bike[, bottom_bracket.y := -bottom_bracket_drop]
+  
+  bike[, x1 := rear.x]
+  bike[, y1 := rear.y]
+  bike[, x2 := front.x]
+  bike[, y2 := front.y]
+  bike[, x3 := seat.x]
+  bike[, y3 := seat.y]
+  bike[, x4 := headtube.x]
+  bike[, y4 := headtube.y]
+  bike[, x5 := crown.x]
+  bike[, y5 := crown.y]
+  bike[, x6 := bottom_bracket.x]
+  bike[, y6 := bottom_bracket.y]
+  
+  return(bike)
+}
+
+```
+
+# morphometrics
+## Superimpositions
+
+```{r}
+lm_col_labels <- function(p){
+  axis_levels <- c("x", "y")
+  lm_levels <- 1:p
+  lm_cols <- do.call(paste0, expand.grid(axis_levels, lm_levels))
+  return(lm_cols)
+}
+
+lm_label_names <- function(p){
+  axis_levels <- c("x", "y")
+  measure_levels <- c("rear", "front", "seat", "headtube", "crown", "bb")
+  axis_levels <- paste0(axis_levels, ".")
+  lm_cols <- do.call(paste0, expand.grid(axis_levels, measure_levels))
+  return(lm_cols)
+  
+}
+```
+
+
+```{r superimpose-coords}
+superimpose_coords <- function(bike){
+  lm_cols <- lm_col_labels(6)
+  lm_mat <- bike[, .SD, .SDcols = lm_cols] |>
+    as.matrix()
+  lm_array <- matrix_2_array(lm_mat)
+  gg <- plot_shapes(lm_array)
+  gg
+  
+  lm_tpr <- tpr(lm_array, 1, 2)
+  gg <- plot_shapes(lm_tpr)
+  gg
+
+  lm_ols <- gols(lm_tpr)
+  gg <- plot_shapes(lm_ols)
+  gg
+  
+  lm_ols_2 <- gpagen(lm_tpr,
+                 PrinAxes = FALSE)$coords
+  # rescale
+  for(i in 1:dim(lm_ols)[3]){
+    y_i <- lm_ols[,,i]
+    y_s <- scale_ols(y_i)
+    lm_ols_2[,,i] <- y_s
+  }
+  gg <- plot_shapes(lm_ols)
+  gg
+  
+  lm_grf <- grf(lm_tpr)
+  gg <- plot_shapes(lm_grf)
+  gg
+  
+  lm_dt_tpr <- array_2_matrix(lm_tpr) |>
+    data.table()
+  lm_dt_grf <- array_2_matrix(lm_grf) |>
+    data.table()
+  lm_dt_ols <- array_2_matrix(lm_ols) |>
+    data.table()
+  
+  colnames(lm_dt_tpr) <- paste0(lm_cols, ".tpr")
+  colnames(lm_dt_grf) <- paste0(lm_cols, ".grf")
+  colnames(lm_dt_ols) <- paste0(lm_cols, ".ols")  
+  
+  bike <- cbind(bike, lm_dt_tpr, lm_dt_grf, lm_dt_ols)
+  
+  return(bike)
+}
+```
+
+# Bike Means
+```{r}
+trad_col_labels <- function(){
+  trad_cols <- c("rear_center_h", "front_center_h", "setback_h", "reach", "stack", "seat_tube_angle", "head_tube_angle", "bottom_bracket_drop", "axle_crown")
+  return(trad_cols)
+}
+
+```
+
+```{r}
+get_bike_means <- function(bike){
+  trad_cols <- trad_col_labels() # returns col names of traditional measures
+  lm_labels <- lm_col_labels(6) # returns x1, y1, x2, y2 ...
+  lm_cols <- c(paste0(lm_labels, ".tpr"),
+                    paste0(lm_labels, ".grf"),
+                    paste0(lm_labels, ".ols"))
+  measure_cols <- c(trad_cols, lm_cols)
+
+  bike_means <- bike[
+    , lapply(.SD, \(x) mean(x, na.rm = TRUE)),
+    by = bike,
+    .SDcols = measure_cols
+  ]
+  return(bike_means)
+}
+```
+
+# Statistics
+
+```{r}
+draw_frame <- function(gg, ref_figure, width = 0.3){
+  
+  cs <- c(ref_figure[1, ], ref_figure[6, ])
+  ss <- c(ref_figure[1, ], ref_figure[3, ])
+  st <- c(ref_figure[6, ], ref_figure[3, ])
+  tt <- c(ref_figure[3, ], ref_figure[4, ])
+  ht <- c(ref_figure[4, ], ref_figure[5, ])
+  bt <- c(ref_figure[6, ], ref_figure[5, ])
+  fk <- c(ref_figure[5, ], ref_figure[2, ])
+  segments <- cbind(cs, ss, st, tt, ht, bt, fk) |>
+    t()
+  colnames(segments) <- c("x", "y", "xend", "yend")
+  
+  # add bike frame line segments and wheels
+  gg <- gg +
+    geom_segment(data = segments,
+                 aes(x = x, y = y, xend = xend, yend = yend),
+                 linewidth = width)
+  return(gg)
+}
+```
+
+
+```{r pca}
+trad_pca <- function(bike){
+  trad_cols <- trad_col_labels() # returns col names of traditional measures
+  Y <- bike[, .SD, .SDcols = trad_cols] |>
+    scale()
+  R <- cor(Y)
+  S <- cov(Y)
+  decomp <- eigen(S)
+  E <- decomp$vectors
+  L <- decomp$values
+  scores <- Y %*% E
+  loads <- cor(Y, scores[,1:3])
+  
+}
+```
+
+```{r}
+gm_pca <- function(bike,
+                    method = "ols",
+                    multiple = c(1, 1)){
+  
+  lm_cols <- lm_col_labels(6)
+#  measure_cols <- c(paste0(lm_cols, ".tpr"), paste0(lm_cols, ".grf"), paste0(lm_cols, ".ols"))
+  
+  # tpr - remove landmarks 1,2
+  # measure_cols <- c(paste0(lm_cols[-(1:4)], ".tpr"))
+  # Y <- bike[, .SD, .SDcols = measure_cols] |>
+  #   as.matrix()
+  # colnames(Y) <- lm_label_names(6)[-c(1:4)]
+  # R <- cor(Y)
+  # S <- cov(Y)
+  # decomp <- eigen(S)
+  # E <- decomp$vectors
+  # L <- decomp$values
+  # scores <- Y %*% E
+  # loads <- cor(Y, scores[,1:3])
+  # round(R, 2)
+  # loads
+  # 
+  # grf 
+  if(method == "grf"){
+    measure_cols <- c(paste0(lm_cols, ".grf"))
+    Y <- bike[, .SD, .SDcols = measure_cols] |>
+      as.matrix()
+    colnames(Y) <- lm_label_names(6)
+    R <- cor(Y)
+    S <- cov(Y)
+    decomp <- eigen(S)
+    E <- decomp$vectors
+    L <- decomp$values
+    scores <- Y %*% E
+    loads <- cor(Y, scores[,1:3])
+  }
+  
+  # ols
+  if(method == "ols"){
+    measure_cols <- c(paste0(lm_cols, ".ols"))
+    Y <- bike[, .SD, .SDcols = measure_cols] |>
+      as.matrix()
+    colnames(Y) <- lm_label_names(6)
+    R <- cor(Y)
+    S <- cov(Y)
+    decomp <- eigen(S)
+    E <- decomp$vectors
+    L <- decomp$values
+    L[1:3]/sum(L) * 100
+    scores <- Y %*% E
+    loads <- cor(Y, scores[,1:3])
+  }
+  
+  colnames(scores) <- paste0("pc_", 1:ncol(E))
+  colnames(loads) <- paste0("pc_", 1:3)
+
+  gg_dat <- bike[, .SD, .SDcols = c("bike", "class")]
+  gg_dat <- data.table(
+    bike[, .SD, .SDcols = c("bike", "class")],
+    scores[, 1:2]
+  )
+
+  b1 <- lm(Y ~ scores[, 1])$coef |>
+    t()
+  score_1_hi <- c(1, max(scores[, 1]))
+  score_1_lo <- c(1, min(scores[, 1]))
+  pc1_hi <- b1 %*% score_1_hi
+  pc1_lo <- b1 %*% score_1_lo
+  pc1 <- cbind(pc1_lo, pc1_hi) |> t()
+  rownames(pc1) <- c("pc1_lo", "pc1_hi")
+  pc1_figs <- matrix_2_array(pc1)
+  gg1_hi <- ggtps(pc1_figs[,,2], pc1_figs[,,1],
+                  multiple = multiple[1]) |>
+    draw_frame(ref_figure = pc1_figs[,,2], width = 1)
+  gg1_lo <- ggtps(pc1_figs[,,1], pc1_figs[,,2],
+                  multiple = multiple[1]) |>
+    draw_frame(ref_figure = pc1_figs[,,1], width = 1)
+  
+  gg_pc1 <- plot_difference_vectors(
+    ref_fig = matrix_2_vector(pc1_figs[,,1]),
+    target_fig = matrix_2_vector(pc1_figs[,,2]),
+    mag = multiple[1]) |>
+    draw_frame(ref_figure = pc1_figs[,,1], width = 1)
+  
+  b2 <- lm(Y ~ scores[, 2])$coef |>
+    t()
+  score_2_hi <- c(1, max(scores[, 2]))
+  score_2_lo <- c(1, min(scores[, 2]))
+  pc2_hi <- b2 %*% score_2_hi
+  pc2_lo <- b2 %*% score_2_lo
+  pc2 <- cbind(pc2_lo, pc2_hi) |> t()
+  rownames(pc2) <- c("pc2_lo", "pc2_hi")
+  pc2_figs <- matrix_2_array(pc2)
+  gg2_hi <- ggtps(pc2_figs[,,2], pc2_figs[,,1],
+                  multiple = multiple[2]) |>
+    draw_frame(ref_figure = pc2_figs[,,2], width = 1)
+  gg2_lo <- ggtps(pc2_figs[,,1], pc2_figs[,,2],
+                  multiple = multiple[2]) |>
+    draw_frame(ref_figure = pc2_figs[,,1], width = 1)
+  
+  gg_pc2 <- plot_difference_vectors(
+    ref_fig = matrix_2_vector(pc2_figs[,,1]),
+    target_fig = matrix_2_vector(pc2_figs[,,2]),
+    mag = multiple[2]) |>
+    draw_frame(ref_figure = pc2_figs[,,1], width = 1)
+  
+  gg_tps <- plot_grid(gg1_hi, gg1_lo, gg2_hi, gg2_lo,
+            ncol = 2, labels = c("PC1", "", "PC2", ""))
+  gg_pca <- plot_grid(gg_pc1, gg_pc2,
+            ncol = 2, labels = c("PC1","PC2"))
+  
+  gg_scatter <- ggplot(data = gg_dat,
+                aes(x = pc_1,
+                    y = pc_2,
+                    color = class)) +
+    geom_point()
+  
+  gg_plotly <- plot_ly(
+    data = gg_dat,
+    x = ~pc_1,
+    y = ~pc_2,
+    type = 'scatter',
+    mode = 'markers',
+    color = ~class,
+    text = ~bike,
+    hoverinfo = "text" # Tells Plotly to use the 'text' column for all hover info
+  )
+  return(list(L, scores, loads, gg_tps, gg_scatter, gg_plotly, gg_pca))
+}
+```
+
+
+# simulate pinochio with TPS
+
+TPS is a model of superimposition. Interpreting a TPS is no different than interpreting difference vectors.
+
+```{r tps-ols}
+fig_a <- c(c(0, 0),
+           c(1, 0),
+           c(0, 1),
+           c(1, 1),
+           c(3, 0.5))
+fig_b <- c(c(0, 0),
+           c(1, 0),
+           c(0, 1),
+           c(1, 1),
+           c(4, 0.5))
+# OLS
+figs <- rbind(fig_a, fig_b)
+figs_array <- matrix_2_array(figs)
+lm_ols_0 <- ols(figs_array, ref = 1)
+lm_ols_1 <- gols(figs_array)
+lm_ols_2 <- gpagen(figs_array,
+                 PrinAxes = FALSE)$coords
+# rescale
+for(i in 1:dim(lm_ols_2)[3]){
+  y_i <- lm_ols_2[,,i]
+  y_s <- scale_ols(y_i)
+  lm_ols_2[,,i] <- y_s
+}
+gg <- plot_shapes(lm_ols_2)
+gg
+
+# TPS
+mat_a.1 <- matrix(t(fig_a), nrow= 2) |> t()
+mat_b.1 <- matrix(t(fig_b), nrow= 2) |> t()
+tps(mat_b.1, mat_a.1, gridlines = 20,
+    multiple = 1)
+
+```
+
+
+```{r tps-many-box-points}
+# box_1 is a simple box with landmarks at four corners
+box_1 <- c(c(0, 0),
+         c(1, 0),
+         c(0, 1),
+         c(1, 1)
+)
+
+# box_2 is the same box but has a grid of landmarks
+make_unit_landmarks_dt <- function(p) {
+  stopifnot(length(p) == 1L, is.numeric(p), p >= 2)
+
+  vals <- seq(0, 1, length.out = p)
+
+  xy <- CJ(x = vals, y = vals)   # cartesian join
+  as.matrix(xy)
+}
+
+box_2 <- make_unit_landmarks_dt(11)
+
+box1_mat <- matrix(t(box_1), nrow= 2) |> t()
+box2_mat <- matrix(t(box_2), nrow= 2) |> t()
+
+fig1.ref <- rbind(box1_mat, c(1.5, 0.5))
+fig1.target <- rbind(box1_mat, c(2.5, 0.5))
+fig2.ref <- rbind(box2_mat, c(1.5, 0.5))
+fig2.target <- rbind(box2_mat, c(2.5, 0.5))
+
+
+ggtps(fig1.target, fig1.ref, gridlines = 30,
+    multiple = 1)
+ggtps(fig2.target, fig2.ref, gridlines = 30,
+    multiple = 1)
+
+```
+
+1. A TPS deforms the entire space
+2. The deformation minimizes the bending energy.
+3. Can we think of this as, the TPS superimposes the figure in a way that minimizes bending energy?
+4. The deformation looks similar to how we'd imagine the deformation to be if we mentally deform the space after the OLS superimposition.
+5. The GRF superimposition implies a very different deformation.
+
+
+# Run Everything
+
+```{r run-everything}
+import_it <- FALSE
+if(import_it){
+  geobike_all <- import_bike_data()
+  geobike_import <- copy(geobike_all)
+}else{
+  geobike_all <- copy(geobike_import)
+}
+geobike_all <- geobike_all |>
+  fill_in_missing_geom() |>
+  correct_specs() |>
+  compute_bike_coords() |>
+  classify() |>
+  superimpose_coords()
+  
+geobike <- geobike_all |>
+  get_bike_means()
+geobike_bike_cols <- geobike_all[, 
+                                 .(x1.tpr = mean(x1.tpr)),
+                                 by = .(bike, class, handlebar)]
+geobike <- merge(geobike_bike_cols[, .SD, .SDcols = c("bike", "class", "handlebar")],
+                 geobike, by = "bike")
+
+# all bikes
+pca_ols <- gm_pca(geobike, method = "ols", multiple = c(1.5, 3))
+# list(L, scores, loads, gg1, gg3, p3)
+pca_ols_vals <- pca_ols[[1]]
+pca_ols_loads <- pca_ols[[3]]
+pca_ols_gg_tps <- pca_ols[[4]]
+pca_ols_scatter <- pca_ols[[5]]
+pca_ols_plotly <- pca_ols[[6]]
+
+pca_ols_vals
+pca_ols_loads
+pca_ols_gg_tps
+pca_ols_scatter
+pca_ols_plotly
+
+# drop bar bikes
+pca_ols <- gm_pca(geobike[handlebar == "drop bar" | handlebar == "both"], method = "ols",
+                   multiple <- c(1.5, 2))
+pca_ols_vals <- pca_ols[[1]]
+pca_ols_loads <- pca_ols[[3]]
+pca_ols_gg_tps <- pca_ols[[4]]
+pca_ols_scatter <- pca_ols[[5]]
+pca_ols_plotly <- pca_ols[[6]]
+pca_ols_gg_pca <- pca_ols[[7]]
+
+```
+
+
+```{r pca-ols-loads}
+pca_ols_vals[1:3]/sum(pca_ols_vals)
+pca_ols_loads
+```
+
+```{r pca-ols-gg-tps}
+pca_ols_gg_pca
+```
+
+1. Positive PC1: shorter/steeper head tube, longer/steeper fork
+2. Positive PC2: higher stack, longer head tube, steeper fork, shorter front center, a big longer rear center but overall shorter wheelbase.
+
+```{r pca-ols-gg-tps}
+pca_ols_gg_tps
+```
+
+The PCA figures were computed using PCA of OLS coords so the TPS is approximate since minimizing bending energy and least squares are not the same.
+
+Notes:
+
+1. Positive TPS1: short, steep headtube, long? fork with steep fork angle (short fork offset), short rear center, short front center (due to short fork offset), short top tube that steepens the seat tube, high bottom bracket
+2. Positive TPS2: higher stack, long, steep head tube, short steep fork
+
+
+```{r pca-ols-plotly}
+pca_ols_plotly
+```
+
