@@ -870,6 +870,7 @@ get_frame_size_numbers <- function(frame_size){
 ```{r}
 clean_frame_size <- function(bike){
   
+  bike[, frame_size := str_remove_all(frame_size, " ")]
   bike[, frame_size_orig := frame_size]
   
   # preprocess specific models
@@ -945,7 +946,7 @@ clean_frame_size <- function(bike){
   # clean
   bike[, frame_size_working := toupper(frame_size)]
 
-  bike[, frame_size_working := str_remove_all(frame_size_working, " ")]
+#  bike[, frame_size_working := str_remove_all(frame_size_working, " ")]
   bike[, frame_size_letters := lapply(frame_size_working, get_frame_size_letters) |>
          unlist()]
   bike[, frame_size_numbers := lapply(frame_size_working, get_frame_size_numbers) |>

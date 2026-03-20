@@ -71,6 +71,8 @@ format:
     css: styles.css
     toc: true
     page-layout: full
+    google-analytics: "G-XXXXXXXXXX"
+    canonical-url: true
 
 editor: source
 
